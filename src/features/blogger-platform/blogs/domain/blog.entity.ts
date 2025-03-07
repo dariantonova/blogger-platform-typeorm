@@ -36,6 +36,13 @@ export class Blog {
     default: null,
   })
   deletedAt: Date | null;
+
+  makeDeleted() {
+    if (this.deletedAt !== null) {
+      throw new Error('Blog is already deleted');
+    }
+    this.deletedAt = new Date();
+  }
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

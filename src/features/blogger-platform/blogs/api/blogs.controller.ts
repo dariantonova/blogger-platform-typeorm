@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
@@ -22,5 +22,10 @@ export class BlogsController {
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogViewDto> {
     return this.blogsQueryRepository.findBlogByIdOrNotFoundFail(id);
+  }
+
+  @Delete(':id')
+  async deleteBlog(@Param('id') id: string): Promise<void> {
+    await this.blogsService.deleteBlog(id);
   }
 }

@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserAccountModule } from './features/user-accounts/user-accounts.module';
 
 @Module({
-  imports: [],
+  imports: [
+    MongooseModule.forRoot('mongodb://0.0.0.0:27017', {
+      dbName: 'nest-blogger-platform-dev',
+    }),
+    UserAccountModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

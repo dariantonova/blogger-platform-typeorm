@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
@@ -17,5 +17,10 @@ export class BlogsController {
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
     return this.blogsQueryRepository.findBlogs(query);
+  }
+
+  @Get(':id')
+  async getBlog(@Param('id') id: string): Promise<BlogViewDto> {
+    return this.blogsQueryRepository.findBlogByIdOrNotFoundFail(id);
   }
 }

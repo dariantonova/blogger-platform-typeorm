@@ -5,6 +5,8 @@ import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { Blog, BlogModelType } from '../../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
+import { NotFoundException } from '@nestjs/common';
 
 export class BlogsQueryRepository {
   constructor(
@@ -44,5 +46,18 @@ export class BlogsQueryRepository {
       page: query.pageNumber,
       pageSize: query.pageSize,
     });
+  }
+
+  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
+    const blog = await this.BlogModel.findOne({
+      _id: new ObjectId(id),
+      deletedAt: null,
+    });
+
+    if (!blog) {
+      throw new NotFoundException('Blog not found');
+    }
+
+    return BlogViewDto.mapToView(blog);
   }
 }

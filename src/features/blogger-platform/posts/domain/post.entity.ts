@@ -5,6 +5,7 @@ import {
 } from '../../common/schemas/extended-likes-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreatePostDomainDto } from './dto/create-post.domain.dto';
+import { UpdatePostDomainDto } from './dto/update-post.domain.dto';
 
 @Schema({ timestamps: true })
 export class Post {
@@ -66,6 +67,14 @@ export class Post {
     post.deletedAt = null;
 
     return post as PostDocument;
+  }
+
+  update(dto: UpdatePostDomainDto) {
+    this.title = dto.title;
+    this.shortDescription = dto.shortDescription;
+    this.content = dto.shortDescription;
+    this.blogId = dto.blogId;
+    this.blogName = dto.blogName;
   }
 }
 

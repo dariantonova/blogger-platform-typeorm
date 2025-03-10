@@ -3,6 +3,7 @@ import { PostsRepository } from '../infrastructure/posts.repository';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostModelType } from '../domain/post.entity';
 import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
+import { UpdatePostDto } from '../dto/update-post.dto';
 
 export class PostsService {
   constructor(
@@ -28,5 +29,23 @@ export class PostsService {
     await this.postsRepository.save(post);
 
     return post._id.toString();
+  }
+
+  async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
+    const post = await this.postsRepository.findPostByIdOrNotFoundFail(id);
+
+    const blog = await this.blogsRepository.findBlogByIdOrInternalFail(
+      dto.blogId,
+    );
+
+    post.update({
+      title: dto.title,
+      shortDescription: dto.shortDescription,
+      content: dto.content,
+      blogId: dto.blogId,
+      blogName: blog.name,
+    });
+
+    await this.postsRepository.save(post);
   }
 }

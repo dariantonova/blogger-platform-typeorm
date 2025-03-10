@@ -1,6 +1,6 @@
 import { PostsService } from '../application/posts.service';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostViewDto } from './view-dto/posts.view-dto';
@@ -17,5 +17,10 @@ export class PostsController {
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.postsQueryRepository.findPosts(query);
+  }
+
+  @Get(':id')
+  async getPost(@Param('id') id: string): Promise<PostViewDto> {
+    return this.postsQueryRepository.findPostByIdOrNotFoundFail(id);
   }
 }

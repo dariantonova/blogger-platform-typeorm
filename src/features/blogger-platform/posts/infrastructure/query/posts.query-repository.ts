@@ -3,8 +3,10 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dt
 import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { Post, PostModelType } from '../../domain/post.entity';
+import { Post, PostDocument, PostModelType } from '../../domain/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
+import { NotFoundException } from '@nestjs/common';
 
 export class PostsQueryRepository {
   constructor(
@@ -37,5 +39,22 @@ export class PostsQueryRepository {
       page: query.pageNumber,
       pageSize: query.pageSize,
     });
+  }
+
+  async findPostById(id: string): Promise<PostDocument | null> {
+    return this.PostModel.findOne({
+      _id: new ObjectId(id),
+      deletedAt: null,
+    });
+  }
+
+  async findPostByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
+    const post = await this.findPostById(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return PostViewDto.mapToView(post);
   }
 }

@@ -2,7 +2,7 @@ import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { UserViewDto } from '../../api/view-dto/users.view-dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserModelType } from '../../domain/user.entity';
+import { User, UserDocument, UserModelType } from '../../domain/user.entity';
 import { ObjectId } from 'mongodb';
 import { NotFoundException } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
@@ -55,14 +55,28 @@ export class UsersQueryRepository {
     });
   }
 
-  async findUserByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
-    const user = await this.UserModel.findOne({
+  async findUserById(id: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
+  }
+
+  async findUserByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
+    const user = await this.findUserById(id);
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    return UserViewDto.mapToView(user);
+  }
+
+  async findUserByIdOrInternalFail(id: string): Promise<UserViewDto> {
+    const user = await this.findUserById(id);
+
+    if (!user) {
+      throw new Error('User not found');
     }
 
     return UserViewDto.mapToView(user);

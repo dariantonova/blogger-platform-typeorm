@@ -3,7 +3,7 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dt
 import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { Blog, BlogModelType } from '../../domain/blog.entity';
+import { Blog, BlogDocument, BlogModelType } from '../../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { NotFoundException } from '@nestjs/common';
@@ -48,14 +48,28 @@ export class BlogsQueryRepository {
     });
   }
 
-  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
-    const blog = await this.BlogModel.findOne({
+  async findBlogById(id: string): Promise<BlogDocument | null> {
+    return this.BlogModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
+  }
+
+  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
+    const blog = await this.findBlogById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
+    }
+
+    return BlogViewDto.mapToView(blog);
+  }
+
+  async findBlogByIdOrInternalFail(id: string): Promise<BlogViewDto> {
+    const blog = await this.findBlogById(id);
+
+    if (!blog) {
+      throw new Error('Blog not found');
     }
 
     return BlogViewDto.mapToView(blog);

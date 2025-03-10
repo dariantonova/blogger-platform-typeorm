@@ -1,9 +1,18 @@
-import { Controller, Delete, Get, Param, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { BlogViewDto } from './view-dto/blogs.view-dto';
+import { CreateBlogInputDto } from './input-dto/create-blog.input-dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -27,5 +36,11 @@ export class BlogsController {
   @Delete(':id')
   async deleteBlog(@Param('id') id: string): Promise<void> {
     await this.blogsService.deleteBlog(id);
+  }
+
+  @Post()
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
+    const createdBlogId = await this.blogsService.createBlog(body);
+    return this.blogsQueryRepository.findBlogByIdOrInternalFail(createdBlogId);
   }
 }

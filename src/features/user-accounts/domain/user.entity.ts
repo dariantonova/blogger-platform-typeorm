@@ -2,11 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import {
   ConfirmationInfo,
   ConfirmationInfoSchema,
-} from './confirmation-info.entity';
+} from './confirmation-info.schema';
 import {
   PasswordRecoveryInfo,
   PasswordRecoveryInfoSchema,
-} from './password-recovery-info.entity';
+} from './password-recovery-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
 

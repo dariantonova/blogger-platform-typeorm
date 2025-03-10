@@ -1,8 +1,8 @@
-import { CreateUserInputDto } from '../api/input-dto/create-user.input-dto';
 import { UsersRepository } from '../infrastructure/users.repository';
 import bcrypt from 'bcrypt';
 import { User, UserModelType } from '../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 export class UsersService {
   constructor(
@@ -11,7 +11,7 @@ export class UsersService {
     private usersRepository: UsersRepository,
   ) {}
 
-  async createUser(dto: CreateUserInputDto): Promise<string> {
+  async createUser(dto: CreateUserDto): Promise<string> {
     const passwordHash = await bcrypt.hash(dto.password, 10);
 
     const user = this.UserModel.createInstance({

@@ -57,4 +57,14 @@ export class PostsQueryRepository {
 
     return PostViewDto.mapToView(post);
   }
+
+  async findPostByIdOrInternalFail(id: string): Promise<PostViewDto> {
+    const post = await this.findPostById(id);
+
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    return PostViewDto.mapToView(post);
+  }
 }

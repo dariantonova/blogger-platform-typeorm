@@ -4,6 +4,7 @@ import {
   ExtendedLikesInfoSchema,
 } from '../../common/schemas/extended-likes-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
+import { CreatePostDomainDto } from './dto/create-post.domain.dto';
 
 @Schema({ timestamps: true })
 export class Post {
@@ -48,6 +49,24 @@ export class Post {
     default: null,
   })
   deletedAt: Date | null;
+
+  static createInstance(dto: CreatePostDomainDto): PostDocument {
+    const post = new this();
+
+    post.title = dto.title;
+    post.shortDescription = dto.shortDescription;
+    post.content = dto.content;
+    post.blogId = dto.blogId;
+    post.blogName = dto.blogName;
+    post.extendedLikesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+      newestLikes: [],
+    };
+    post.deletedAt = null;
+
+    return post as PostDocument;
+  }
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

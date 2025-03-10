@@ -9,14 +9,28 @@ export class BlogsRepository {
     private BlogModel: BlogModelType,
   ) {}
 
-  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogDocument> {
-    const blog = await this.BlogModel.findOne({
+  async findBlogById(id: string): Promise<BlogDocument | null> {
+    return this.BlogModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
+  }
+
+  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogDocument> {
+    const blog = await this.findBlogById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
+    }
+
+    return blog;
+  }
+
+  async findBlogByIdOrInternalFail(id: string): Promise<BlogDocument> {
+    const blog = await this.findBlogById(id);
+
+    if (!blog) {
+      throw new Error('Blog not found');
     }
 
     return blog;

@@ -48,4 +48,12 @@ export class PostsService {
 
     await this.postsRepository.save(post);
   }
+
+  async deletePost(id: string): Promise<void> {
+    const post = await this.postsRepository.findPostByIdOrNotFoundFail(id);
+
+    post.makeDeleted();
+
+    await this.postsRepository.save(post);
+  }
 }

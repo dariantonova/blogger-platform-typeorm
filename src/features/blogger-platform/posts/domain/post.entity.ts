@@ -69,6 +69,13 @@ export class Post {
     return post as PostDocument;
   }
 
+  makeDeleted() {
+    if (this.deletedAt !== null) {
+      throw new Error('Post is already deleted');
+    }
+    this.deletedAt = new Date();
+  }
+
   update(dto: UpdatePostDomainDto) {
     this.title = dto.title;
     this.shortDescription = dto.shortDescription;

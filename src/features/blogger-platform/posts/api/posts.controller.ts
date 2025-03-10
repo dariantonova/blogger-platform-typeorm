@@ -3,6 +3,7 @@ import { PostsQueryRepository } from '../infrastructure/query/posts.query-reposi
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -49,5 +50,11 @@ export class PostsController {
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
     await this.postsService.updatePost(id, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePost(@Param('id') id: string): Promise<void> {
+    await this.postsService.deletePost(id);
   }
 }

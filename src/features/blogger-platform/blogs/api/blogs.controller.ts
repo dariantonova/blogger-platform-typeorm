@@ -37,12 +37,6 @@ export class BlogsController {
     return this.blogsQueryRepository.findBlogByIdOrNotFoundFail(id);
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id') id: string): Promise<void> {
-    await this.blogsService.deleteBlog(id);
-  }
-
   @Post()
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
     const createdBlogId = await this.blogsService.createBlog(body);
@@ -50,10 +44,17 @@ export class BlogsController {
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @Param('id') id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
     await this.blogsService.updateBlog(id, body);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlog(@Param('id') id: string): Promise<void> {
+    await this.blogsService.deleteBlog(id);
   }
 }

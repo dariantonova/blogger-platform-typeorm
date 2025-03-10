@@ -67,4 +67,11 @@ export class PostsQueryRepository {
 
     return PostViewDto.mapToView(post);
   }
+
+  async countBlogPosts(blogId: string): Promise<number> {
+    return this.PostModel.countDocuments({
+      blogId,
+      deletedAt: null,
+    });
+  }
 }

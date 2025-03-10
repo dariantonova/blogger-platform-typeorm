@@ -1,9 +1,11 @@
 import { CreatePostDto } from '../dto/create-post.dto';
 import { PostsRepository } from '../infrastructure/posts.repository';
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostModelType } from '../domain/post.entity';
+import { Post, PostDocument, PostModelType } from '../domain/post.entity';
 import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
 import { UpdatePostDto } from '../dto/update-post.dto';
+import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
+import { NotFoundException } from '@nestjs/common';
 
 export class PostsService {
   constructor(
@@ -55,5 +57,14 @@ export class PostsService {
     post.makeDeleted();
 
     await this.postsRepository.save(post);
+  }
+
+  async getBlogPosts(
+    blogId: string,
+    query: GetPostsQueryParams,
+  ): Promise<PostDocument[]> {
+    await this.blogsRepository.findBlogByIdOrNotFoundFail(blogId);
+
+    return this.postsRepository.findBlogPosts(blogId, query);
   }
 }

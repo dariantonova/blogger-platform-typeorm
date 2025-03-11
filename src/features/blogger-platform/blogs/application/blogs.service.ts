@@ -39,5 +39,10 @@ export class BlogsService {
     blog.update(dto);
 
     await this.blogsRepository.save(blog);
+
+    await this.postsService.updateBlogPostsBlogNames(
+      blog._id.toString(),
+      blog.name,
+    );
   }
 }

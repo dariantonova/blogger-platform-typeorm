@@ -83,6 +83,10 @@ export class Post {
     this.blogId = dto.blogId;
     this.blogName = dto.blogName;
   }
+
+  updateBlogName(blogName: string) {
+    this.blogName = blogName;
+  }
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

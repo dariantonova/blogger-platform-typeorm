@@ -1,24 +1,29 @@
-import { Module, Post } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blog.entity';
 import { BlogsController } from './blogs/api/blogs.controller';
 import { BlogsService } from './blogs/application/blogs.service';
 import { BlogsQueryRepository } from './blogs/infrastructure/query/blogs.query-repository';
 import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
-import { PostSchema } from './posts/domain/post.entity';
+import { Post, PostSchema } from './posts/domain/post.entity';
 import { PostsController } from './posts/api/posts.controller';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { PostsService } from './posts/application/posts.service';
 import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
+import { CommentsController } from './comments/api/comments.controller';
+import { CommentSchema } from './comments/domain/comment.entity';
+import { Comment } from './comments/domain/comment.entity';
+import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
+      { name: Comment.name, schema: CommentSchema },
     ]),
   ],
-  controllers: [BlogsController, PostsController],
+  controllers: [BlogsController, PostsController, CommentsController],
   providers: [
     BlogsService,
     BlogsQueryRepository,
@@ -26,6 +31,7 @@ import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-r
     PostsService,
     PostsQueryRepository,
     PostsRepository,
+    CommentsQueryRepository,
   ],
 })
 export class BloggerPlatformModule {}

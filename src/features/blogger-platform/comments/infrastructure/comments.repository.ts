@@ -33,4 +33,17 @@ export class CommentsRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
   }
+
+  async findAllPostComments(postId: string): Promise<CommentDocument[]> {
+    const filter: FilterQuery<Comment> = {
+      postId,
+      deletedAt: null,
+    };
+
+    return this.CommentModel.find(filter);
+  }
+
+  async save(comment: CommentDocument): Promise<void> {
+    await comment.save();
+  }
 }

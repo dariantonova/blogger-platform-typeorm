@@ -26,4 +26,17 @@ export class CommentsService {
 
     return this.commentsRepository.findPostComments(postId, query);
   }
+
+  async deletePostComments(postId: string): Promise<void> {
+    const comments = await this.commentsRepository.findAllPostComments(postId);
+
+    for (const comment of comments) {
+      comment.makeDeleted();
+    }
+
+    const savePromises = comments.map((comment) =>
+      this.commentsRepository.save(comment),
+    );
+    await Promise.all(savePromises);
+  }
 }

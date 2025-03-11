@@ -42,6 +42,13 @@ export class Comment {
     default: null,
   })
   deletedAt: Date | null;
+
+  makeDeleted() {
+    if (this.deletedAt !== null) {
+      throw new Error('Comment is already deleted');
+    }
+    this.deletedAt = new Date();
+  }
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

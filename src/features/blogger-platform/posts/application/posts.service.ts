@@ -6,6 +6,7 @@ import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
 import { Injectable } from '@nestjs/common';
+import { CommentsService } from '../../comments/application/comments.service';
 
 @Injectable()
 export class PostsService {
@@ -14,6 +15,7 @@ export class PostsService {
     private PostModel: PostModelType,
     private postsRepository: PostsRepository,
     private blogsRepository: BlogsRepository,
+    private commentsService: CommentsService,
   ) {}
 
   async createPost(dto: CreatePostDto): Promise<string> {
@@ -58,6 +60,8 @@ export class PostsService {
     post.makeDeleted();
 
     await this.postsRepository.save(post);
+
+    await this.commentsService.deletePostComments(post._id.toString());
   }
 
   async getBlogPosts(
@@ -76,7 +80,7 @@ export class PostsService {
       post.makeDeleted();
     }
 
-    const promises = posts.map((post) => this.postsRepository.save(post));
-    await Promise.all(promises);
+    const savePromises = posts.map((post) => this.postsRepository.save(post));
+    await Promise.all(savePromises);
   }
 }

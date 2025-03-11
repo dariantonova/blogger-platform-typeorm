@@ -79,7 +79,7 @@ export class Post {
   update(dto: UpdatePostDomainDto) {
     this.title = dto.title;
     this.shortDescription = dto.shortDescription;
-    this.content = dto.shortDescription;
+    this.content = dto.content;
     this.blogId = dto.blogId;
     this.blogName = dto.blogName;
   }

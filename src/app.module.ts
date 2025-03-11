@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UserAccountModule } from './features/user-accounts/user-accounts.module';
 import { BloggerPlatformModule } from './features/blogger-platform/blogger-platform.module';
+import { TestingModule } from './features/testing/testing.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
   imports: [
@@ -12,6 +14,8 @@ import { BloggerPlatformModule } from './features/blogger-platform/blogger-platf
     }),
     UserAccountModule,
     BloggerPlatformModule,
+    TestingModule,
+    CoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],

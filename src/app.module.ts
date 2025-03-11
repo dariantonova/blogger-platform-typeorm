@@ -7,10 +7,13 @@ import { BloggerPlatformModule } from './features/blogger-platform/blogger-platf
 import { TestingModule } from './features/testing/testing.module';
 import { CoreModule } from './core/core.module';
 
+const MONGO_URL = process.env.MONGO_URL || 'mongodb://0.0.0.0:27017';
+const DN_NAME = process.env.DN_NAME || 'nest-blogger-platform-dev';
+
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://0.0.0.0:27017', {
-      dbName: 'nest-blogger-platform-dev',
+    MongooseModule.forRoot(MONGO_URL, {
+      dbName: DN_NAME,
     }),
     UserAccountModule,
     BloggerPlatformModule,

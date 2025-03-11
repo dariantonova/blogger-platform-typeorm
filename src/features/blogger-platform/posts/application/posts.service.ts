@@ -19,7 +19,7 @@ export class PostsService {
   ) {}
 
   async createPost(dto: CreatePostDto): Promise<string> {
-    const blog = await this.blogsRepository.findBlogByIdOrInternalFail(
+    const blog = await this.blogsRepository.findBlogByIdOrNotFoundFail(
       dto.blogId,
     );
 

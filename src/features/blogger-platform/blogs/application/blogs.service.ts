@@ -4,6 +4,7 @@ import { Blog, BlogModelType } from '../domain/blog.entity';
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { Injectable } from '@nestjs/common';
+import { PostsService } from '../../posts/application/posts.service';
 
 @Injectable()
 export class BlogsService {
@@ -11,6 +12,7 @@ export class BlogsService {
     @InjectModel(Blog.name)
     private BlogModel: BlogModelType,
     private blogsRepository: BlogsRepository,
+    private postsService: PostsService,
   ) {}
 
   async deleteBlog(id: string): Promise<void> {
@@ -19,6 +21,8 @@ export class BlogsService {
     blog.makeDeleted();
 
     await this.blogsRepository.save(blog);
+
+    await this.postsService.deleteBlogPosts(blog._id.toString());
   }
 
   async createBlog(dto: CreateBlogDto): Promise<string> {

@@ -68,4 +68,15 @@ export class PostsService {
 
     return this.postsRepository.findBlogPosts(blogId, query);
   }
+
+  async deleteBlogPosts(blogId: string): Promise<void> {
+    const posts = await this.postsRepository.findAllBlogPosts(blogId);
+
+    for (const post of posts) {
+      post.makeDeleted();
+    }
+
+    const promises = posts.map((post) => this.postsRepository.save(post));
+    await Promise.all(promises);
+  }
 }

@@ -51,4 +51,13 @@ export class PostsRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
   }
+
+  async findAllBlogPosts(blogId: string): Promise<PostDocument[]> {
+    const filter: FilterQuery<Post> = {
+      blogId,
+      deletedAt: null,
+    };
+
+    return this.PostModel.find(filter);
+  }
 }

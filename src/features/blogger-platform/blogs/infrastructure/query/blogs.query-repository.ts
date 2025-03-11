@@ -6,8 +6,9 @@ import { SortDirection } from '../../../../../core/dto/base.query-params.input-d
 import { Blog, BlogDocument, BlogModelType } from '../../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
+@Injectable()
 export class BlogsQueryRepository {
   constructor(
     @InjectModel(Blog.name)

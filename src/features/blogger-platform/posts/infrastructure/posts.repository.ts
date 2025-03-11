@@ -1,13 +1,12 @@
 import { Post, PostDocument, PostModelType } from '../domain/post.entity';
 import { ObjectId } from 'mongodb';
 import { InjectModel } from '@nestjs/mongoose';
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
-import { PostViewDto } from '../api/view-dto/posts.view-dto';
-import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 
+@Injectable()
 export class PostsRepository {
   constructor(
     @InjectModel(Post.name)

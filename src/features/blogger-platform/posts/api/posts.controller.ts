@@ -66,7 +66,7 @@ export class PostsController {
 
   @Get(':postId/comments')
   async getPostComments(
-    @Param(':postId') postId: string,
+    @Param('postId') postId: string,
     @Query() query: GetCommentsQueryParams,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     const comments = await this.commentsService.getPostComments(postId, query);

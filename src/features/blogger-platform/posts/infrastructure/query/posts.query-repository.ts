@@ -6,8 +6,9 @@ import { SortDirection } from '../../../../../core/dto/base.query-params.input-d
 import { Post, PostDocument, PostModelType } from '../../domain/post.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
+@Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Post.name)

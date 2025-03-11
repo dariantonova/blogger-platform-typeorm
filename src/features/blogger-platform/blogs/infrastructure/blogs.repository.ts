@@ -1,8 +1,9 @@
 import { ObjectId } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
+@Injectable()
 export class BlogsRepository {
   constructor(
     @InjectModel(Blog.name)

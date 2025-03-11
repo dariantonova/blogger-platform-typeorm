@@ -5,7 +5,9 @@ import { Post, PostDocument, PostModelType } from '../domain/post.entity';
 import { BlogsRepository } from '../../blogs/infrastructure/blogs.repository';
 import { UpdatePostDto } from '../dto/update-post.dto';
 import { GetPostsQueryParams } from '../api/input-dto/get-posts-query-params.input-dto';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PostsService {
   constructor(
     @InjectModel(Post.name)

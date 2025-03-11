@@ -7,7 +7,9 @@ import {
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
 import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class CommentsRepository {
   constructor(
     @InjectModel(Comment.name)

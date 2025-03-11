@@ -4,10 +4,11 @@ import { UserViewDto } from '../../api/view-dto/users.view-dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../../domain/user.entity';
 import { ObjectId } from 'mongodb';
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
 
+@Injectable()
 export class UsersQueryRepository {
   constructor(
     @InjectModel(User.name)

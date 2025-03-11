@@ -17,12 +17,18 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostViewDto } from './view-dto/posts.view-dto';
 import { CreatePostInputDto } from './input-dto/create-post.input-dto';
 import { UpdatePostInputDto } from './input-dto/update-post.input-dto';
+import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
+import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
+import { CommentsService } from '../../comments/application/comments.service';
+import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 
 @Controller('posts')
 export class PostsController {
   constructor(
     private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
+    private commentsService: CommentsService,
+    private commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
   @Get()
@@ -56,5 +62,24 @@ export class PostsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(@Param('id') id: string): Promise<void> {
     await this.postsService.deletePost(id);
+  }
+
+  @Get(':postId/comments')
+  async getPostComments(
+    @Param(':postId') postId: string,
+    @Query() query: GetCommentsQueryParams,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    const comments = await this.commentsService.getPostComments(postId, query);
+
+    const items = comments.map(CommentViewDto.mapToView);
+    const totalCount =
+      await this.commentsQueryRepository.countPostComments(postId);
+
+    return PaginatedViewDto.mapToView<CommentViewDto[]>({
+      items,
+      totalCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
+    });
   }
 }

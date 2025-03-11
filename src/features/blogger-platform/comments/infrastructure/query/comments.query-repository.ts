@@ -26,4 +26,11 @@ export class CommentsQueryRepository {
 
     return CommentViewDto.mapToView(comment);
   }
+
+  async countPostComments(postId: string): Promise<number> {
+    return this.CommentModel.countDocuments({
+      postId,
+      deletedAt: null,
+    });
+  }
 }

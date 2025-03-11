@@ -14,6 +14,8 @@ import { CommentsController } from './comments/api/comments.controller';
 import { CommentSchema } from './comments/domain/comment.entity';
 import { Comment } from './comments/domain/comment.entity';
 import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
+import { CommentsService } from './comments/application/comments.service';
+import { CommentsRepository } from './comments/infrastructure/comments.repository';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { CommentsQueryRepository } from './comments/infrastructure/query/comment
     PostsQueryRepository,
     PostsRepository,
     CommentsQueryRepository,
+    CommentsService,
+    CommentsRepository,
   ],
 })
 export class BloggerPlatformModule {}

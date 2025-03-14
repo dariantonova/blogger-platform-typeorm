@@ -15,15 +15,15 @@ export class CommentsQueryRepository {
     private CommentModel: CommentModelType,
   ) {}
 
-  async findCommentById(id: string): Promise<CommentDocument | null> {
+  async findById(id: string): Promise<CommentDocument | null> {
     return this.CommentModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
   }
 
-  async findCommentByIdOrNotFoundFail(id: string): Promise<CommentViewDto> {
-    const comment = await this.findCommentById(id);
+  async findByIdOrNotFoundFail(id: string): Promise<CommentViewDto> {
+    const comment = await this.findById(id);
 
     if (!comment) {
       throw new NotFoundException('Comment not found');

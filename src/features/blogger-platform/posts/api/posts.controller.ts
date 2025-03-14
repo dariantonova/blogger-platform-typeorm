@@ -40,13 +40,13 @@ export class PostsController {
 
   @Get(':id')
   async getPost(@Param('id') id: string): Promise<PostViewDto> {
-    return this.postsQueryRepository.findPostByIdOrNotFoundFail(id);
+    return this.postsQueryRepository.findByIdOrNotFoundFail(id);
   }
 
   @Post()
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
     const createdPostId = await this.postsService.createPost(body);
-    return this.postsQueryRepository.findPostByIdOrInternalFail(createdPostId);
+    return this.postsQueryRepository.findByIdOrInternalFail(createdPostId);
   }
 
   @Put(':id')

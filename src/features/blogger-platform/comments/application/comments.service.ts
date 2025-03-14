@@ -22,7 +22,7 @@ export class CommentsService {
     postId: string,
     query: GetCommentsQueryParams,
   ): Promise<CommentDocument[]> {
-    await this.postsRepository.findPostByIdOrNotFoundFail(postId);
+    await this.postsRepository.findByIdOrNotFoundFail(postId);
 
     return this.commentsRepository.findPostComments(postId, query);
   }

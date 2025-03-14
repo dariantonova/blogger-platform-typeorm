@@ -14,7 +14,7 @@ export class UsersRepository {
     await user.save();
   }
 
-  async findUserByIdOrNotFoundFail(id: string): Promise<UserDocument> {
+  async findByIdOrNotFoundFail(id: string): Promise<UserDocument> {
     const user = await this.UserModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,

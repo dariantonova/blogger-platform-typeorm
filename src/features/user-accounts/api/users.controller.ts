@@ -33,7 +33,7 @@ export class UsersController {
   @Post()
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
     const createdUserId = await this.usersService.createUser(body);
-    return this.usersQueryRepository.findUserByIdOrInternalFail(createdUserId);
+    return this.usersQueryRepository.findByIdOrInternalFail(createdUserId);
   }
 
   @Delete(':id')

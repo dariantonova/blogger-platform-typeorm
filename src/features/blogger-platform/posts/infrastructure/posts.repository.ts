@@ -17,15 +17,15 @@ export class PostsRepository {
     await post.save();
   }
 
-  async findPostById(id: string): Promise<PostDocument | null> {
+  async findById(id: string): Promise<PostDocument | null> {
     return this.PostModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
   }
 
-  async findPostByIdOrNotFoundFail(id: string): Promise<PostDocument> {
-    const post = await this.findPostById(id);
+  async findByIdOrNotFoundFail(id: string): Promise<PostDocument> {
+    const post = await this.findById(id);
 
     if (!post) {
       throw new NotFoundException('Post not found');

@@ -41,13 +41,13 @@ export class BlogsController {
 
   @Get(':id')
   async getBlog(@Param('id') id: string): Promise<BlogViewDto> {
-    return this.blogsQueryRepository.findBlogByIdOrNotFoundFail(id);
+    return this.blogsQueryRepository.findByIdOrNotFoundFail(id);
   }
 
   @Post()
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
     const createdBlogId = await this.blogsService.createBlog(body);
-    return this.blogsQueryRepository.findBlogByIdOrInternalFail(createdBlogId);
+    return this.blogsQueryRepository.findByIdOrInternalFail(createdBlogId);
   }
 
   @Put(':id')
@@ -95,6 +95,6 @@ export class BlogsController {
       blogId,
     });
 
-    return this.postsQueryRepository.findPostByIdOrInternalFail(createdPostId);
+    return this.postsQueryRepository.findByIdOrInternalFail(createdPostId);
   }
 }

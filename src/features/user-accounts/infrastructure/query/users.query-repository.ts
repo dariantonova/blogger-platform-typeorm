@@ -4,7 +4,7 @@ import { UserViewDto } from '../../api/view-dto/users.view-dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument, UserModelType } from '../../domain/user.entity';
 import { ObjectId } from 'mongodb';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
 
@@ -56,25 +56,15 @@ export class UsersQueryRepository {
     });
   }
 
-  async findUserById(id: string): Promise<UserDocument | null> {
+  async findById(id: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
   }
 
-  async findUserByIdOrNotFoundFail(id: string): Promise<UserViewDto> {
-    const user = await this.findUserById(id);
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    return UserViewDto.mapToView(user);
-  }
-
-  async findUserByIdOrInternalFail(id: string): Promise<UserViewDto> {
-    const user = await this.findUserById(id);
+  async findByIdOrInternalFail(id: string): Promise<UserViewDto> {
+    const user = await this.findById(id);
 
     if (!user) {
       throw new Error('User not found');

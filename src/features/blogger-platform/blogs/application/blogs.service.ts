@@ -16,7 +16,7 @@ export class BlogsService {
   ) {}
 
   async deleteBlog(id: string): Promise<void> {
-    const blog = await this.blogsRepository.findBlogByIdOrNotFoundFail(id);
+    const blog = await this.blogsRepository.findByIdOrNotFoundFail(id);
 
     blog.makeDeleted();
 
@@ -34,7 +34,7 @@ export class BlogsService {
   }
 
   async updateBlog(id: string, dto: UpdateBlogDto): Promise<void> {
-    const blog = await this.blogsRepository.findBlogByIdOrNotFoundFail(id);
+    const blog = await this.blogsRepository.findByIdOrNotFoundFail(id);
 
     blog.update(dto);
 

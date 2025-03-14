@@ -19,9 +19,7 @@ export class PostsService {
   ) {}
 
   async createPost(dto: CreatePostDto): Promise<string> {
-    const blog = await this.blogsRepository.findBlogByIdOrNotFoundFail(
-      dto.blogId,
-    );
+    const blog = await this.blogsRepository.findByIdOrNotFoundFail(dto.blogId);
 
     const post = this.PostModel.createInstance({
       title: dto.title,
@@ -37,11 +35,9 @@ export class PostsService {
   }
 
   async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
-    const post = await this.postsRepository.findPostByIdOrNotFoundFail(id);
+    const post = await this.postsRepository.findByIdOrNotFoundFail(id);
 
-    const blog = await this.blogsRepository.findBlogByIdOrInternalFail(
-      dto.blogId,
-    );
+    const blog = await this.blogsRepository.findByIdOrInternalFail(dto.blogId);
 
     post.update({
       title: dto.title,
@@ -55,7 +51,7 @@ export class PostsService {
   }
 
   async deletePost(id: string): Promise<void> {
-    const post = await this.postsRepository.findPostByIdOrNotFoundFail(id);
+    const post = await this.postsRepository.findByIdOrNotFoundFail(id);
 
     post.makeDeleted();
 
@@ -68,7 +64,7 @@ export class PostsService {
     blogId: string,
     query: GetPostsQueryParams,
   ): Promise<PostDocument[]> {
-    await this.blogsRepository.findBlogByIdOrNotFoundFail(blogId);
+    await this.blogsRepository.findByIdOrNotFoundFail(blogId);
 
     return this.postsRepository.findBlogPosts(blogId, query);
   }

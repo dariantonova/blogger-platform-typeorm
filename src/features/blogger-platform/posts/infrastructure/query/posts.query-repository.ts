@@ -42,15 +42,15 @@ export class PostsQueryRepository {
     });
   }
 
-  async findPostById(id: string): Promise<PostDocument | null> {
+  async findById(id: string): Promise<PostDocument | null> {
     return this.PostModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
   }
 
-  async findPostByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
-    const post = await this.findPostById(id);
+  async findByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
+    const post = await this.findById(id);
 
     if (!post) {
       throw new NotFoundException('Post not found');
@@ -59,8 +59,8 @@ export class PostsQueryRepository {
     return PostViewDto.mapToView(post);
   }
 
-  async findPostByIdOrInternalFail(id: string): Promise<PostViewDto> {
-    const post = await this.findPostById(id);
+  async findByIdOrInternalFail(id: string): Promise<PostViewDto> {
+    const post = await this.findById(id);
 
     if (!post) {
       throw new Error('Post not found');

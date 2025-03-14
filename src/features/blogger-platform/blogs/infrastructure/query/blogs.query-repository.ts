@@ -49,15 +49,15 @@ export class BlogsQueryRepository {
     });
   }
 
-  async findBlogById(id: string): Promise<BlogDocument | null> {
+  async findById(id: string): Promise<BlogDocument | null> {
     return this.BlogModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
   }
 
-  async findBlogByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
-    const blog = await this.findBlogById(id);
+  async findByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
+    const blog = await this.findById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
@@ -66,8 +66,8 @@ export class BlogsQueryRepository {
     return BlogViewDto.mapToView(blog);
   }
 
-  async findBlogByIdOrInternalFail(id: string): Promise<BlogViewDto> {
-    const blog = await this.findBlogById(id);
+  async findByIdOrInternalFail(id: string): Promise<BlogViewDto> {
+    const blog = await this.findById(id);
 
     if (!blog) {
       throw new Error('Blog not found');

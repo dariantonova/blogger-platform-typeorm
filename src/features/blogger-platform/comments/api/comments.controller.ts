@@ -8,6 +8,6 @@ export class CommentsController {
 
   @Get(':id')
   async getComment(@Param('id') id: string): Promise<CommentViewDto> {
-    return this.commentsQueryRepository.findCommentByIdOrNotFoundFail(id);
+    return this.commentsQueryRepository.findByIdOrNotFoundFail(id);
   }
 }

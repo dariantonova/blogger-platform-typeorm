@@ -332,10 +332,10 @@ describe('blogs', () => {
 
     it('should return blog', async () => {
       const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
-      const blogToTest = blogs[0];
+      const blogToGet = blogs[0];
 
       const response = await blogsTestManager.getBlog(
-        blogToTest.id,
+        blogToGet.id,
         HttpStatus.OK,
       );
       const responseBody: BlogViewDto = response.body;
@@ -348,7 +348,7 @@ describe('blogs', () => {
         createdAt: expect.any(String),
         isMembership: expect.any(Boolean),
       });
-      expect(responseBody).toEqual(blogToTest);
+      expect(responseBody).toEqual(blogToGet);
     });
 
     it('should return 404 when trying to get non-existing blog', async () => {
@@ -360,6 +360,7 @@ describe('blogs', () => {
       const createdBlogs =
         await blogsTestManager.createBlogsWithGeneratedData(1);
       const blogToDelete = createdBlogs[0];
+
       await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
 
       await blogsTestManager.getBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
@@ -459,30 +460,53 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to update deleted blog', async () => {
-      const createInputDto: CreateBlogInputDto = {
+      const createdBlogs =
+        await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToDelete = createdBlogs[0];
+
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
+
+      const inputDto: UpdateBlogInputDto = {
         name: 'name',
         description: 'description',
         websiteUrl: 'https://site.com',
       };
-
-      const createResponse = await blogsTestManager.createBlog(
-        createInputDto,
-        HttpStatus.CREATED,
-      );
-      const createdBlog: BlogViewDto = createResponse.body;
-
-      await blogsTestManager.deleteBlog(createdBlog.id, HttpStatus.NO_CONTENT);
-
-      const updateInputDto: UpdateBlogInputDto = {
-        name: 'name after update',
-        description: 'description after update',
-        websiteUrl: 'https://site-after-update.com',
-      };
       await blogsTestManager.updateBlog(
-        createdBlog.id,
-        updateInputDto,
+        blogToDelete.id,
+        inputDto,
         HttpStatus.NOT_FOUND,
       );
+    });
+  });
+
+  describe('delete blog', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should delete blog', async () => {
+      const createdBlogs =
+        await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToDelete = createdBlogs[0];
+
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
+
+      await blogsTestManager.getBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to delete non-existing blog', async () => {
+      const nonExistingId = new ObjectId().toString();
+      await blogsTestManager.deleteBlog(nonExistingId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to delete already deleted blog', async () => {
+      const createdBlogs =
+        await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToDelete = createdBlogs[0];
+
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
+
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
     });
   });
 });

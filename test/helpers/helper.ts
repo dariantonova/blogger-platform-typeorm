@@ -6,6 +6,7 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
+import { ObjectId } from 'mongodb';
 
 export type QueryType = Record<string, any>;
 export const DEFAULT_PAGE_SIZE = 10;
@@ -72,4 +73,16 @@ export const caseInsensitiveSearch = (
   searchStr: string,
 ): boolean => {
   return new RegExp(searchStr, 'i').test(str);
+};
+
+export const generateNonExistingId = (): string => {
+  return new ObjectId().toString();
+};
+
+export const getPageOfArray = <T>(
+  arr: T[],
+  pageNumber: number,
+  pageSize: number,
+): T[] => {
+  return arr.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 };

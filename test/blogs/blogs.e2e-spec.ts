@@ -2,6 +2,8 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   caseInsensitiveSearch,
   deleteAllData,
+  generateNonExistingId,
+  getPageOfArray,
   initApp,
   sortArrByDateStrField,
   sortArrByStrField,
@@ -17,7 +19,6 @@ import {
 import { BlogsSortBy } from '../../src/features/blogger-platform/blogs/api/input-dto/blogs-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
-import { ObjectId } from 'mongodb';
 import { UpdateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 
 describe('blogs', () => {
@@ -52,7 +53,8 @@ describe('blogs', () => {
 
       const response = await blogsTestManager.getBlogs(HttpStatus.OK);
       const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
-      expect(responseBody.items).toEqual(blogs.reverse());
+
+      expect(responseBody.items).toEqual(blogs.toReversed());
       expect(responseBody.totalCount).toBe(blogs.length);
       expect(responseBody.pagesCount).toBe(1);
       expect(responseBody.page).toBe(1);
@@ -85,9 +87,11 @@ describe('blogs', () => {
           pageNumber,
         });
         const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
-        const expectedItems = blogs
-          .toReversed()
-          .slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          pageNumber,
+          pageSize,
+        );
 
         expect(responseBody.page).toBe(pageNumber);
         expect(responseBody.pageSize).toBe(pageSize);
@@ -115,9 +119,11 @@ describe('blogs', () => {
           pageSize,
         });
         const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
-        const expectedItems = blogs
-          .toReversed()
-          .slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          pageNumber,
+          pageSize,
+        );
 
         expect(responseBody.page).toBe(pageNumber);
         expect(responseBody.pageSize).toBe(pageSize);
@@ -352,7 +358,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to get non-existing blog', async () => {
-      const nonExistingId = new ObjectId().toString();
+      const nonExistingId = generateNonExistingId();
       await blogsTestManager.getBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -402,6 +408,12 @@ describe('blogs', () => {
   });
 
   describe('update blog', () => {
+    const validInputDto: UpdateBlogInputDto = {
+      name: 'name',
+      description: 'description',
+      websiteUrl: 'https://site.com',
+    };
+
     beforeAll(async () => {
       await deleteAllData(app);
     });
@@ -445,16 +457,11 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to update non-existing blog', async () => {
-      const nonExistingId = new ObjectId().toString();
-      const inputDto: UpdateBlogInputDto = {
-        name: 'name',
-        description: 'description',
-        websiteUrl: 'https://site.com',
-      };
+      const nonExistingId = generateNonExistingId();
 
       await blogsTestManager.updateBlog(
         nonExistingId,
-        inputDto,
+        validInputDto,
         HttpStatus.NOT_FOUND,
       );
     });
@@ -466,14 +473,9 @@ describe('blogs', () => {
 
       await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
 
-      const inputDto: UpdateBlogInputDto = {
-        name: 'name',
-        description: 'description',
-        websiteUrl: 'https://site.com',
-      };
       await blogsTestManager.updateBlog(
         blogToDelete.id,
-        inputDto,
+        validInputDto,
         HttpStatus.NOT_FOUND,
       );
     });
@@ -495,7 +497,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to delete non-existing blog', async () => {
-      const nonExistingId = new ObjectId().toString();
+      const nonExistingId = generateNonExistingId();
       await blogsTestManager.deleteBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 

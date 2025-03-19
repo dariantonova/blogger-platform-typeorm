@@ -1,3 +1,4 @@
+import { configModule } from './dynamic-config-module';
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,7 +9,7 @@ import { TestingModule } from './features/testing/testing.module';
 import { CoreModule } from './core/core.module';
 
 const MONGO_URL = process.env.MONGO_URL || 'mongodb://0.0.0.0:27017';
-const DN_NAME = process.env.DN_NAME || 'nest-blogger-platform-dev';
+const DN_NAME = process.env.DN_NAME || 'test';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ const DN_NAME = process.env.DN_NAME || 'nest-blogger-platform-dev';
     BloggerPlatformModule,
     TestingModule,
     CoreModule,
+    configModule,
   ],
   controllers: [AppController],
   providers: [AppService],

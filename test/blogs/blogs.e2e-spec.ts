@@ -17,6 +17,7 @@ import {
 import { BlogsSortBy } from '../../src/features/blogger-platform/blogs/api/input-dto/blogs-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
+import { ObjectId } from 'mongodb';
 
 describe('blogs', () => {
   let app: INestApplication;
@@ -32,6 +33,10 @@ describe('blogs', () => {
   });
 
   describe('get blogs', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
     it('should return empty array', async () => {
       const response = await request(app.getHttpServer())
         .get(`/${GLOBAL_PREFIX}/blogs`)
@@ -256,6 +261,15 @@ describe('blogs', () => {
         });
         expect(response.body.items).toEqual(expectedItems);
       });
+
+      it(`should return blogs in order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = blogs;
+
+        const response = await blogsTestManager.getBlogs(HttpStatus.OK, {
+          sortBy: 'nonExisting',
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
     });
 
     describe('filtering', () => {
@@ -307,6 +321,47 @@ describe('blogs', () => {
         });
         expect(response.body.items).toEqual([]);
       });
+    });
+  });
+
+  describe('get blog', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should return blog', async () => {
+      const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToTest = blogs[0];
+
+      const response = await blogsTestManager.getBlog(
+        blogToTest.id,
+        HttpStatus.OK,
+      );
+      const responseBody: BlogViewDto = response.body;
+
+      expect(responseBody).toEqual({
+        id: expect.any(String),
+        name: expect.any(String),
+        description: expect.any(String),
+        websiteUrl: expect.any(String),
+        createdAt: expect.any(String),
+        isMembership: expect.any(Boolean),
+      });
+      expect(responseBody).toEqual(blogToTest);
+    });
+
+    it('should return 404 when trying to get non-existing blog', async () => {
+      const nonExistingId = new ObjectId().toString();
+      await blogsTestManager.getBlog(nonExistingId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to get deleted blog', async () => {
+      const createdBlogs =
+        await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToDelete = createdBlogs[0];
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
+
+      await blogsTestManager.getBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
     });
   });
 });

@@ -364,4 +364,38 @@ describe('blogs', () => {
       await blogsTestManager.getBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
     });
   });
+
+  describe('create blog', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should create blog', async () => {
+      const inputDto: CreateBlogInputDto = {
+        name: 'blog',
+        description: 'description',
+        websiteUrl: 'https://site.com',
+      };
+
+      const response = await blogsTestManager.createBlog(
+        inputDto,
+        HttpStatus.CREATED,
+      );
+      const createdBlog: BlogViewDto = response.body;
+
+      expect(createdBlog.id).toEqual(expect.any(String));
+      expect(createdBlog.name).toBe(inputDto.name);
+      expect(createdBlog.description).toBe(inputDto.description);
+      expect(createdBlog.websiteUrl).toBe(inputDto.websiteUrl);
+      expect(createdBlog.createdAt).toEqual(expect.any(String));
+      expect(Date.parse(createdBlog.createdAt)).not.toBeNaN();
+      expect(createdBlog.isMembership).toBe(false);
+
+      const getBlogResponse = await blogsTestManager.getBlog(
+        createdBlog.id,
+        HttpStatus.OK,
+      );
+      expect(getBlogResponse.body).toEqual(createdBlog);
+    });
+  });
 });

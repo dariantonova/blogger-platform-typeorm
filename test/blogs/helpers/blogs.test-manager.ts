@@ -4,6 +4,7 @@ import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../../src/setup/global-prefix.setup';
 import { BlogViewDto } from '../../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { DEFAULT_PAGE_SIZE, QueryType } from '../../helpers/helper';
+import { UpdateBlogInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 
 const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 
@@ -74,6 +75,17 @@ export class BlogsTestManager {
   async getBlog(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
     return await request(this.app.getHttpServer())
       .get(BLOGS_PATH + '/' + id)
+      .expect(expectedStatusCode);
+  }
+
+  async updateBlog(
+    id: string,
+    updateDto: UpdateBlogInputDto,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .put(BLOGS_PATH + '/' + id)
+      .send(updateDto)
       .expect(expectedStatusCode);
   }
 }

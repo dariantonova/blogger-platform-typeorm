@@ -18,6 +18,7 @@ import { BlogsSortBy } from '../../src/features/blogger-platform/blogs/api/input
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import { ObjectId } from 'mongodb';
+import { UpdateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 
 describe('blogs', () => {
   let app: INestApplication;
@@ -396,6 +397,92 @@ describe('blogs', () => {
         HttpStatus.OK,
       );
       expect(getBlogResponse.body).toEqual(createdBlog);
+    });
+  });
+
+  describe('update blog', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should update blog', async () => {
+      const createInputDto: CreateBlogInputDto = {
+        name: 'name before update',
+        description: 'description before update',
+        websiteUrl: 'https://site-before-update.com',
+      };
+
+      const createResponse = await blogsTestManager.createBlog(
+        createInputDto,
+        HttpStatus.CREATED,
+      );
+      const createdBlog: BlogViewDto = createResponse.body;
+
+      const updateInputDto: UpdateBlogInputDto = {
+        name: 'name after update',
+        description: 'description after update',
+        websiteUrl: 'https://site-after-update.com',
+      };
+      await blogsTestManager.updateBlog(
+        createdBlog.id,
+        updateInputDto,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const getBlogResponse = await blogsTestManager.getBlog(
+        createdBlog.id,
+        HttpStatus.OK,
+      );
+      const updatedBlog: BlogViewDto = getBlogResponse.body;
+
+      expect(updatedBlog.name).toBe(updateInputDto.name);
+      expect(updatedBlog.description).toBe(updateInputDto.description);
+      expect(updatedBlog.websiteUrl).toBe(updateInputDto.websiteUrl);
+      expect(updatedBlog.id).toBe(createdBlog.id);
+      expect(updatedBlog.createdAt).toBe(createdBlog.createdAt);
+      expect(updatedBlog.isMembership).toBe(createdBlog.isMembership);
+    });
+
+    it('should return 404 when trying to update non-existing blog', async () => {
+      const nonExistingId = new ObjectId().toString();
+      const inputDto: UpdateBlogInputDto = {
+        name: 'name',
+        description: 'description',
+        websiteUrl: 'https://site.com',
+      };
+
+      await blogsTestManager.updateBlog(
+        nonExistingId,
+        inputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update deleted blog', async () => {
+      const createInputDto: CreateBlogInputDto = {
+        name: 'name',
+        description: 'description',
+        websiteUrl: 'https://site.com',
+      };
+
+      const createResponse = await blogsTestManager.createBlog(
+        createInputDto,
+        HttpStatus.CREATED,
+      );
+      const createdBlog: BlogViewDto = createResponse.body;
+
+      await blogsTestManager.deleteBlog(createdBlog.id, HttpStatus.NO_CONTENT);
+
+      const updateInputDto: UpdateBlogInputDto = {
+        name: 'name after update',
+        description: 'description after update',
+        websiteUrl: 'https://site-after-update.com',
+      };
+      await blogsTestManager.updateBlog(
+        createdBlog.id,
+        updateInputDto,
+        HttpStatus.NOT_FOUND,
+      );
     });
   });
 });

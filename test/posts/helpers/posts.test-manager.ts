@@ -74,4 +74,10 @@ export class PostsTestManager {
       .delete(POSTS_PATH + '/' + id)
       .expect(expectedStatusCode);
   }
+
+  async getPost(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
+    return await request(this.app.getHttpServer())
+      .get(POSTS_PATH + '/' + id)
+      .expect(expectedStatusCode);
+  }
 }

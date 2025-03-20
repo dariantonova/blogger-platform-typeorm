@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   deleteAllData,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   sortArrByDateStrField,
@@ -17,6 +18,7 @@ import { CreatePostInputDto } from '../../src/features/blogger-platform/posts/ap
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
+import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
 describe('posts', () => {
   let app: INestApplication;
@@ -330,6 +332,64 @@ describe('posts', () => {
         });
         expect(response.body.items).toEqual(expectedItems);
       });
+    });
+  });
+
+  describe('get post', () => {
+    let blog: BlogViewDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+    });
+
+    it('should return post', async () => {
+      const posts = await postsTestManager.createPostsWithGeneratedData(
+        1,
+        blog.id,
+      );
+      const postToGet = posts[0];
+
+      const response = await postsTestManager.getPost(
+        postToGet.id,
+        HttpStatus.OK,
+      );
+      const responseBody: PostViewDto = response.body;
+
+      expect(responseBody).toEqual({
+        id: expect.any(String),
+        title: expect.any(String),
+        shortDescription: expect.any(String),
+        content: expect.any(String),
+        blogId: expect.any(String),
+        blogName: expect.any(String),
+        createdAt: expect.any(String),
+        extendedLikesInfo: {
+          likesCount: expect.any(Number),
+          dislikesCount: expect.any(Number),
+          myStatus: expect.any(String),
+          newestLikes: expect.any(Array),
+        },
+      });
+      expect(responseBody).toEqual(postToGet);
+    });
+
+    it('should return 404 when trying to get non-existing post', async () => {
+      const nonExistingId = generateNonExistingId();
+      await postsTestManager.getPost(nonExistingId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to get deleted post', async () => {
+      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
+        1,
+        blog.id,
+      );
+      const postToDelete = createdPosts[0];
+
+      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
+
+      await postsTestManager.getPost(postToDelete.id, HttpStatus.NOT_FOUND);
     });
   });
 });

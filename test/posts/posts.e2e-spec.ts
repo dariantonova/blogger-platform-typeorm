@@ -19,6 +19,7 @@ import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/ap
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 
 describe('posts', () => {
   let app: INestApplication;
@@ -390,6 +391,52 @@ describe('posts', () => {
       await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
 
       await postsTestManager.getPost(postToDelete.id, HttpStatus.NOT_FOUND);
+    });
+  });
+
+  describe('create post', () => {
+    let blog: BlogViewDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+    });
+
+    it('should create post', async () => {
+      const inputDto: CreatePostInputDto = {
+        title: 'post',
+        shortDescription: 'short description',
+        content: 'content',
+        blogId: blog.id,
+      };
+
+      const response = await postsTestManager.createPost(
+        inputDto,
+        HttpStatus.CREATED,
+      );
+      const createdPost: PostViewDto = response.body;
+
+      expect(createdPost.id).toEqual(expect.any(String));
+      expect(createdPost.title).toBe(inputDto.title);
+      expect(createdPost.shortDescription).toBe(inputDto.shortDescription);
+      expect(createdPost.content).toBe(inputDto.content);
+      expect(createdPost.blogId).toBe(inputDto.blogId);
+      expect(createdPost.blogName).toBe(blog.name);
+      expect(createdPost.createdAt).toEqual(expect.any(String));
+      expect(Date.parse(createdPost.createdAt)).not.toBeNaN();
+      expect(createdPost.extendedLikesInfo).toEqual({
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: LikeStatus.None,
+        newestLikes: [],
+      });
+
+      const getPostResponse = await postsTestManager.getPost(
+        createdPost.id,
+        HttpStatus.OK,
+      );
+      expect(getPostResponse.body).toEqual(createdPost);
     });
   });
 });

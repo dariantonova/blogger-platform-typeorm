@@ -8,6 +8,9 @@ import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { ObjectId } from 'mongodb';
 
+export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
+export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
+
 export type QueryType = Record<string, any>;
 export const DEFAULT_PAGE_SIZE = 10;
 

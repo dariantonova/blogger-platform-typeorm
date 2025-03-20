@@ -1,12 +1,9 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateBlogInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import request, { Response } from 'supertest';
-import { GLOBAL_PREFIX } from '../../../src/setup/global-prefix.setup';
 import { BlogViewDto } from '../../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
-import { DEFAULT_PAGE_SIZE, QueryType } from '../../helpers/helper';
+import { BLOGS_PATH, DEFAULT_PAGE_SIZE, QueryType } from '../../helpers/helper';
 import { UpdateBlogInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/update-blog.input-dto';
-
-const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 
 export const DEFAULT_BLOGS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -32,7 +29,7 @@ export class BlogsTestManager {
     return responses.map((res) => res.body as BlogViewDto);
   }
 
-  generateBlogData(numberOfBlogs: number): CreateBlogInputDto[] {
+  generateBlogsData(numberOfBlogs: number): CreateBlogInputDto[] {
     const blogsData: CreateBlogInputDto[] = [];
     for (let i = 1; i < numberOfBlogs + 1; i++) {
       const blogData: CreateBlogInputDto = {
@@ -49,7 +46,7 @@ export class BlogsTestManager {
     numberOfBlogs: number,
   ): Promise<BlogViewDto[]> {
     const blogsInputData: CreateBlogInputDto[] =
-      this.generateBlogData(numberOfBlogs);
+      this.generateBlogsData(numberOfBlogs);
     return this.createBlogs(blogsInputData);
   }
 

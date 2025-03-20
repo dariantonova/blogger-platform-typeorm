@@ -8,9 +8,7 @@ import {
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
-import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
-import request from 'supertest';
 import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import {
   BlogsTestManager,
@@ -40,12 +38,10 @@ describe('blogs', () => {
     });
 
     it('should return empty array', async () => {
-      const response = await request(app.getHttpServer())
-        .get(`/${GLOBAL_PREFIX}/blogs`)
-        .expect(HttpStatus.OK);
+      const response = await blogsTestManager.getBlogs(HttpStatus.OK);
 
-      const blogs: PaginatedViewDto<BlogViewDto[]> = response.body;
-      expect(blogs.items).toEqual([]);
+      const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+      expect(responseBody.items).toEqual([]);
     });
 
     it('should return array of blogs', async () => {
@@ -82,19 +78,20 @@ describe('blogs', () => {
 
       it('should return specified page of blogs array', async () => {
         const pageNumber = 2;
-        const pageSize = DEFAULT_BLOGS_PAGE_SIZE;
         const response = await blogsTestManager.getBlogs(HttpStatus.OK, {
           pageNumber,
         });
         const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
+        const expectedPageSize = DEFAULT_BLOGS_PAGE_SIZE;
         const expectedItems = getPageOfArray(
           blogs.toReversed(),
           pageNumber,
-          pageSize,
+          expectedPageSize,
         );
 
         expect(responseBody.page).toBe(pageNumber);
-        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.pageSize).toBe(expectedPageSize);
         expect(responseBody.items).toEqual(expectedItems);
       });
 
@@ -104,7 +101,13 @@ describe('blogs', () => {
           pageSize,
         });
         const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
-        const expectedItems = blogs.toReversed().slice(0, pageSize);
+
+        const expectedPageNumber = 1;
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          expectedPageNumber,
+          pageSize,
+        );
 
         expect(responseBody.page).toBe(1);
         expect(responseBody.pageSize).toBe(pageSize);
@@ -119,6 +122,7 @@ describe('blogs', () => {
           pageSize,
         });
         const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
         const expectedItems = getPageOfArray(
           blogs.toReversed(),
           pageNumber,

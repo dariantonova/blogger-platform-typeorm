@@ -533,4 +533,66 @@ describe('posts', () => {
       );
     });
   });
+
+  describe('delete post', () => {
+    let blog: BlogViewDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+    });
+
+    it('should delete post', async () => {
+      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
+        1,
+        blog.id,
+      );
+      const postToDelete = createdPosts[0];
+
+      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
+
+      await postsTestManager.getPost(postToDelete.id, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to delete non-existing post', async () => {
+      const nonExistingPost = generateNonExistingId();
+      await postsTestManager.deletePost(nonExistingPost, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to delete already deleted post', async () => {
+      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
+        1,
+        blog.id,
+      );
+      const postToDelete = createdPosts[0];
+
+      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
+
+      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NOT_FOUND);
+    });
+
+    it('should delete all blogs posts when blog is deleted', async () => {
+      await deleteAllData(app);
+
+      const blogs =
+        await blogsCommonTestManager.createBlogsWithGeneratedData(2);
+
+      const blog1Posts = await postsTestManager.createPostsWithGeneratedData(
+        2,
+        blogs[0].id,
+      );
+      await postsTestManager.createPostsWithGeneratedData(2, blogs[1].id);
+
+      await blogsCommonTestManager.deleteBlog(
+        blogs[1].id,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const getPostsResponse = await postsTestManager.getPosts(HttpStatus.OK);
+      const responseBody: PaginatedViewDto<PostViewDto[]> =
+        getPostsResponse.body;
+      expect(responseBody.items).toEqual(blog1Posts.toReversed());
+    });
+  });
 });

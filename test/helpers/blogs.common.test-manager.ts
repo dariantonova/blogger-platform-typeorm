@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import { BLOGS_PATH } from './helper';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
@@ -46,5 +46,14 @@ export class BlogsCommonTestManager {
       blogs.push(blog);
     }
     return blogs;
+  }
+
+  async deleteBlog(
+    id: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return await request(this.app.getHttpServer())
+      .delete(BLOGS_PATH + '/' + id)
+      .expect(expectedStatusCode);
   }
 }

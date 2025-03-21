@@ -48,12 +48,9 @@ export class BlogsCommonTestManager {
     return blogs;
   }
 
-  async deleteBlog(
-    id: string,
-    expectedStatusCode: HttpStatus,
-  ): Promise<Response> {
+  async deleteBlog(id: string): Promise<Response> {
     return await request(this.app.getHttpServer())
       .delete(BLOGS_PATH + '/' + id)
-      .expect(expectedStatusCode);
+      .expect(HttpStatus.NO_CONTENT);
   }
 }

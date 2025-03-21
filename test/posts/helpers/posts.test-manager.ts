@@ -1,9 +1,15 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { DEFAULT_PAGE_SIZE, POSTS_PATH, QueryType } from '../../helpers/helper';
+import {
+  BLOGS_PATH,
+  DEFAULT_PAGE_SIZE,
+  POSTS_PATH,
+  QueryType,
+} from '../../helpers/helper';
 import request, { Response } from 'supertest';
 import { CreatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { UpdatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/update-post.input-dto';
+import { CreateBlogPostInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
 export const DEFAULT_POSTS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -90,6 +96,17 @@ export class PostsTestManager {
     return request(this.app.getHttpServer())
       .put(POSTS_PATH + '/' + id)
       .send(updateDto)
+      .expect(expectedStatusCode);
+  }
+
+  async createBlogPost(
+    blogId: string,
+    createDto: CreateBlogPostInputDto,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(BLOGS_PATH + '/' + blogId + '/posts')
+      .send(createDto)
       .expect(expectedStatusCode);
   }
 }

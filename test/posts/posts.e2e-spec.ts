@@ -584,10 +584,7 @@ describe('posts', () => {
       );
       await postsTestManager.createPostsWithGeneratedData(2, blogs[1].id);
 
-      await blogsCommonTestManager.deleteBlog(
-        blogs[1].id,
-        HttpStatus.NO_CONTENT,
-      );
+      await blogsCommonTestManager.deleteBlog(blogs[1].id);
 
       const getPostsResponse = await postsTestManager.getPosts(HttpStatus.OK);
       const responseBody: PaginatedViewDto<PostViewDto[]> =

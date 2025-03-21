@@ -109,4 +109,15 @@ export class PostsTestManager {
       .send(createDto)
       .expect(expectedStatusCode);
   }
+
+  async getBlogPosts(
+    blogId: string,
+    expectedStatusCode: HttpStatus,
+    query: QueryType = {},
+  ) {
+    return request(this.app.getHttpServer())
+      .get(BLOGS_PATH + '/' + blogId + '/posts')
+      .query(query)
+      .expect(expectedStatusCode);
+  }
 }

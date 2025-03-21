@@ -54,6 +54,7 @@ describe('blogs', () => {
       expect(responseBody.totalCount).toBe(blogs.length);
       expect(responseBody.pagesCount).toBe(1);
       expect(responseBody.page).toBe(1);
+      expect(responseBody.pageSize).toBe(DEFAULT_BLOGS_PAGE_SIZE);
     });
 
     it(`shouldn't return deleted blogs`, async () => {

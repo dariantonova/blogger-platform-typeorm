@@ -63,6 +63,7 @@ describe('posts', () => {
       expect(responseBody.totalCount).toBe(posts.length);
       expect(responseBody.pagesCount).toBe(1);
       expect(responseBody.page).toBe(1);
+      expect(responseBody.pageSize).toBe(DEFAULT_POSTS_PAGE_SIZE);
     });
 
     it(`shouldn't return deleted posts`, async () => {

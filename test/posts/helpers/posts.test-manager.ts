@@ -3,6 +3,7 @@ import { DEFAULT_PAGE_SIZE, POSTS_PATH, QueryType } from '../../helpers/helper';
 import request, { Response } from 'supertest';
 import { CreatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { UpdatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/update-post.input-dto';
 
 export const DEFAULT_POSTS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -78,6 +79,17 @@ export class PostsTestManager {
   async getPost(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
     return await request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + id)
+      .expect(expectedStatusCode);
+  }
+
+  async updatePost(
+    id: string,
+    updateDto: UpdatePostInputDto,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .put(POSTS_PATH + '/' + id)
+      .send(updateDto)
       .expect(expectedStatusCode);
   }
 }

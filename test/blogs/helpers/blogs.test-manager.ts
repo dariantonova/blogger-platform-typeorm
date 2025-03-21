@@ -31,7 +31,7 @@ export class BlogsTestManager {
 
   generateBlogsData(numberOfBlogs: number): CreateBlogInputDto[] {
     const blogsData: CreateBlogInputDto[] = [];
-    for (let i = 1; i < numberOfBlogs + 1; i++) {
+    for (let i = 1; i <= numberOfBlogs; i++) {
       const blogData: CreateBlogInputDto = {
         name: 'blog ' + i,
         description: 'superblog ' + i,

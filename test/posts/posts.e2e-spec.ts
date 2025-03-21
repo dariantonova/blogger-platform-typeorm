@@ -20,6 +20,7 @@ import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
+import { UpdatePostInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/update-post.input-dto';
 
 describe('posts', () => {
   let app: INestApplication;
@@ -437,6 +438,99 @@ describe('posts', () => {
         HttpStatus.OK,
       );
       expect(getPostResponse.body).toEqual(createdPost);
+    });
+  });
+
+  describe('update post', () => {
+    let blogs: BlogViewDto[];
+    let validInputDto: UpdatePostInputDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blogs = await blogsCommonTestManager.createBlogsWithGeneratedData(2);
+
+      validInputDto = {
+        title: 'post',
+        shortDescription: 'short description',
+        content: 'content',
+        blogId: blogs[0].id,
+      };
+    });
+
+    it('should update post', async () => {
+      const blogBeforeUpdate = blogs[0];
+      const blogAfterUpdate = blogs[1];
+
+      const createInputDto: CreatePostInputDto = {
+        title: 'post before update',
+        shortDescription: 'short description before update',
+        content: 'content before update',
+        blogId: blogBeforeUpdate.id,
+      };
+
+      const createResponse = await postsTestManager.createPost(
+        createInputDto,
+        HttpStatus.CREATED,
+      );
+      const createdPost: PostViewDto = createResponse.body;
+
+      const updateInputDto: UpdatePostInputDto = {
+        title: 'post after update',
+        shortDescription: 'short description after update',
+        content: 'content after update',
+        blogId: blogAfterUpdate.id,
+      };
+      await postsTestManager.updatePost(
+        createdPost.id,
+        updateInputDto,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const getPostResponse = await postsTestManager.getPost(
+        createdPost.id,
+        HttpStatus.OK,
+      );
+      const updatedPost: PostViewDto = getPostResponse.body;
+
+      expect(updatedPost.title).toBe(updateInputDto.title);
+      expect(updatedPost.shortDescription).toBe(
+        updateInputDto.shortDescription,
+      );
+      expect(updatedPost.content).toBe(updateInputDto.content);
+      expect(updatedPost.blogId).toBe(updateInputDto.blogId);
+      expect(updatedPost.blogName).toBe(blogAfterUpdate.name);
+      expect(updatedPost.id).toBe(createdPost.id);
+      expect(updatedPost.createdAt).toBe(createdPost.createdAt);
+      expect(updatedPost.extendedLikesInfo).toEqual(
+        createdPost.extendedLikesInfo,
+      );
+    });
+
+    it('should return 404 when trying to update non-existing post', async () => {
+      const nonExistingPost = generateNonExistingId();
+
+      await postsTestManager.updatePost(
+        nonExistingPost,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update deleted post', async () => {
+      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
+        1,
+        blogs[0].id,
+      );
+      const postToDelete = createdPosts[0];
+
+      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
+
+      await postsTestManager.updatePost(
+        postToDelete.id,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
     });
   });
 });

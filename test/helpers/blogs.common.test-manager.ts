@@ -16,17 +16,27 @@ export class BlogsCommonTestManager {
     return response.body as BlogViewDto;
   }
 
-  generateBlogData(): CreateBlogInputDto {
+  generateBlogData(blogNumber: number = 1): CreateBlogInputDto {
     return {
-      name: 'blog',
-      description: 'superblog',
-      websiteUrl: 'https://superblog.com/',
+      name: 'blog ' + blogNumber,
+      description: 'superblog ' + blogNumber,
+      websiteUrl: 'https://superblog.com/' + blogNumber,
     };
   }
 
   async createBlogWithGeneratedData(): Promise<BlogViewDto> {
     const blogData = this.generateBlogData();
     return this.createBlog(blogData);
+  }
+
+  async createBlogsWithGeneratedData(
+    numberOfBlogs: number,
+  ): Promise<BlogViewDto[]> {
+    const blogsData: CreateBlogInputDto[] = [];
+    for (let i = 1; i <= numberOfBlogs; i++) {
+      blogsData.push(this.generateBlogData(i));
+    }
+    return this.createBlogs(blogsData);
   }
 
   async createBlogs(inputData: CreateBlogInputDto[]): Promise<BlogViewDto[]> {

@@ -49,7 +49,7 @@ export class BlogsCommonTestManager {
   }
 
   async deleteBlog(id: string): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .delete(BLOGS_PATH + '/' + id)
       .expect(HttpStatus.NO_CONTENT);
   }

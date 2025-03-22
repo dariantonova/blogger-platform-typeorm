@@ -54,7 +54,7 @@ export class BlogsTestManager {
     expectedStatusCode: HttpStatus,
     query: QueryType = {},
   ): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .get(BLOGS_PATH)
       .query(query)
       .expect(expectedStatusCode);
@@ -64,13 +64,13 @@ export class BlogsTestManager {
     id: string,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .delete(BLOGS_PATH + '/' + id)
       .expect(expectedStatusCode);
   }
 
   async getBlog(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .get(BLOGS_PATH + '/' + id)
       .expect(expectedStatusCode);
   }

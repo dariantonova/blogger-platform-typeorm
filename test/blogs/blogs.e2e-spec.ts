@@ -44,7 +44,7 @@ describe('blogs', () => {
       expect(responseBody.items).toEqual([]);
     });
 
-    it('should return array of blogs', async () => {
+    it('should return blogs with default pagination and sorting', async () => {
       const blogs = await blogsTestManager.createBlogsWithGeneratedData(2);
 
       const response = await blogsTestManager.getBlogs(HttpStatus.OK);

@@ -49,7 +49,7 @@ describe('posts', () => {
       expect(responseBody.items).toEqual([]);
     });
 
-    it('should return array of posts', async () => {
+    it('should return posts with default pagination and sorting', async () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const posts = await postsTestManager.createPostsWithGeneratedData(
         2,

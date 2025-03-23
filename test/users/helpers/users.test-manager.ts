@@ -1,8 +1,10 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateUserDto } from '../../../src/features/user-accounts/dto/create-user.dto';
 import request, { Response } from 'supertest';
-import { QueryType, USERS_PATH } from '../../helpers/helper';
+import { DEFAULT_PAGE_SIZE, QueryType, USERS_PATH } from '../../helpers/helper';
 import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/users.view-dto';
+
+export const DEFAULT_USERS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export class UsersTestManager {
   constructor(private app: INestApplication) {}

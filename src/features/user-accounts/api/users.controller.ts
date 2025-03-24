@@ -15,6 +15,7 @@ import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dt
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { UserViewDto } from './view-dto/users.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
+import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 
 @Controller('users')
 export class UsersController {
@@ -38,7 +39,9 @@ export class UsersController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param('id') id: string): Promise<void> {
+  async deleteUser(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<void> {
     await this.usersService.deleteUser(id);
   }
 }

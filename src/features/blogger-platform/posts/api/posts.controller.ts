@@ -21,6 +21,7 @@ import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comment
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { CommentsService } from '../../comments/application/comments.service';
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 
 @Controller('posts')
 export class PostsController {
@@ -39,7 +40,9 @@ export class PostsController {
   }
 
   @Get(':id')
-  async getPost(@Param('id') id: string): Promise<PostViewDto> {
+  async getPost(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<PostViewDto> {
     return this.postsQueryRepository.findByIdOrNotFoundFail(id);
   }
 
@@ -52,7 +55,7 @@ export class PostsController {
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
     await this.postsService.updatePost(id, body);
@@ -60,13 +63,15 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(@Param('id') id: string): Promise<void> {
+  async deletePost(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<void> {
     await this.postsService.deletePost(id);
   }
 
   @Get(':postId/comments')
   async getPostComments(
-    @Param('postId') postId: string,
+    @Param('postId', ObjectIdValidationPipe) postId: string,
     @Query() query: GetCommentsQueryParams,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     const comments = await this.commentsService.getPostComments(postId, query);

@@ -16,6 +16,7 @@ import { Comment } from './comments/domain/comment.entity';
 import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 import { CommentsService } from './comments/application/comments.service';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
+import { IsExistingBlogIdConstraint } from './posts/api/validation/is-existing-blog-id.decorator';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { CommentsRepository } from './comments/infrastructure/comments.repositor
     CommentsQueryRepository,
     CommentsService,
     CommentsRepository,
+    IsExistingBlogIdConstraint,
   ],
 })
 export class BloggerPlatformModule {}

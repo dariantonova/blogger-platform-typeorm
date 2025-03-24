@@ -425,7 +425,7 @@ describe('blogs', () => {
 
     it('should update blog', async () => {
       const createInputDto: CreateBlogInputDto = {
-        name: 'name before update',
+        name: 'before',
         description: 'description before update',
         websiteUrl: 'https://site-before-update.com',
       };
@@ -437,7 +437,7 @@ describe('blogs', () => {
       const createdBlog: BlogViewDto = createResponse.body;
 
       const updateInputDto: UpdateBlogInputDto = {
-        name: 'name after update',
+        name: 'after',
         description: 'description after update',
         websiteUrl: 'https://site-after-update.com',
       };

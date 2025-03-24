@@ -22,6 +22,7 @@ import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
+import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 
 @Controller('blogs')
 export class BlogsController {
@@ -40,7 +41,9 @@ export class BlogsController {
   }
 
   @Get(':id')
-  async getBlog(@Param('id') id: string): Promise<BlogViewDto> {
+  async getBlog(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<BlogViewDto> {
     return this.blogsQueryRepository.findByIdOrNotFoundFail(id);
   }
 
@@ -53,7 +56,7 @@ export class BlogsController {
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param('id') id: string,
+    @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
     await this.blogsService.updateBlog(id, body);
@@ -61,13 +64,15 @@ export class BlogsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id') id: string): Promise<void> {
+  async deleteBlog(
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<void> {
     await this.blogsService.deleteBlog(id);
   }
 
   @Get(':blogId/posts')
   async getBlogPosts(
-    @Param('blogId') blogId: string,
+    @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const posts = await this.postsService.getBlogPosts(blogId, query);
@@ -85,7 +90,7 @@ export class BlogsController {
 
   @Post(':blogId/posts')
   async createBlogPost(
-    @Param('blogId') blogId: string,
+    @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Body() body: CreateBlogPostInputDto,
   ): Promise<PostViewDto> {
     const createdPostId = await this.postsService.createPost({

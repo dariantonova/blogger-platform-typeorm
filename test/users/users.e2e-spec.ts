@@ -64,6 +64,272 @@ describe('users', () => {
         getUsersResponse.body;
       expect(paginatedUsers.items).toEqual([createdUser]);
     });
+
+    describe('validation', () => {
+      let existingUser: UserViewDto;
+      const validInput: CreateUserInputDto = {
+        login: 'free',
+        email: 'free@example.com',
+        password: 'qwerty',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const createUserResponse = await usersTestManager.createUser(
+          {
+            login: 'taken',
+            email: 'taken@example.com',
+            password: 'qwerty',
+          },
+          HttpStatus.CREATED,
+        );
+        existingUser = createUserResponse.body;
+      });
+
+      it('should return 400 if login is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: 4,
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: '',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: '  ',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          login: 'a'.repeat(11),
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data5);
+
+        // too short
+        const data6 = {
+          login: 'a'.repeat(2),
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data6);
+
+        // does not match pattern
+        const data7 = {
+          login: '//     //',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data7);
+
+        // already taken
+        const data8 = {
+          login: existingUser.login,
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data8);
+
+        for (const data of invalidDataCases) {
+          const response = await usersTestManager.createUser(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'login',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if email is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          login: validInput.login,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: validInput.login,
+          email: 4,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: validInput.login,
+          email: '',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: validInput.login,
+          email: '  ',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data4);
+
+        // does not match pattern
+        const data7 = {
+          login: validInput.login,
+          email: 'without domain',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data7);
+
+        // already taken
+        const data8 = {
+          login: validInput.login,
+          email: existingUser.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data8);
+
+        for (const data of invalidDataCases) {
+          const response = await usersTestManager.createUser(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'email',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if password is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          login: validInput.login,
+          email: validInput.email,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 'a'.repeat(21),
+        };
+        invalidDataCases.push(data5);
+
+        // too short
+        const data6 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 'a'.repeat(5),
+        };
+        invalidDataCases.push(data6);
+
+        for (const data of invalidDataCases) {
+          const response = await usersTestManager.createUser(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'password',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if multiple fields are invalid', async () => {
+        const data = {
+          login: '',
+          email: 'without domain',
+        };
+
+        const response = await usersTestManager.createUser(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: expect.arrayContaining([
+            {
+              field: 'login',
+              message: expect.any(String),
+            },
+            {
+              field: 'email',
+              message: expect.any(String),
+            },
+            {
+              field: 'password',
+              message: expect.any(String),
+            },
+          ]),
+        });
+        expect(response.body.errorsMessages).toHaveLength(3);
+      });
+    });
   });
 
   describe('delete user', () => {

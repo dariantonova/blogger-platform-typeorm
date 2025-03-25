@@ -8,6 +8,7 @@ import { Trim } from '../../../../core/decorators/transform/trim';
 import { IsStringOfLengthWithTrim } from '../../../../core/decorators/validation/is-string-of-length-with-trim';
 
 export class CreateUserInputDto {
+  @Matches(loginConstraints.match)
   @IsStringOfLengthWithTrim(
     loginConstraints.minLength,
     loginConstraints.maxLength,

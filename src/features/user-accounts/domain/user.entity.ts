@@ -13,6 +13,7 @@ import { CreateUserDomainDto } from './dto/create-user.domain.dto';
 export const loginConstraints = {
   minLength: 3,
   maxLength: 10,
+  match: /^[a-zA-Z0-9_-]*$/,
 };
 
 export const passwordConstraints = {

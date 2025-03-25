@@ -709,7 +709,7 @@ describe('blogs', () => {
     });
 
     describe('validation', () => {
-      let blog: BlogViewDto;
+      let blogToUpdate: BlogViewDto;
       const validInput: UpdateBlogInputDto = {
         name: 'blog',
         description: 'description',
@@ -720,7 +720,7 @@ describe('blogs', () => {
         await deleteAllData(app);
 
         const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
-        blog = blogs[0];
+        blogToUpdate = blogs[0];
       });
 
       it('should return 400 if name is invalid', async () => {
@@ -767,7 +767,7 @@ describe('blogs', () => {
 
         for (const data of invalidDataCases) {
           const response = await blogsTestManager.updateBlog(
-            blog.id,
+            blogToUpdate.id,
             data,
             HttpStatus.BAD_REQUEST,
           );
@@ -826,7 +826,7 @@ describe('blogs', () => {
 
         for (const data of invalidDataCases) {
           const response = await blogsTestManager.updateBlog(
-            blog.id,
+            blogToUpdate.id,
             data,
             HttpStatus.BAD_REQUEST,
           );
@@ -893,7 +893,7 @@ describe('blogs', () => {
 
         for (const data of invalidDataCases) {
           const response = await blogsTestManager.updateBlog(
-            blog.id,
+            blogToUpdate.id,
             data,
             HttpStatus.BAD_REQUEST,
           );
@@ -915,7 +915,7 @@ describe('blogs', () => {
         };
 
         const response = await blogsTestManager.updateBlog(
-          blog.id,
+          blogToUpdate.id,
           data,
           HttpStatus.BAD_REQUEST,
         );

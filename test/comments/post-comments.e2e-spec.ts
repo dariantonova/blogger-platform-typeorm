@@ -46,6 +46,14 @@ describe('post comments', () => {
       );
     });
 
+    it('should return 404 when post id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await commentsTestManager.getPostComments(
+        invalidId,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
     it('should return 404 when trying to get comments of deleted post', async () => {
       const post = await postsCommonTestManager.createPostWithGeneratedData(
         blog.id,

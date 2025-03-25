@@ -356,6 +356,11 @@ describe('users', () => {
       await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
+    it('should return 404 when user id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
+    });
+
     it('should return 404 when trying to delete already deleted user', async () => {
       await usersTestManager.deleteUser(users[1].id, HttpStatus.NO_CONTENT);
 

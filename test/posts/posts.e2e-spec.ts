@@ -383,6 +383,11 @@ describe('posts', () => {
       await postsTestManager.getPost(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
+    it('should return 404 when post id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);
+    });
+
     it('should return 404 when trying to get deleted post', async () => {
       const createdPosts = await postsTestManager.createPostsWithGeneratedData(
         1,
@@ -829,6 +834,16 @@ describe('posts', () => {
       );
     });
 
+    it('should return 404 when post id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+
+      await postsTestManager.updatePost(
+        invalidId,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
     it('should return 404 when trying to update deleted post', async () => {
       const createdPosts = await postsTestManager.createPostsWithGeneratedData(
         1,
@@ -1194,6 +1209,11 @@ describe('posts', () => {
     it('should return 404 when trying to delete non-existing post', async () => {
       const nonExistingPost = generateNonExistingId();
       await postsTestManager.deletePost(nonExistingPost, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when post id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await postsTestManager.deletePost(invalidId, HttpStatus.NOT_FOUND);
     });
 
     it('should return 404 when trying to delete already deleted post', async () => {

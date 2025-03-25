@@ -90,6 +90,15 @@ describe('blog posts', () => {
       );
     });
 
+    it('should return 404 when blog id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await postsTestManager.createBlogPost(
+        invalidId,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
     it('should return 404 when trying to create post of deleted blog', async () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       await blogsCommonTestManager.deleteBlog(blog.id);
@@ -335,6 +344,11 @@ describe('blog posts', () => {
     it('should return 404 when trying to get posts of non-existing blog', async () => {
       const nonExistingId = generateNonExistingId();
       await postsTestManager.getBlogPosts(nonExistingId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when blog id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await postsTestManager.getBlogPosts(invalidId, HttpStatus.NOT_FOUND);
     });
 
     it('should return 404 when trying to get posts of deleted blog', async () => {

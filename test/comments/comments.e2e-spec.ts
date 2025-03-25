@@ -28,5 +28,10 @@ describe('comments', () => {
       const nonExistingId = generateNonExistingId();
       await commentsTestManager.getComment(nonExistingId, HttpStatus.NOT_FOUND);
     });
+
+    it('should return 404 when comment id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+      await commentsTestManager.getComment(invalidId, HttpStatus.NOT_FOUND);
+    });
   });
 });

@@ -707,6 +707,237 @@ describe('blogs', () => {
         HttpStatus.NOT_FOUND,
       );
     });
+
+    describe('validation', () => {
+      let blog: BlogViewDto;
+      const validInput: UpdateBlogInputDto = {
+        name: 'blog',
+        description: 'description',
+        websiteUrl: 'https://site.com',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+        blog = blogs[0];
+      });
+
+      it('should return 400 if name is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          description: validInput.description,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          name: 4,
+          description: validInput.description,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          name: '',
+          description: validInput.description,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          name: '  ',
+          description: validInput.description,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          name: 'a'.repeat(16),
+          description: validInput.description,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data5);
+
+        for (const data of invalidDataCases) {
+          const response = await blogsTestManager.updateBlog(
+            blog.id,
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'name',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if description is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          name: validInput.name,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          name: validInput.name,
+          description: 4,
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          name: validInput.name,
+          description: '',
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          name: validInput.name,
+          description: '  ',
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          name: validInput.name,
+          description: 'a'.repeat(501),
+          websiteUrl: validInput.websiteUrl,
+        };
+        invalidDataCases.push(data5);
+
+        for (const data of invalidDataCases) {
+          const response = await blogsTestManager.updateBlog(
+            blog.id,
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'description',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if websiteUrl is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          name: validInput.name,
+          description: validInput.description,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          name: validInput.name,
+          description: validInput.description,
+          websiteUrl: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          name: validInput.name,
+          description: validInput.description,
+          websiteUrl: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          name: validInput.name,
+          description: validInput.description,
+          websiteUrl: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          name: validInput.name,
+          description: validInput.description,
+          websiteUrl: 'a'.repeat(101),
+        };
+        invalidDataCases.push(data5);
+
+        // does not match pattern
+        const data6 = {
+          name: validInput.name,
+          description: validInput.description,
+          websiteUrl: 'not url',
+        };
+        invalidDataCases.push(data6);
+
+        for (const data of invalidDataCases) {
+          const response = await blogsTestManager.updateBlog(
+            blog.id,
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'websiteUrl',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if multiple fields are invalid', async () => {
+        const data = {
+          name: '',
+          description: 'a'.repeat(501),
+        };
+
+        const response = await blogsTestManager.updateBlog(
+          blog.id,
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: expect.arrayContaining([
+            {
+              field: 'name',
+              message: expect.any(String),
+            },
+            {
+              field: 'description',
+              message: expect.any(String),
+            },
+            {
+              field: 'websiteUrl',
+              message: expect.any(String),
+            },
+          ]),
+        });
+        expect(response.body.errorsMessages).toHaveLength(3);
+      });
+    });
   });
 
   describe('delete blog', () => {

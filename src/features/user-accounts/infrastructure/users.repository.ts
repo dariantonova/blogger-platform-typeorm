@@ -26,4 +26,18 @@ export class UsersRepository {
 
     return user;
   }
+
+  async findUserByLogin(login: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      login,
+      deletedAt: null,
+    });
+  }
+
+  async findUserByEmail(email: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      email,
+      deletedAt: null,
+    });
+  }
 }

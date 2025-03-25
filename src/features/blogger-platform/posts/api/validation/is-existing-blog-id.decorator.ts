@@ -16,8 +16,12 @@ export class IsExistingBlogIdConstraint
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async validate(value: any) {
-    const blog = await this.blogsRepository.findById(value);
-    return !!blog;
+    try {
+      const blog = await this.blogsRepository.findById(value);
+      return !!blog;
+    } catch (e) {
+      return false;
+    }
   }
 
   defaultMessage(validationArguments?: ValidationArguments): string {

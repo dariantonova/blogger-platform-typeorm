@@ -4,25 +4,28 @@ import {
   nameConstraints,
   websiteUrlConstraints,
 } from '../../domain/blog.entity';
-import { Matches } from 'class-validator';
+import { IsNotEmpty, Matches } from 'class-validator';
 
 export class UpdateBlogInputDto {
   @IsStringOfLengthWithTrim(
     nameConstraints.minLength,
     nameConstraints.maxLength,
   )
+  @IsNotEmpty()
   name: string;
 
   @IsStringOfLengthWithTrim(
     descriptionConstraints.minLength,
     descriptionConstraints.maxLength,
   )
+  @IsNotEmpty()
   description: string;
 
+  @Matches(websiteUrlConstraints.match)
   @IsStringOfLengthWithTrim(
     websiteUrlConstraints.minLength,
     websiteUrlConstraints.maxLength,
   )
-  @Matches(websiteUrlConstraints.match)
+  @IsNotEmpty()
   websiteUrl: string;
 }

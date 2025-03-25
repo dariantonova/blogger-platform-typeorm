@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Matches } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
 import {
   emailConstraints,
   loginConstraints,
@@ -12,17 +12,20 @@ export class CreateUserInputDto {
     loginConstraints.minLength,
     loginConstraints.maxLength,
   )
+  @IsNotEmpty()
   login: string;
 
-  @IsString()
-  @Trim()
-  @IsEmail()
   @Matches(emailConstraints.match)
+  @IsEmail()
+  @Trim()
+  @IsString()
+  @IsNotEmpty()
   email: string;
 
   @IsStringOfLengthWithTrim(
     passwordConstraints.minLength,
     passwordConstraints.maxLength,
   )
+  @IsNotEmpty()
   password: string;
 }

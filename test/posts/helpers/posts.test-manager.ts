@@ -8,8 +8,6 @@ import {
 import request, { Response } from 'supertest';
 import { CreatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
-import { UpdatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/update-post.input-dto';
-import { CreateBlogPostInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
 export const DEFAULT_POSTS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -27,7 +25,7 @@ export class PostsTestManager {
   }
 
   async createPost(
-    createDto: CreatePostInputDto,
+    createDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
@@ -90,7 +88,7 @@ export class PostsTestManager {
 
   async updatePost(
     id: string,
-    updateDto: UpdatePostInputDto,
+    updateDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
@@ -101,7 +99,7 @@ export class PostsTestManager {
 
   async createBlogPost(
     blogId: string,
-    createDto: CreateBlogPostInputDto,
+    createDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())

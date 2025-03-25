@@ -3,7 +3,6 @@ import { CreateBlogInputDto } from '../../../src/features/blogger-platform/blogs
 import request, { Response } from 'supertest';
 import { BlogViewDto } from '../../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { BLOGS_PATH, DEFAULT_PAGE_SIZE, QueryType } from '../../helpers/helper';
-import { UpdateBlogInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 
 export const DEFAULT_BLOGS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -11,7 +10,7 @@ export class BlogsTestManager {
   constructor(private app: INestApplication) {}
 
   async createBlog(
-    createDto: CreateBlogInputDto,
+    createDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
@@ -77,7 +76,7 @@ export class BlogsTestManager {
 
   async updateBlog(
     id: string,
-    updateDto: UpdateBlogInputDto,
+    updateDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())

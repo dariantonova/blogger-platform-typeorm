@@ -10,7 +10,7 @@ export class UsersTestManager {
   constructor(private app: INestApplication) {}
 
   async createUser(
-    createDto: CreateUserDto,
+    createDto: any,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
     return request(this.app.getHttpServer())

@@ -11,6 +11,6 @@ export class BasicStrategy extends PassportStrategy(Strategy, 'basic') {
     ) {
       return true;
     }
-    throw new UnauthorizedException();
+    throw new UnauthorizedException('Invalid credentials');
   }
 }

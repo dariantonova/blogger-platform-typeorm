@@ -2,6 +2,7 @@ import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { FilterQuery } from 'mongoose';
 
 @Injectable()
 export class UsersRepository {
@@ -39,5 +40,15 @@ export class UsersRepository {
       email,
       deletedAt: null,
     });
+  }
+
+  async findUserByLoginOrEmail(
+    loginOrEmail: string,
+  ): Promise<UserDocument | null> {
+    const filter: FilterQuery<User> = {
+      deletedAt: null,
+      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    };
+    return this.UserModel.findOne(filter);
   }
 }

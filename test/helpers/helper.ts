@@ -7,11 +7,26 @@ import { getConnectionToken } from '@nestjs/mongoose';
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { ObjectId } from 'mongodb';
+import * as process from 'node:process';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
 export const COMMENTS_PATH = `/${GLOBAL_PREFIX}/comments`;
 export const USERS_PATH = `/${GLOBAL_PREFIX}/users`;
+
+const basicAuthCredentials = `${process.env.HTTP_BASIC_USER}:${process.env.HTTP_BASIC_PASS}`;
+const encodedBasicAuthCredentials =
+  Buffer.from(basicAuthCredentials).toString('base64');
+
+export const VALID_BASIC_AUTH_VALUE = `Basic ${encodedBasicAuthCredentials}`;
+
+export const invalidBasicAuthTestValues: string[] = [
+  '',
+  'Basic somethingWeird',
+  'Basic ',
+  `Bearer ${encodedBasicAuthCredentials}`,
+  encodedBasicAuthCredentials,
+];
 
 export type QueryType = Record<string, any>;
 export const DEFAULT_PAGE_SIZE = 10;

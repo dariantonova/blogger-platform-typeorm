@@ -1,7 +1,12 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateUserDto } from '../../../src/features/user-accounts/dto/create-user.dto';
 import request, { Response } from 'supertest';
-import { DEFAULT_PAGE_SIZE, QueryType, USERS_PATH } from '../../helpers/helper';
+import {
+  DEFAULT_PAGE_SIZE,
+  QueryType,
+  USERS_PATH,
+  VALID_BASIC_AUTH_VALUE,
+} from '../../helpers/helper';
 import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/users.view-dto';
 
 export const DEFAULT_USERS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
@@ -12,9 +17,11 @@ export class UsersTestManager {
   async createUser(
     createDto: any,
     expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .post(USERS_PATH)
+      .set('Authorization', auth)
       .send(createDto)
       .expect(expectedStatusCode);
   }
@@ -22,10 +29,23 @@ export class UsersTestManager {
   async getUsers(
     expectedStatusCode: HttpStatus,
     query: QueryType = {},
+    auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .get(USERS_PATH)
       .query(query)
+      .set('Authorization', auth)
+      .expect(expectedStatusCode);
+  }
+
+  async deleteUser(
+    id: string,
+    expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(USERS_PATH + '/' + id)
+      .set('Authorization', auth)
       .expect(expectedStatusCode);
   }
 
@@ -54,14 +74,5 @@ export class UsersTestManager {
       usersData.push(this.generateUserData(i));
     }
     return this.createUsers(usersData);
-  }
-
-  async deleteUser(
-    id: string,
-    expectedStatusCode: HttpStatus,
-  ): Promise<Response> {
-    return request(this.app.getHttpServer())
-      .delete(USERS_PATH + '/' + id)
-      .expect(expectedStatusCode);
   }
 }

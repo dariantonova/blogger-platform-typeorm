@@ -5,6 +5,7 @@ import {
   generateNonExistingId,
   getPageOfArray,
   initApp,
+  invalidBasicAuthTestValues,
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
@@ -63,6 +64,28 @@ describe('users', () => {
       const paginatedUsers: PaginatedViewDto<UserViewDto[]> =
         getUsersResponse.body;
       expect(paginatedUsers.items).toEqual([createdUser]);
+    });
+
+    describe('authorization', () => {
+      const validInputDto: CreateUserInputDto = {
+        login: 'user',
+        email: 'user@example.com',
+        password: 'qwerty',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+
+      it('should forbid creating user for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await usersTestManager.createUser(
+            validInputDto,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
     });
 
     describe('validation', () => {
@@ -366,6 +389,27 @@ describe('users', () => {
 
       await usersTestManager.deleteUser(users[1].id, HttpStatus.NOT_FOUND);
     });
+
+    describe('authorization', () => {
+      let userToDelete: UserViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const users = await usersTestManager.createUsersWithGeneratedData(1);
+        userToDelete = users[0];
+      });
+
+      it('should forbid creating user for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await usersTestManager.deleteUser(
+            userToDelete.id,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
   });
 
   describe('get users', () => {
@@ -402,6 +446,22 @@ describe('users', () => {
       const response = await usersTestManager.getUsers(HttpStatus.OK);
       const responseBody: PaginatedViewDto<UserViewDto[]> = response.body;
       expect(responseBody.items).toEqual([]);
+    });
+
+    describe('authorization', () => {
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+
+      it('should forbid creating user for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await usersTestManager.getUsers(
+            HttpStatus.UNAUTHORIZED,
+            {},
+            invalidAuthValue,
+          );
+        }
+      });
     });
 
     describe('pagination', () => {

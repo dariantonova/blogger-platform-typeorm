@@ -304,7 +304,7 @@ describe('blog posts', () => {
         }
       });
 
-      it('should return 400 if multiple fields are invalid', async () => {
+      it('should return multiple errors if multiple fields are invalid', async () => {
         const data = {
           title: '',
           shortDescription: 'a'.repeat(101),

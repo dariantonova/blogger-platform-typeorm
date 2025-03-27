@@ -609,7 +609,7 @@ describe('blogs', () => {
         }
       });
 
-      it('should return 400 if multiple fields are invalid', async () => {
+      it('should return multiple errors if multiple fields are invalid', async () => {
         const data = {
           name: '',
           description: 'a'.repeat(501),
@@ -923,7 +923,7 @@ describe('blogs', () => {
         }
       });
 
-      it('should return 400 if multiple fields are invalid', async () => {
+      it('should return multiple errors if multiple fields are invalid', async () => {
         const data = {
           name: '',
           description: 'a'.repeat(501),

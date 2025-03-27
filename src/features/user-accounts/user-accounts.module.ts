@@ -11,6 +11,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { CryptoService } from './application/crypto.service';
 import { AuthController } from './api/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtStrategy } from './guards/bearer/jwt.strategy';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { JwtModule } from '@nestjs/jwt';
     AuthService,
     LocalStrategy,
     CryptoService,
+    JwtStrategy,
   ],
 })
 export class UserAccountModule {}

@@ -1,7 +1,11 @@
 import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { FilterQuery } from 'mongoose';
 
 @Injectable()
@@ -27,6 +31,16 @@ export class UsersRepository {
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async findByIdOrInternalFail(id: string): Promise<UserDocument> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
     }
 
     return user;

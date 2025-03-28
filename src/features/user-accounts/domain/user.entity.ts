@@ -9,6 +9,7 @@ import {
 } from './password-recovery-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
+import { add } from 'date-fns';
 
 export const loginConstraints = {
   minLength: 3,
@@ -24,6 +25,8 @@ export const passwordConstraints = {
 export const emailConstraints = {
   match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
 };
+
+const confirmationCodeLifetime = { hours: 2 };
 
 @Schema({ timestamps: true })
 export class User {
@@ -94,6 +97,14 @@ export class User {
       throw new Error('User is already deleted');
     }
     this.deletedAt = new Date();
+  }
+
+  setConfirmationCode(code: string) {
+    this.confirmationInfo.confirmationCode = code;
+    this.confirmationInfo.expirationDate = add(
+      new Date(),
+      confirmationCodeLifetime,
+    );
   }
 }
 

@@ -4,6 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CryptoService } from './crypto.service';
+import { randomUUID } from 'node:crypto';
+import { EmailService } from '../../notifications/email.service';
 
 @Injectable()
 export class UsersService {
@@ -12,6 +14,7 @@ export class UsersService {
     private UserModel: UserModelType,
     private usersRepository: UsersRepository,
     private cryptoService: CryptoService,
+    private emailService: EmailService,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<string> {
@@ -64,5 +67,20 @@ export class UsersService {
     user.makeDeleted();
 
     await this.usersRepository.save(user);
+  }
+
+  async registerUser(dto: CreateUserDto): Promise<void> {
+    const createdUserId = await this.createUser(dto);
+    const createdUser =
+      await this.usersRepository.findByIdOrInternalFail(createdUserId);
+
+    const confirmationCode = randomUUID();
+    createdUser.setConfirmationCode(confirmationCode);
+
+    await this.usersRepository.save(createdUser);
+
+    this.emailService
+      .sendConfirmationEmail(createdUser.email, confirmationCode)
+      .catch((err) => console.log('Error sending email: ' + err));
   }
 }

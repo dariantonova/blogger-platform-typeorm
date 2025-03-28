@@ -15,11 +15,15 @@ export class UsersRepository {
     await user.save();
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<UserDocument> {
-    const user = await this.UserModel.findOne({
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
       _id: new ObjectId(id),
       deletedAt: null,
     });
+  }
+
+  async findByIdOrNotFoundFail(id: string): Promise<UserDocument> {
+    const user = await this.findById(id);
 
     if (!user) {
       throw new NotFoundException('User not found');

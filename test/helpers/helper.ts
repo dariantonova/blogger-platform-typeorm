@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { appSetup } from '../../src/setup/app.setup';
 import { INestApplication } from '@nestjs/common';
@@ -32,10 +32,16 @@ export const invalidBasicAuthTestValues: string[] = [
 export type QueryType = Record<string, any>;
 export const DEFAULT_PAGE_SIZE = 10;
 
-export const initApp = async (): Promise<INestApplication> => {
-  const moduleFixture: TestingModule = await Test.createTestingModule({
+export const initApp = async (
+  customBuilderSetup = (builder: TestingModuleBuilder) => {},
+): Promise<INestApplication> => {
+  const testingModuleBuilder = Test.createTestingModule({
     imports: [AppModule],
-  }).compile();
+  });
+
+  customBuilderSetup(testingModuleBuilder);
+
+  const moduleFixture: TestingModule = await testingModuleBuilder.compile();
 
   const app: INestApplication = moduleFixture.createNestApplication();
 
@@ -107,3 +113,5 @@ export const getPageOfArray = <T>(
 ): T[] => {
   return arr.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 };
+
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));

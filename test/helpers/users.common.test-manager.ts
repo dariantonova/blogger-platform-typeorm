@@ -6,16 +6,20 @@ import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users
 export class UsersCommonTestManager {
   constructor(private app: INestApplication) {}
 
-  async createUser(
-    createDto: any,
-    auth: string = VALID_BASIC_AUTH_VALUE,
-  ): Promise<UserViewDto> {
+  async createUser(createDto: any): Promise<UserViewDto> {
     const response = await request(this.app.getHttpServer())
       .post(USERS_PATH)
-      .set('Authorization', auth)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .send(createDto)
       .expect(HttpStatus.CREATED);
 
     return response.body as UserViewDto;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await request(this.app.getHttpServer())
+      .delete(USERS_PATH + '/' + id)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .expect(HttpStatus.NO_CONTENT);
   }
 }

@@ -1,9 +1,15 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { deleteAllData, initApp } from '../helpers/helper';
+import { delay, deleteAllData, initApp } from '../helpers/helper';
 import { AuthTestManager } from './helpers/auth.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
+import {
+  MeViewDto,
+  UserViewDto,
+} from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { TestingModuleBuilder } from '@nestjs/testing';
+import { JwtService } from '@nestjs/jwt';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -11,7 +17,16 @@ describe('auth', () => {
   let usersCommonTestManager: UsersCommonTestManager;
 
   beforeAll(async () => {
-    app = await initApp();
+    app = await initApp((builder: TestingModuleBuilder) => {
+      builder.overrideProvider(JwtService).useValue(
+        new JwtService({
+          secret: 'access-token-secret',
+          signOptions: {
+            expiresIn: '2s',
+          },
+        }),
+      );
+    });
 
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app);
@@ -202,6 +217,91 @@ describe('auth', () => {
 
       const response = await authTestManager.login(data, HttpStatus.OK);
       expect(response.body).toEqual({ accessToken: expect.any(String) });
+    });
+  });
+
+  describe('me', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should return info about current user', async () => {
+      const userData: CreateUserDto = {
+        login: 'success',
+        email: 'success@example.com',
+        password: 'qwerty',
+      };
+      const user = await usersCommonTestManager.createUser(userData);
+
+      const accessToken = await authTestManager.getNewAccessToken(
+        userData.login,
+        userData.password,
+      );
+
+      const response = await authTestManager.me(
+        'Bearer ' + accessToken,
+        HttpStatus.OK,
+      );
+      const userInfo: MeViewDto = response.body;
+
+      expect(userInfo.login).toBe(userData.login);
+      expect(userInfo.email).toBe(userData.email);
+      expect(userInfo.userId).toBe(user.id);
+    });
+
+    describe('authorization', () => {
+      const userData: CreateUserDto = {
+        login: 'auth',
+        email: 'auth@example.com',
+        password: 'qwerty',
+      };
+      let user: UserViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        user = await usersCommonTestManager.createUser(userData);
+      });
+
+      // non-existing token
+      it('should return 401 if access token is invalid', async () => {
+        const accessToken = 'random';
+        await authTestManager.me(
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // wrong format auth header
+      it('should return 401 if auth header format is invalid', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+      });
+
+      // expired token
+      it('should return 401 if access token is expired', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+
+        await delay(2000);
+
+        await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+      });
+
+      // user was deleted
+      it('should return 401 if user was deleted', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        await usersCommonTestManager.deleteUser(user.id);
+        await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+      });
     });
   });
 });

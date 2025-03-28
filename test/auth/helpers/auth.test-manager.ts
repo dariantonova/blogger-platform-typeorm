@@ -11,4 +11,25 @@ export class AuthTestManager {
       .send(dto)
       .expect(expectedStatusCode);
   }
+
+  async getNewAccessToken(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<string> {
+    const loginResponse = await this.login(
+      {
+        loginOrEmail,
+        password,
+      },
+      HttpStatus.OK,
+    );
+    return loginResponse.body.accessToken;
+  }
+
+  async me(auth: string, expectedStatusCode: HttpStatus): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .get(AUTH_PATH + '/me')
+      .set('Authorization', auth)
+      .expect(expectedStatusCode);
+  }
 }

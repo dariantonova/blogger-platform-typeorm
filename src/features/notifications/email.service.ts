@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
-import { SentMessageInfo } from 'nodemailer';
 
 @Injectable()
 export class EmailService {
@@ -9,14 +8,16 @@ export class EmailService {
   async sendConfirmationEmail(
     email: string,
     confirmationCode: string,
-  ): Promise<SentMessageInfo> {
-    return this.mailerService.sendMail({
-      to: email,
-      subject: 'Finish registration',
-      template: 'confirm-email',
-      context: {
-        confirmationCode: confirmationCode,
-      },
-    });
+  ): Promise<void> {
+    this.mailerService
+      .sendMail({
+        to: email,
+        subject: 'Finish registration',
+        template: 'confirm-email',
+        context: {
+          confirmationCode: confirmationCode,
+        },
+      })
+      .catch((err) => console.log('Error sending email: ' + err));
   }
 }

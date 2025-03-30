@@ -10,26 +10,36 @@ import {
 } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
+import { EmailService } from '../../src/features/notifications/email.service';
+import { EmailServiceMock } from '../mock/email-service.mock';
+import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { UsersTestManager } from '../users/helpers/users.test-manager';
 
 describe('auth', () => {
   let app: INestApplication;
   let authTestManager: AuthTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
+  let usersTestManager: UsersTestManager;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
-      builder.overrideProvider(JwtService).useValue(
-        new JwtService({
-          secret: 'access-token-secret',
-          signOptions: {
-            expiresIn: '2s',
-          },
-        }),
-      );
+      builder
+        .overrideProvider(JwtService)
+        .useValue(
+          new JwtService({
+            secret: 'access-token-secret',
+            signOptions: {
+              expiresIn: '5m',
+            },
+          }),
+        )
+        .overrideProvider(EmailService)
+        .useClass(EmailServiceMock);
     });
 
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app);
+    usersTestManager = new UsersTestManager(app);
   });
 
   afterAll(async () => {
@@ -301,6 +311,291 @@ describe('auth', () => {
         );
         await usersCommonTestManager.deleteUser(user.id);
         await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+      });
+    });
+  });
+
+  describe('registration', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should register user', async () => {
+      const inputDto: CreateUserDto = {
+        login: 'user1',
+        email: 'user1@example.com',
+        password: 'qwerty',
+      };
+
+      await authTestManager.register(inputDto, HttpStatus.NO_CONTENT);
+
+      const getUsersResponse = await usersCommonTestManager.getUsers();
+      const createdUser: UserViewDto = getUsersResponse.body.items[0];
+
+      usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
+
+      // todo: check db record
+    });
+
+    describe('validation', () => {
+      let existingUser: UserViewDto;
+      const validInput: CreateUserInputDto = {
+        login: 'free',
+        email: 'free@example.com',
+        password: 'qwerty',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        existingUser = await usersCommonTestManager.createUser({
+          login: 'taken',
+          email: 'taken@example.com',
+          password: 'qwerty',
+        });
+      });
+
+      it('should return 400 if login is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: 4,
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: '',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: '  ',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          login: 'a'.repeat(11),
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data5);
+
+        // too short
+        const data6 = {
+          login: 'a'.repeat(2),
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data6);
+
+        // does not match pattern
+        const data7 = {
+          login: '//     //',
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data7);
+
+        // already taken
+        const data8 = {
+          login: existingUser.login,
+          email: validInput.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data8);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.register(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'login',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if email is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          login: validInput.login,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: validInput.login,
+          email: 4,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: validInput.login,
+          email: '',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: validInput.login,
+          email: '  ',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data4);
+
+        // does not match pattern
+        const data7 = {
+          login: validInput.login,
+          email: 'without domain',
+          password: validInput.password,
+        };
+        invalidDataCases.push(data7);
+
+        // already taken
+        const data8 = {
+          login: validInput.login,
+          email: existingUser.email,
+          password: validInput.password,
+        };
+        invalidDataCases.push(data8);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.register(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'email',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return 400 if password is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          login: validInput.login,
+          email: validInput.email,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 'a'.repeat(21),
+        };
+        invalidDataCases.push(data5);
+
+        // too short
+        const data6 = {
+          login: validInput.login,
+          email: validInput.email,
+          password: 'a'.repeat(5),
+        };
+        invalidDataCases.push(data6);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.register(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'password',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      it('should return multiple errors if multiple fields are invalid', async () => {
+        const data = {
+          login: '',
+          email: 'without domain',
+        };
+
+        const response = await authTestManager.register(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: expect.arrayContaining([
+            {
+              field: 'login',
+              message: expect.any(String),
+            },
+            {
+              field: 'email',
+              message: expect.any(String),
+            },
+            {
+              field: 'password',
+              message: expect.any(String),
+            },
+          ]),
+        });
+        expect(response.body.errorsMessages).toHaveLength(3);
       });
     });
   });

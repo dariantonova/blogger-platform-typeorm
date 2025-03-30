@@ -32,4 +32,11 @@ export class AuthTestManager {
       .set('Authorization', auth)
       .expect(expectedStatusCode);
   }
+
+  async register(dto: any, expectedStatusCode: HttpStatus): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/registration')
+      .send(dto)
+      .expect(expectedStatusCode);
+  }
 }

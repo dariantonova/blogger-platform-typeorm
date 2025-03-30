@@ -52,11 +52,7 @@ describe('users', () => {
       );
       const createdUser: UserViewDto = response.body;
 
-      expect(createdUser.id).toEqual(expect.any(String));
-      expect(createdUser.login).toBe(inputDto.login);
-      expect(createdUser.email).toBe(inputDto.email);
-      expect(createdUser.createdAt).toEqual(expect.any(String));
-      expect(Date.parse(createdUser.createdAt)).not.toBeNaN();
+      usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
       // todo: check db record
 

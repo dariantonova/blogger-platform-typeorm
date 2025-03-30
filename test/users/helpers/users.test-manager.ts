@@ -75,4 +75,15 @@ export class UsersTestManager {
     }
     return this.createUsers(usersData);
   }
+
+  checkCreatedUserViewFields(
+    createdUser: UserViewDto,
+    inputDto: CreateUserDto,
+  ) {
+    expect(createdUser.id).toEqual(expect.any(String));
+    expect(createdUser.login).toBe(inputDto.login);
+    expect(createdUser.email).toBe(inputDto.email);
+    expect(createdUser.createdAt).toEqual(expect.any(String));
+    expect(Date.parse(createdUser.createdAt)).not.toBeNaN();
+  }
 }

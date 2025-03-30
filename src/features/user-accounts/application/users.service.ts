@@ -79,8 +79,9 @@ export class UsersService {
 
     await this.usersRepository.save(createdUser);
 
-    this.emailService
-      .sendConfirmationEmail(createdUser.email, confirmationCode)
-      .catch((err) => console.log('Error sending email: ' + err));
+    this.emailService.sendConfirmationEmail(
+      createdUser.email,
+      confirmationCode,
+    );
   }
 }

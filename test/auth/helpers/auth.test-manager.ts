@@ -1,7 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
-import { RegistrationConfirmationCodeInputDto } from '../../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}

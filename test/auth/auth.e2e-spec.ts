@@ -15,12 +15,10 @@ import { EmailServiceMock } from '../mock/email-service.mock';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersTestManager } from '../users/helpers/users.test-manager';
 import {
-  User,
-  UserDocument,
+  confirmationCodeLifetime,
   UserModelType,
 } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 
 describe('auth', () => {
@@ -38,7 +36,7 @@ describe('auth', () => {
           new JwtService({
             secret: 'access-token-secret',
             signOptions: {
-              expiresIn: '5m',
+              expiresIn: '2s',
             },
           }),
         )
@@ -46,11 +44,14 @@ describe('auth', () => {
         .useClass(EmailServiceMock);
     });
 
-    authTestManager = new AuthTestManager(app);
-    usersCommonTestManager = new UsersCommonTestManager(app);
-    usersTestManager = new UsersTestManager(app);
+    confirmationCodeLifetime.hours = 0;
+    confirmationCodeLifetime.seconds = 2;
 
     UserModel = app.get<UserModelType>(getModelToken('User'));
+
+    authTestManager = new AuthTestManager(app);
+    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersTestManager = new UsersTestManager(app, UserModel);
   });
 
   afterAll(async () => {
@@ -241,7 +242,8 @@ describe('auth', () => {
     });
 
     it('should return 401 when trying to log in deleted user', async () => {
-      const deletedUserData = await usersCommonTestManager.createDeletedUser();
+      const deletedUserData =
+        await usersCommonTestManager.createDeletedUserWithGeneratedData();
 
       const loginData: LoginInputDto = {
         loginOrEmail: deletedUserData.login,
@@ -321,7 +323,10 @@ describe('auth', () => {
 
         await delay(2000);
 
-        await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+        await authTestManager.me(
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
       });
 
       // user was deleted
@@ -331,7 +336,10 @@ describe('auth', () => {
           userData.password,
         );
         await usersCommonTestManager.deleteUser(user.id);
-        await authTestManager.me(accessToken, HttpStatus.UNAUTHORIZED);
+        await authTestManager.me(
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
       });
     });
   });
@@ -355,9 +363,9 @@ describe('auth', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      const dbCreatedUser = (await UserModel.findOne({
-        _id: new ObjectId(createdUser.id),
-      })) as UserDocument;
+      const dbCreatedUser = await usersCommonTestManager.findUserById(
+        createdUser.id,
+      );
       expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
       expect(
         dbCreatedUser.confirmationInfo.confirmationCode.length,
@@ -643,9 +651,9 @@ describe('auth', () => {
       const getUsersResponse = await usersCommonTestManager.getUsers();
       const createdUser = getUsersResponse.body.items[0] as UserViewDto;
 
-      const dbUnconfirmedUser = (await UserModel.findOne({
-        _id: new ObjectId(createdUser.id),
-      })) as UserDocument;
+      const dbUnconfirmedUser = await usersCommonTestManager.findUserById(
+        createdUser.id,
+      );
       const confirmationCode =
         dbUnconfirmedUser.confirmationInfo.confirmationCode;
 
@@ -657,26 +665,172 @@ describe('auth', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const dbConfirmedUser = (await UserModel.findOne({
-        _id: new ObjectId(createdUser.id),
-      })) as UserDocument;
+      const dbConfirmedUser = await usersCommonTestManager.findUserById(
+        createdUser.id,
+      );
       expect(dbConfirmedUser.confirmationInfo.isConfirmed).toBe(true);
     });
 
-    // describe('validation', () => {
-    //   beforeAll(async () => {
-    //     await deleteAllData(app);
-    //   });
-    //
-    //   // invalid code (wrong format)
-    //
-    //   // incorrect (non-existing) code
-    //
-    //   // code of deleted user
-    //
-    //   // already confirmed user
-    //
-    //   // expired code
-    // });
+    describe('validation', () => {
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+
+      // invalid code (wrong format)
+      it('should return 400 if format of confirmation code is wrong', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {};
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          code: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty
+        const data3 = {
+          code: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty with spaces
+        const data4 = {
+          code: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.confirmRegistration(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'code',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      // incorrect (non-existing) code
+      it('should return 400 if confirmation code matches no user', async () => {
+        const data: RegistrationConfirmationCodeInputDto = {
+          code: 'non-existing',
+        };
+
+        const response = await authTestManager.confirmRegistration(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'code',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      // code of deleted user
+      it('should return 400 if confirmation code matches deleted user', async () => {
+        const userToDelete = await usersCommonTestManager.createUser({
+          login: 'deleted',
+          email: 'deleted@example.com',
+          password: 'qwerty',
+        });
+        await usersCommonTestManager.deleteUser(userToDelete.id);
+
+        const dbDeletedUser = await usersCommonTestManager.findUserById(
+          userToDelete.id,
+        );
+        const code = dbDeletedUser.confirmationInfo.confirmationCode;
+
+        const response = await authTestManager.confirmRegistration(
+          { code },
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'code',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      // already confirmed user
+      it('should return 400 when trying to confirm already confirmed user', async () => {
+        const userData: CreateUserDto = {
+          login: 'confirmed',
+          email: 'confirmed@example.com',
+          password: 'qwerty',
+        };
+        await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+        const confirmationCode =
+          await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+
+        const inputDto: RegistrationConfirmationCodeInputDto = {
+          code: confirmationCode,
+        };
+        await authTestManager.confirmRegistration(
+          inputDto,
+          HttpStatus.NO_CONTENT,
+        );
+
+        const response = await authTestManager.confirmRegistration(
+          inputDto,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'code',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      // expired code
+      it('should return 400 if confirmation code is expired', async () => {
+        const userData: CreateUserDto = {
+          login: 'expired',
+          email: 'expired@example.com',
+          password: 'qwerty',
+        };
+        await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+        const confirmationCode =
+          await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+
+        const inputDto: RegistrationConfirmationCodeInputDto = {
+          code: confirmationCode,
+        };
+
+        await delay(2000);
+
+        const response = await authTestManager.confirmRegistration(
+          inputDto,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'code',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+    });
   });
 });

@@ -3,9 +3,17 @@ import { QueryType, USERS_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
 import request, { Response } from 'supertest';
 import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
+import { ObjectId } from 'mongodb';
+import {
+  UserDocument,
+  UserModelType,
+} from '../../src/features/user-accounts/domain/user.entity';
 
 export class UsersCommonTestManager {
-  constructor(private app: INestApplication) {}
+  constructor(
+    private app: INestApplication,
+    private UserModel: UserModelType,
+  ) {}
 
   async createUser(createDto: any): Promise<UserViewDto> {
     const response = await request(this.app.getHttpServer())
@@ -32,8 +40,8 @@ export class UsersCommonTestManager {
       .expect(HttpStatus.OK);
   }
 
-  async createDeletedUser(dto?: CreateUserDto): Promise<CreateUserDto> {
-    const userToDeleteData: CreateUserDto = dto || {
+  async createDeletedUserWithGeneratedData(): Promise<CreateUserDto> {
+    const userToDeleteData: CreateUserDto = {
       login: 'deleted',
       email: 'deleted@example.com',
       password: 'qwerty',
@@ -42,5 +50,22 @@ export class UsersCommonTestManager {
     await this.deleteUser(userToDelete.id);
 
     return userToDeleteData;
+  }
+
+  async findUserById(id: string): Promise<UserDocument> {
+    const user = await this.UserModel.findOne({
+      _id: new ObjectId(id),
+    });
+    expect(user).not.toBeNull();
+
+    return user as UserDocument;
+  }
+
+  async getConfirmationCodeOfLastCreatedUser(): Promise<string> {
+    const getUsersResponse = await this.getUsers();
+    const lastCreatedUser = getUsersResponse.body.items[0] as UserViewDto;
+
+    const dbUnconfirmedUser = await this.findUserById(lastCreatedUser.id);
+    return dbUnconfirmedUser.confirmationInfo.confirmationCode;
   }
 }

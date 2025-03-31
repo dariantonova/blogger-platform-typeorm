@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
+import { RegistrationConfirmationCodeInputDto } from '../../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}
@@ -36,6 +37,16 @@ export class AuthTestManager {
   async register(dto: any, expectedStatusCode: HttpStatus): Promise<Response> {
     return request(this.app.getHttpServer())
       .post(AUTH_PATH + '/registration')
+      .send(dto)
+      .expect(expectedStatusCode);
+  }
+
+  async confirmRegistration(
+    dto: any,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/registration-confirmation')
       .send(dto)
       .expect(expectedStatusCode);
   }

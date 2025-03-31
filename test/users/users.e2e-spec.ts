@@ -19,15 +19,24 @@ import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersSortBy } from '../../src/features/user-accounts/api/input-dto/users-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
+import { ObjectId } from 'mongodb';
+import {
+  UserDocument,
+  UserModelType,
+} from '../../src/features/user-accounts/domain/user.entity';
+import { getModelToken } from '@nestjs/mongoose';
 
 describe('users', () => {
   let app: INestApplication;
   let usersTestManager: UsersTestManager;
+  let UserModel: UserModelType;
 
   beforeAll(async () => {
     app = await initApp();
 
     usersTestManager = new UsersTestManager(app);
+
+    UserModel = app.get<UserModelType>(getModelToken('User'));
   });
 
   afterAll(async () => {
@@ -54,7 +63,10 @@ describe('users', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      // todo: check db record
+      const dbCreatedUser = (await UserModel.findOne({
+        _id: new ObjectId(createdUser.id),
+      })) as UserDocument;
+      expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
 
       const getUsersResponse = await usersTestManager.getUsers(HttpStatus.OK);
       const paginatedUsers: PaginatedViewDto<UserViewDto[]> =

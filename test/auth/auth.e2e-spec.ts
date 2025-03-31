@@ -14,12 +14,21 @@ import { EmailService } from '../../src/features/notifications/email.service';
 import { EmailServiceMock } from '../mock/email-service.mock';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersTestManager } from '../users/helpers/users.test-manager';
+import {
+  User,
+  UserDocument,
+  UserModelType,
+} from '../../src/features/user-accounts/domain/user.entity';
+import { getModelToken } from '@nestjs/mongoose';
+import { ObjectId } from 'mongodb';
+import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 
 describe('auth', () => {
   let app: INestApplication;
   let authTestManager: AuthTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let usersTestManager: UsersTestManager;
+  let UserModel: UserModelType;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
@@ -40,6 +49,8 @@ describe('auth', () => {
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app);
     usersTestManager = new UsersTestManager(app);
+
+    UserModel = app.get<UserModelType>(getModelToken('User'));
   });
 
   afterAll(async () => {
@@ -344,7 +355,13 @@ describe('auth', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      // todo: check db record
+      const dbCreatedUser = (await UserModel.findOne({
+        _id: new ObjectId(createdUser.id),
+      })) as UserDocument;
+      expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
+      expect(
+        dbCreatedUser.confirmationInfo.confirmationCode.length,
+      ).toBeGreaterThan(0);
     });
 
     describe('validation', () => {
@@ -608,5 +625,58 @@ describe('auth', () => {
         expect(response.body.errorsMessages).toHaveLength(3);
       });
     });
+  });
+
+  describe('registration confirmation', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should confirm registration', async () => {
+      const userData: CreateUserDto = {
+        login: 'user1',
+        email: 'user1@example.com',
+        password: 'qwerty',
+      };
+      await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+      const getUsersResponse = await usersCommonTestManager.getUsers();
+      const createdUser = getUsersResponse.body.items[0] as UserViewDto;
+
+      const dbUnconfirmedUser = (await UserModel.findOne({
+        _id: new ObjectId(createdUser.id),
+      })) as UserDocument;
+      const confirmationCode =
+        dbUnconfirmedUser.confirmationInfo.confirmationCode;
+
+      const inputDto: RegistrationConfirmationCodeInputDto = {
+        code: confirmationCode,
+      };
+      await authTestManager.confirmRegistration(
+        inputDto,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const dbConfirmedUser = (await UserModel.findOne({
+        _id: new ObjectId(createdUser.id),
+      })) as UserDocument;
+      expect(dbConfirmedUser.confirmationInfo.isConfirmed).toBe(true);
+    });
+
+    // describe('validation', () => {
+    //   beforeAll(async () => {
+    //     await deleteAllData(app);
+    //   });
+    //
+    //   // invalid code (wrong format)
+    //
+    //   // incorrect (non-existing) code
+    //
+    //   // code of deleted user
+    //
+    //   // already confirmed user
+    //
+    //   // expired code
+    // });
   });
 });

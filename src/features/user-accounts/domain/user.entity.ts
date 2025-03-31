@@ -106,6 +106,10 @@ export class User {
       confirmationCodeLifetime,
     );
   }
+
+  makeConfirmed() {
+    this.confirmationInfo.isConfirmed = true;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

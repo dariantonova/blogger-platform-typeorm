@@ -17,6 +17,7 @@ import { AuthQueryRepository } from '../infrastructure/query/auth.query-reposito
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { UsersService } from '../application/users.service';
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
+import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -53,5 +54,13 @@ export class AuthController {
     @Body() body: RegistrationEmailResendingInputDto,
   ): Promise<void> {
     await this.authService.resendRegistrationEmail(body.email);
+  }
+
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmRegistration(
+    @Body() body: RegistrationConfirmationCodeInputDto,
+  ): Promise<void> {
+    await this.authService.confirmRegistration(body.code);
   }
 }

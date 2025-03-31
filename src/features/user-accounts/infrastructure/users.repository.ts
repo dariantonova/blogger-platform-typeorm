@@ -69,4 +69,13 @@ export class UsersRepository {
     };
     return this.UserModel.findOne(filter);
   }
+
+  async findUserByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      'confirmationInfo.confirmationCode': confirmationCode,
+      deletedAt: null,
+    });
+  }
 }

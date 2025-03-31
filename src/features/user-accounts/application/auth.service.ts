@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepository } from '../infrastructure/users.repository';
 import { CryptoService } from './crypto.service';
 import { UserContextDto } from '../guards/dto/user-context.dto';
@@ -52,5 +52,46 @@ export class AuthService {
       await this.usersService.updateUserConfirmationCode(user);
 
     this.emailService.sendConfirmationEmail(email, newConfirmationCode);
+  }
+
+  async confirmRegistration(confirmationCode: string): Promise<void> {
+    const user =
+      await this.usersRepository.findUserByConfirmationCode(confirmationCode);
+    if (!user) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: 'code',
+            message: 'Confirmation code is incorrect',
+          },
+        ],
+      });
+    }
+
+    if (user.confirmationInfo.isConfirmed) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: 'code',
+            message: 'Confirmation code has already been applied',
+          },
+        ],
+      });
+    }
+
+    if (new Date() > user.confirmationInfo.expirationDate) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: 'code',
+            message: 'Confirmation code is expired',
+          },
+        ],
+      });
+    }
+
+    user.makeConfirmed();
+
+    await this.usersRepository.save(user);
   }
 }

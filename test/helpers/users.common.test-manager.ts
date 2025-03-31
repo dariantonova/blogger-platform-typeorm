@@ -8,6 +8,7 @@ import {
   UserDocument,
   UserModelType,
 } from '../../src/features/user-accounts/domain/user.entity';
+import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 
 export class UsersCommonTestManager {
   constructor(

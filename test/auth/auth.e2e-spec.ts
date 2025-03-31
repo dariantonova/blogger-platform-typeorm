@@ -20,6 +20,7 @@ import {
 } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
+import { RegistrationEmailResendingInputDto } from '../../src/features/user-accounts/api/input-dto/registration-email-resending.input-dto';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -720,12 +721,12 @@ describe('auth', () => {
 
       // incorrect (non-existing) code
       it('should return 400 if confirmation code matches no user', async () => {
-        const data: RegistrationConfirmationCodeInputDto = {
+        const inputDto: RegistrationConfirmationCodeInputDto = {
           code: 'non-existing',
         };
 
         const response = await authTestManager.confirmRegistration(
-          data,
+          inputDto,
           HttpStatus.BAD_REQUEST,
         );
         expect(response.body).toEqual({
@@ -831,6 +832,116 @@ describe('auth', () => {
           ],
         });
       });
+    });
+  });
+
+  describe('registration email resending', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    // invalid email
+    it('should return 400 if email is invalid', async () => {
+      const invalidDataCases: any[] = [];
+
+      // missing
+      const data1 = {};
+      invalidDataCases.push(data1);
+
+      // not string
+      const data2 = {
+        email: 4,
+      };
+      invalidDataCases.push(data2);
+
+      // empty string
+      const data3 = {
+        email: '',
+      };
+      invalidDataCases.push(data3);
+
+      // empty string with spaces
+      const data4 = {
+        email: '  ',
+      };
+      invalidDataCases.push(data4);
+
+      // does not match pattern
+      const data7 = {
+        email: 'without domain',
+      };
+      invalidDataCases.push(data7);
+
+      for (const data of invalidDataCases) {
+        const response = await authTestManager.resendRegistrationEmail(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'email',
+              message: expect.any(String),
+            },
+          ],
+        });
+      }
+    });
+
+    // email matches no user
+    it('should return 204 if email matches no user', async () => {
+      const inputDto: RegistrationEmailResendingInputDto = {
+        email: 'nonExisting@example.com',
+      };
+
+      await authTestManager.resendRegistrationEmail(
+        inputDto,
+        HttpStatus.NO_CONTENT,
+      );
+    });
+
+    // already confirmed user
+    it('should return 204 if user is already confirmed', async () => {
+      const userData: CreateUserDto = {
+        login: 'confirmed',
+        email: 'confirmed@example.com',
+        password: 'qwerty',
+      };
+      await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+      const confirmationCode =
+        await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+
+      await authTestManager.confirmRegistration(
+        { code: confirmationCode },
+        HttpStatus.NO_CONTENT,
+      );
+
+      const inputDto: RegistrationEmailResendingInputDto = {
+        email: userData.email,
+      };
+      await authTestManager.resendRegistrationEmail(
+        inputDto,
+        HttpStatus.NO_CONTENT,
+      );
+    });
+
+    // success
+    it('should resend registration email without actually sending it', async () => {
+      const userData: CreateUserDto = {
+        login: 'success',
+        email: 'success@example.com',
+        password: 'qwerty',
+      };
+      await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+      const inputDto: RegistrationEmailResendingInputDto = {
+        email: userData.email,
+      };
+      await authTestManager.resendRegistrationEmail(
+        inputDto,
+        HttpStatus.NO_CONTENT,
+      );
     });
   });
 });

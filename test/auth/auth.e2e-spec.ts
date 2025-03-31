@@ -228,6 +228,16 @@ describe('auth', () => {
       const response = await authTestManager.login(data, HttpStatus.OK);
       expect(response.body).toEqual({ accessToken: expect.any(String) });
     });
+
+    it('should return 401 when trying to log in deleted user', async () => {
+      const deletedUserData = await usersCommonTestManager.createDeletedUser();
+
+      const loginData: LoginInputDto = {
+        loginOrEmail: deletedUserData.login,
+        password: deletedUserData.password,
+      };
+      await authTestManager.login(loginData, HttpStatus.UNAUTHORIZED);
+    });
   });
 
   describe('me', () => {

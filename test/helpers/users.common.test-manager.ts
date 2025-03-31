@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { QueryType, USERS_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
 import request, { Response } from 'supertest';
 import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 
 export class UsersCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -29,5 +30,17 @@ export class UsersCommonTestManager {
       .query(query)
       .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .expect(HttpStatus.OK);
+  }
+
+  async createDeletedUser(dto?: CreateUserDto): Promise<CreateUserDto> {
+    const userToDeleteData: CreateUserDto = dto || {
+      login: 'deleted',
+      email: 'deleted@example.com',
+      password: 'qwerty',
+    };
+    const userToDelete = await this.createUser(userToDeleteData);
+    await this.deleteUser(userToDelete.id);
+
+    return userToDeleteData;
   }
 }

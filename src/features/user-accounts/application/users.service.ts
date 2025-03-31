@@ -1,5 +1,5 @@
 import { UsersRepository } from '../infrastructure/users.repository';
-import { User, UserModelType } from '../domain/user.entity';
+import { User, UserDocument, UserModelType } from '../domain/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { BadRequestException, Injectable } from '@nestjs/common';
@@ -69,15 +69,21 @@ export class UsersService {
     await this.usersRepository.save(user);
   }
 
+  async updateUserConfirmationCode(user: UserDocument): Promise<string> {
+    const confirmationCode = randomUUID();
+    user.setConfirmationCode(confirmationCode);
+
+    await this.usersRepository.save(user);
+
+    return confirmationCode;
+  }
+
   async registerUser(dto: CreateUserDto): Promise<void> {
     const createdUserId = await this.createUser(dto);
     const createdUser =
       await this.usersRepository.findByIdOrInternalFail(createdUserId);
 
-    const confirmationCode = randomUUID();
-    createdUser.setConfirmationCode(confirmationCode);
-
-    await this.usersRepository.save(createdUser);
+    const confirmationCode = await this.updateUserConfirmationCode(createdUser);
 
     this.emailService.sendConfirmationEmail(
       createdUser.email,

@@ -61,4 +61,14 @@ export class AuthTestManager {
       .send(dto)
       .expect(expectedStatusCode);
   }
+
+  async recoverPassword(
+    dto: any,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/password-recovery')
+      .send(dto)
+      .expect(expectedStatusCode);
+  }
 }

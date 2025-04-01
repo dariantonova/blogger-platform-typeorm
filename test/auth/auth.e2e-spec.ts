@@ -21,6 +21,7 @@ import {
 import { getModelToken } from '@nestjs/mongoose';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 import { RegistrationEmailResendingInputDto } from '../../src/features/user-accounts/api/input-dto/registration-email-resending.input-dto';
+import { PasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/password-recovery.input-dto';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -974,6 +975,98 @@ describe('auth', () => {
       );
 
       expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  describe('password recovery', () => {
+    let emailService: EmailService;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      emailService = app.get(EmailService);
+    });
+
+    beforeEach(async () => {
+      (emailService.sendPasswordRecoveryEmail as jest.Mock).mockClear();
+    });
+
+    // invalid email
+    it('should return 400 if email is invalid', async () => {
+      const invalidDataCases: any[] = [];
+
+      // missing
+      const data1 = {};
+      invalidDataCases.push(data1);
+
+      // not string
+      const data2 = {
+        email: 4,
+      };
+      invalidDataCases.push(data2);
+
+      // empty string
+      const data3 = {
+        email: '',
+      };
+      invalidDataCases.push(data3);
+
+      // empty string with spaces
+      const data4 = {
+        email: '  ',
+      };
+      invalidDataCases.push(data4);
+
+      // does not match pattern
+      const data7 = {
+        email: 'without domain',
+      };
+      invalidDataCases.push(data7);
+
+      for (const data of invalidDataCases) {
+        const response = await authTestManager.recoverPassword(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'email',
+              message: expect.any(String),
+            },
+          ],
+        });
+      }
+
+      expect(emailService.sendPasswordRecoveryEmail).toHaveBeenCalledTimes(0);
+    });
+
+    // email matches no user
+    it('should return 204 if email matches no user', async () => {
+      const inputDto: PasswordRecoveryInputDto = {
+        email: 'nonExisting@example.com',
+      };
+
+      await authTestManager.recoverPassword(inputDto, HttpStatus.NO_CONTENT);
+
+      expect(emailService.sendPasswordRecoveryEmail).toHaveBeenCalledTimes(0);
+    });
+
+    // success
+    it('should request password recovery with actually sending email', async () => {
+      const userData: CreateUserDto = {
+        login: 'success',
+        email: 'success@example.com',
+        password: 'qwerty',
+      };
+      await authTestManager.register(userData, HttpStatus.NO_CONTENT);
+
+      const inputDto: PasswordRecoveryInputDto = {
+        email: userData.email,
+      };
+      await authTestManager.recoverPassword(inputDto, HttpStatus.NO_CONTENT);
+
+      expect(emailService.sendPasswordRecoveryEmail).toHaveBeenCalledTimes(1);
     });
   });
 });

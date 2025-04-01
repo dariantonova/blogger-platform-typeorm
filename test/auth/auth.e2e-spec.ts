@@ -346,8 +346,16 @@ describe('auth', () => {
   });
 
   describe('registration', () => {
+    let emailService: EmailService;
+
     beforeAll(async () => {
       await deleteAllData(app);
+
+      emailService = app.get(EmailService);
+    });
+
+    beforeEach(async () => {
+      (emailService.sendConfirmationEmail as jest.Mock).mockClear();
     });
 
     it('should register user', async () => {
@@ -371,6 +379,8 @@ describe('auth', () => {
       expect(
         dbCreatedUser.confirmationInfo.confirmationCode.length,
       ).toBeGreaterThan(0);
+
+      expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(1);
     });
 
     describe('validation', () => {
@@ -389,6 +399,10 @@ describe('auth', () => {
           email: 'taken@example.com',
           password: 'qwerty',
         });
+      });
+
+      afterEach(async () => {
+        expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(0);
       });
 
       it('should return 400 if login is invalid', async () => {
@@ -836,8 +850,16 @@ describe('auth', () => {
   });
 
   describe('registration email resending', () => {
+    let emailService: EmailService;
+
     beforeAll(async () => {
       await deleteAllData(app);
+
+      emailService = app.get(EmailService);
+    });
+
+    beforeEach(async () => {
+      (emailService.sendConfirmationEmail as jest.Mock).mockClear();
     });
 
     // invalid email
@@ -886,6 +908,8 @@ describe('auth', () => {
           ],
         });
       }
+
+      expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(0);
     });
 
     // email matches no user
@@ -898,6 +922,8 @@ describe('auth', () => {
         inputDto,
         HttpStatus.NO_CONTENT,
       );
+
+      expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(0);
     });
 
     // already confirmed user
@@ -924,6 +950,8 @@ describe('auth', () => {
         inputDto,
         HttpStatus.NO_CONTENT,
       );
+
+      expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(1);
     });
 
     // success
@@ -942,6 +970,8 @@ describe('auth', () => {
         inputDto,
         HttpStatus.NO_CONTENT,
       );
+
+      expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(2);
     });
   });
 });

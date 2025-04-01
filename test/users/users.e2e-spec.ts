@@ -21,10 +21,12 @@ import { UsersSortBy } from '../../src/features/user-accounts/api/input-dto/user
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
+import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 
 describe('users', () => {
   let app: INestApplication;
   let usersTestManager: UsersTestManager;
+  let usersCommonTestManager: UsersCommonTestManager;
   let UserModel: UserModelType;
 
   beforeAll(async () => {
@@ -33,6 +35,7 @@ describe('users', () => {
     UserModel = app.get<UserModelType>(getModelToken('User'));
 
     usersTestManager = new UsersTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
   });
 
   afterAll(async () => {
@@ -79,6 +82,10 @@ describe('users', () => {
         await deleteAllData(app);
       });
 
+      afterEach(async () => {
+        await usersCommonTestManager.checkUsersCount(0);
+      });
+
       it('should forbid creating user for non-admin users', async () => {
         for (const invalidAuthValue of invalidBasicAuthTestValues) {
           await usersTestManager.createUser(
@@ -110,6 +117,10 @@ describe('users', () => {
           HttpStatus.CREATED,
         );
         existingUser = createUserResponse.body;
+      });
+
+      afterEach(async () => {
+        await usersCommonTestManager.checkUsersCount(1);
       });
 
       it('should return 400 if login is invalid', async () => {

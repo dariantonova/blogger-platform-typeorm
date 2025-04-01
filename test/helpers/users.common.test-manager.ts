@@ -69,4 +69,9 @@ export class UsersCommonTestManager {
     const dbUnconfirmedUser = await this.findUserById(lastCreatedUser.id);
     return dbUnconfirmedUser.confirmationInfo.confirmationCode;
   }
+
+  async checkUsersCount(count: number): Promise<void> {
+    const getUsersResponse = await this.getUsers();
+    expect(getUsersResponse.body.totalCount).toBe(count);
+  }
 }

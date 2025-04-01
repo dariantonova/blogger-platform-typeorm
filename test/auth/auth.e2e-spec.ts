@@ -402,6 +402,8 @@ describe('auth', () => {
       });
 
       afterEach(async () => {
+        await usersCommonTestManager.checkUsersCount(1);
+
         expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(0);
       });
 

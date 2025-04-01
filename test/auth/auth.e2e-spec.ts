@@ -22,6 +22,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 import { RegistrationEmailResendingInputDto } from '../../src/features/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { PasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/password-recovery.input-dto';
+import { CryptoService } from '../../src/features/user-accounts/application/crypto.service';
+import { NewPasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/new-password-recovery.input-dto';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -1067,6 +1069,358 @@ describe('auth', () => {
       await authTestManager.recoverPassword(inputDto, HttpStatus.NO_CONTENT);
 
       expect(emailService.sendPasswordRecoveryEmail).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('new password', () => {
+    let cryptoService: CryptoService;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      cryptoService = app.get(CryptoService);
+    });
+
+    // success
+    it('should set new password', async () => {
+      const userData: CreateUserDto = {
+        login: 'user1',
+        email: 'user1@example.com',
+        password: 'qwerty',
+      };
+
+      const user = await usersCommonTestManager.createUser(userData);
+
+      const recoveryCode = 'code';
+      const recoveryCodeHash =
+        cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
+
+      await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+        user.id,
+        recoveryCodeHash,
+      );
+
+      const inputDto: NewPasswordRecoveryInputDto = {
+        recoveryCode,
+        newPassword: 'newPassword',
+      };
+
+      await authTestManager.setNewPassword(inputDto, HttpStatus.NO_CONTENT);
+
+      await authTestManager.login(
+        {
+          loginOrEmail: userData.login,
+          password: inputDto.newPassword,
+        },
+        HttpStatus.OK,
+      );
+    });
+
+    describe('validation', () => {
+      let usersData: CreateUserDto[];
+      let users: UserViewDto[];
+      let recoveryCodes: string[];
+      let validInputDto: NewPasswordRecoveryInputDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersData = [
+          {
+            login: 'user1',
+            email: 'user1@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user2',
+            email: 'user2@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user3',
+            email: 'user3@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user4',
+            email: 'user4@example.com',
+            password: 'qwerty',
+          },
+        ];
+
+        users = await usersCommonTestManager.createUsers(usersData);
+
+        recoveryCodes = ['code1', 'code2', 'code3', 'code4'];
+        const recoveryCodesHashes = recoveryCodes.map(
+          cryptoService.createPasswordRecoveryCodeHash,
+        );
+
+        for (let i = 0; i < usersData.length; i++) {
+          await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+            users[i].id,
+            recoveryCodesHashes[i],
+          );
+        }
+
+        validInputDto = {
+          newPassword: 'newPassword',
+          recoveryCode: recoveryCodes[0],
+        };
+      });
+
+      // invalid password
+      it('should return 400 if password is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          recoveryCode: validInputDto.recoveryCode,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          recoveryCode: validInputDto.recoveryCode,
+          newPassword: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty string
+        const data3 = {
+          recoveryCode: validInputDto.recoveryCode,
+          newPassword: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          recoveryCode: validInputDto.recoveryCode,
+          newPassword: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        // too long
+        const data5 = {
+          recoveryCode: validInputDto.recoveryCode,
+          newPassword: 'a'.repeat(21),
+        };
+        invalidDataCases.push(data5);
+
+        // too short
+        const data6 = {
+          recoveryCode: validInputDto.recoveryCode,
+          newPassword: 'a'.repeat(5),
+        };
+        invalidDataCases.push(data6);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.setNewPassword(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'newPassword',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+
+        await authTestManager.login(
+          {
+            loginOrEmail: usersData[0].login,
+            password: usersData[0].password,
+          },
+          HttpStatus.OK,
+        );
+      });
+
+      // invalid recovery code
+      it('should return 400 if format of recovery code is wrong', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {
+          newPassword: validInputDto.newPassword,
+        };
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          code: 4,
+          newPassword: validInputDto.newPassword,
+        };
+        invalidDataCases.push(data2);
+
+        // empty
+        const data3 = {
+          code: '',
+          newPassword: validInputDto.newPassword,
+        };
+        invalidDataCases.push(data3);
+
+        // empty with spaces
+        const data4 = {
+          code: '  ',
+          newPassword: validInputDto.newPassword,
+        };
+        invalidDataCases.push(data4);
+
+        for (const data of invalidDataCases) {
+          const response = await authTestManager.setNewPassword(
+            data,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'recoveryCode',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+
+      // multiple errors
+      it('should return multiple errors if multiple fields are invalid', async () => {
+        const data = {
+          recoveryCode: '',
+          newPassword: 4,
+        };
+
+        const response = await authTestManager.setNewPassword(
+          data,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: expect.arrayContaining([
+            {
+              field: 'recoveryCode',
+              message: expect.any(String),
+            },
+            {
+              field: 'newPassword',
+              message: expect.any(String),
+            },
+          ]),
+        });
+      });
+
+      // non-existing code
+      it('should return 400 if recovery code matches no user', async () => {
+        const inputDto: NewPasswordRecoveryInputDto = {
+          recoveryCode: 'non-existing',
+          newPassword: validInputDto.newPassword,
+        };
+
+        const response = await authTestManager.setNewPassword(
+          inputDto,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'recoveryCode',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      // code of deleted user
+      it('should return 400 if recovery code matches deleted user', async () => {
+        const inputDto: NewPasswordRecoveryInputDto = {
+          recoveryCode: recoveryCodes[1],
+          newPassword: validInputDto.newPassword,
+        };
+
+        await usersCommonTestManager.deleteUser(users[1].id);
+
+        const response = await authTestManager.setNewPassword(
+          inputDto,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'recoveryCode',
+              message: expect.any(String),
+            },
+          ],
+        });
+      });
+
+      // expired code
+      it('should return 400 if recovery code is expired', async () => {
+        await usersCommonTestManager.setUserPasswordRecoveryExpirationDate(
+          users[2].id,
+          new Date(),
+        );
+
+        const inputDto: NewPasswordRecoveryInputDto = {
+          recoveryCode: recoveryCodes[2],
+          newPassword: validInputDto.newPassword,
+        };
+
+        const response = await authTestManager.setNewPassword(
+          inputDto,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'recoveryCode',
+              message: expect.any(String),
+            },
+          ],
+        });
+
+        await authTestManager.login(
+          {
+            loginOrEmail: usersData[2].login,
+            password: usersData[2].password,
+          },
+          HttpStatus.OK,
+        );
+      });
+
+      // already used code
+      it('should return 400 is recovery code has already been applied', async () => {
+        const inputDto1: NewPasswordRecoveryInputDto = {
+          recoveryCode: recoveryCodes[3],
+          newPassword: 'newPassword1',
+        };
+        const inputDto2: NewPasswordRecoveryInputDto = {
+          recoveryCode: recoveryCodes[3],
+          newPassword: 'newPassword2',
+        };
+
+        await authTestManager.setNewPassword(inputDto1, HttpStatus.NO_CONTENT);
+
+        const response = await authTestManager.setNewPassword(
+          inputDto2,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'recoveryCode',
+              message: expect.any(String),
+            },
+          ],
+        });
+
+        await authTestManager.login(
+          {
+            loginOrEmail: usersData[3].login,
+            password: inputDto1.newPassword,
+          },
+          HttpStatus.OK,
+        );
+      });
     });
   });
 });

@@ -1,8 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
-import { RegistrationConfirmationCodeInputDto } from '../../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
-import { CreateUserDto } from '../../../src/features/user-accounts/dto/create-user.dto';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}
@@ -68,6 +66,16 @@ export class AuthTestManager {
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .post(AUTH_PATH + '/password-recovery')
+      .send(dto)
+      .expect(expectedStatusCode);
+  }
+
+  async setNewPassword(
+    dto: any,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/new-password')
       .send(dto)
       .expect(expectedStatusCode);
   }

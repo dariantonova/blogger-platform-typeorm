@@ -8,7 +8,7 @@ import {
   UserDocument,
   UserModelType,
 } from '../../src/features/user-accounts/domain/user.entity';
-import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
+import { add } from 'date-fns';
 
 export class UsersCommonTestManager {
   constructor(
@@ -24,6 +24,15 @@ export class UsersCommonTestManager {
       .expect(HttpStatus.CREATED);
 
     return response.body as UserViewDto;
+  }
+
+  async createUsers(inputData: CreateUserDto[]): Promise<UserViewDto[]> {
+    const users: UserViewDto[] = [];
+    for (const createDto of inputData) {
+      const user = await this.createUser(createDto);
+      users.push(user);
+    }
+    return users;
   }
 
   async deleteUser(id: string): Promise<void> {
@@ -73,5 +82,36 @@ export class UsersCommonTestManager {
   async checkUsersCount(count: number): Promise<void> {
     const getUsersResponse = await this.getUsers();
     expect(getUsersResponse.body.totalCount).toBe(count);
+  }
+
+  async setUserPasswordRecoveryCodeHash(
+    userId: string,
+    recoveryCodeHash: string,
+  ): Promise<void> {
+    await this.UserModel.updateOne(
+      {
+        _id: new ObjectId(userId),
+      },
+      {
+        passwordRecoveryInfo: {
+          recoveryCodeHash,
+          expirationDate: add(new Date(), { hours: 2 }),
+        },
+      },
+    );
+  }
+
+  async setUserPasswordRecoveryExpirationDate(
+    userId: string,
+    expirationDate: Date,
+  ): Promise<void> {
+    await this.UserModel.updateOne(
+      {
+        _id: new ObjectId(userId),
+      },
+      {
+        'passwordRecoveryInfo.expirationDate': expirationDate,
+      },
+    );
   }
 }

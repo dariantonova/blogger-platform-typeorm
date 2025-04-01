@@ -78,4 +78,13 @@ export class UsersRepository {
       deletedAt: null,
     });
   }
+
+  async findUserByPasswordRecoveryCodeHash(
+    recoveryCodeHash: string,
+  ): Promise<UserDocument | null> {
+    return this.UserModel.findOne({
+      'passwordRecoveryInfo.recoveryCodeHash': recoveryCodeHash,
+      deletedAt: null,
+    });
+  }
 }

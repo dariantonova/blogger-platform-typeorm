@@ -120,6 +120,15 @@ export class User {
       passwordRecoveryCodeLifetime,
     );
   }
+
+  resetPasswordRecoveryInfo() {
+    this.passwordRecoveryInfo.recoveryCodeHash = '';
+    this.passwordRecoveryInfo.expirationDate = new Date();
+  }
+
+  setPasswordHash(passwordHash: string) {
+    this.passwordHash = passwordHash;
+  }
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -5,7 +5,7 @@ import { UserContextDto } from '../guards/dto/user-context.dto';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../notifications/email.service';
 import { UsersService } from './users.service';
-import { createHash, randomBytes } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
@@ -102,18 +102,57 @@ export class AuthService {
       return;
     }
 
-    const passwordRecoveryCode = randomBytes(32).toString('hex');
-    const passwordRecoveryCodeHash = createHash('sha256')
-      .update(passwordRecoveryCode)
-      .digest('hex');
+    const recoveryCode = randomBytes(32).toString('hex');
+    const recoveryCodeHash =
+      this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
 
-    user.setPasswordRecoveryCodeHash(passwordRecoveryCodeHash);
+    user.setPasswordRecoveryCodeHash(recoveryCodeHash);
 
     await this.usersRepository.save(user);
 
-    this.emailService.sendPasswordRecoveryEmail(
-      user.email,
-      passwordRecoveryCode,
-    );
+    this.emailService.sendPasswordRecoveryEmail(user.email, recoveryCode);
+  }
+
+  async setNewPassword(
+    newPassword: string,
+    recoveryCode: string,
+  ): Promise<void> {
+    const recoveryCodeHash =
+      this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
+
+    const user =
+      await this.usersRepository.findUserByPasswordRecoveryCodeHash(
+        recoveryCodeHash,
+      );
+    if (!user) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: 'recoveryCode',
+            message: 'Recovery code is incorrect',
+          },
+        ],
+      });
+    }
+
+    if (new Date() > user.passwordRecoveryInfo.expirationDate) {
+      throw new BadRequestException({
+        errors: [
+          {
+            field: 'recoveryCode',
+            message: 'Recovery code is expired',
+          },
+        ],
+      });
+    }
+
+    user.resetPasswordRecoveryInfo();
+
+    const newPasswordHash =
+      await this.cryptoService.createPasswordHash(newPassword);
+
+    user.setPasswordHash(newPasswordHash);
+
+    this.usersRepository.save(user);
   }
 }

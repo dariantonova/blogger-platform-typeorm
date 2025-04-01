@@ -15,7 +15,23 @@ export class EmailService {
         subject: 'Finish registration',
         template: 'confirm-email',
         context: {
-          confirmationCode: confirmationCode,
+          confirmationCode,
+        },
+      })
+      .catch((err) => console.log('Error sending email: ' + err));
+  }
+
+  async sendPasswordRecoveryEmail(
+    email: string,
+    recoveryCode: string,
+  ): Promise<void> {
+    this.mailerService
+      .sendMail({
+        to: email,
+        subject: 'Password recovery',
+        template: 'password-recovery',
+        context: {
+          recoveryCode,
         },
       })
       .catch((err) => console.log('Error sending email: ' + err));

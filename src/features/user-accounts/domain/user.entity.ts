@@ -28,6 +28,8 @@ export const emailConstraints = {
 
 export const confirmationCodeLifetime: Duration = { hours: 2 };
 
+export const passwordRecoveryCodeLifetime: Duration = { hours: 1 };
+
 @Schema({ timestamps: true })
 export class User {
   @Prop({
@@ -109,6 +111,14 @@ export class User {
 
   makeConfirmed() {
     this.confirmationInfo.isConfirmed = true;
+  }
+
+  setPasswordRecoveryCodeHash(codeHash: string) {
+    this.passwordRecoveryInfo.recoveryCodeHash = codeHash;
+    this.passwordRecoveryInfo.expirationDate = add(
+      new Date(),
+      passwordRecoveryCodeLifetime,
+    );
   }
 }
 

@@ -5,6 +5,7 @@ import { UserContextDto } from '../guards/dto/user-context.dto';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../notifications/email.service';
 import { UsersService } from './users.service';
+import { createHash, randomBytes } from 'node:crypto';
 
 @Injectable()
 export class AuthService {
@@ -93,5 +94,26 @@ export class AuthService {
     user.makeConfirmed();
 
     await this.usersRepository.save(user);
+  }
+
+  async recoverPassword(email: string): Promise<void> {
+    const user = await this.usersRepository.findUserByEmail(email);
+    if (!user) {
+      return;
+    }
+
+    const passwordRecoveryCode = randomBytes(32).toString('hex');
+    const passwordRecoveryCodeHash = createHash('sha256')
+      .update(passwordRecoveryCode)
+      .digest('hex');
+
+    user.setPasswordRecoveryCodeHash(passwordRecoveryCodeHash);
+
+    await this.usersRepository.save(user);
+
+    this.emailService.sendPasswordRecoveryEmail(
+      user.email,
+      passwordRecoveryCode,
+    );
   }
 }

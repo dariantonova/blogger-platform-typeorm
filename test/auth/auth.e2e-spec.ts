@@ -918,15 +918,23 @@ describe('auth', () => {
     });
 
     // email matches no user
-    it('should return 204 if email matches no user', async () => {
+    it('should return 400 if email matches no user', async () => {
       const inputDto: RegistrationEmailResendingInputDto = {
         email: 'nonExisting@example.com',
       };
 
-      await authTestManager.resendRegistrationEmail(
+      const response = await authTestManager.resendRegistrationEmail(
         inputDto,
-        HttpStatus.NO_CONTENT,
+        HttpStatus.BAD_REQUEST,
       );
+      expect(response.body).toEqual({
+        errorsMessages: [
+          {
+            field: 'email',
+            message: expect.any(String),
+          },
+        ],
+      });
 
       expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(0);
     });
@@ -951,10 +959,18 @@ describe('auth', () => {
       const inputDto: RegistrationEmailResendingInputDto = {
         email: userData.email,
       };
-      await authTestManager.resendRegistrationEmail(
+      const response = await authTestManager.resendRegistrationEmail(
         inputDto,
-        HttpStatus.NO_CONTENT,
+        HttpStatus.BAD_REQUEST,
       );
+      expect(response.body).toEqual({
+        errorsMessages: [
+          {
+            field: 'email',
+            message: expect.any(String),
+          },
+        ],
+      });
 
       expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(1);
     });
@@ -1055,7 +1071,7 @@ describe('auth', () => {
     });
 
     // success
-    it('should request password recovery with actually sending email', async () => {
+    it('should request password recovery without actually sending email', async () => {
       const userData: CreateUserDto = {
         login: 'success',
         email: 'success@example.com',

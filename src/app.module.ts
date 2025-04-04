@@ -8,13 +8,13 @@ import { BloggerPlatformModule } from './features/blogger-platform/blogger-platf
 import { TestingModule } from './features/testing/testing.module';
 import { CoreModule } from './core/core.module';
 
-const MONGO_URL = process.env.MONGO_URL || 'mongodb://0.0.0.0:27017';
-const DN_NAME = process.env.DN_NAME || 'test';
+const MONGO_URI = process.env.MONGO_URI || '';
+const DB_NAME = process.env.DB_NAME || '';
 
 @Module({
   imports: [
-    MongooseModule.forRoot(MONGO_URL, {
-      dbName: DN_NAME,
+    MongooseModule.forRoot(MONGO_URI, {
+      dbName: DB_NAME,
     }),
     UserAccountModule,
     BloggerPlatformModule,

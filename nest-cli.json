@@ -4,7 +4,8 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "assets": [
-      "**/*.ejs"
+      "**/*.ejs",
+      "**/*.env.*"
     ],
     "watchAssets": true,
     "deleteOutDir": true

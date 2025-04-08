@@ -1,11 +1,11 @@
-import { CreateUserDto } from '../../dto/create-user.dto';
+import { CreateUserDto } from '../../../dto/create-user.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserModelType } from '../../domain/user.entity';
-import { UsersRepository } from '../../infrastructure/users.repository';
-import { CryptoService } from '../crypto.service';
-import { UserAccountsConfig } from '../../user-accounts.config';
+import { User, UserModelType } from '../../../domain/user.entity';
+import { UsersRepository } from '../../../infrastructure/users.repository';
+import { CryptoService } from '../../crypto.service';
+import { UserAccountsConfig } from '../../../user-accounts.config';
 
 export class CreateUserCommand {
   constructor(public dto: CreateUserDto) {}

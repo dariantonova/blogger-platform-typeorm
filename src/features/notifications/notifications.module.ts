@@ -3,6 +3,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { EmailService } from './email.service';
 import { CoreConfig } from '../../core/core.config';
+import { SendConfirmationEmailWhenUserRegisteredEventHandler } from './event-handlers/send-confirmation-email-when-user-registered.event-handler';
 
 @Module({
   imports: [
@@ -29,7 +30,10 @@ import { CoreConfig } from '../../core/core.config';
       },
     }),
   ],
-  providers: [EmailService],
+  providers: [
+    EmailService,
+    SendConfirmationEmailWhenUserRegisteredEventHandler,
+  ],
   exports: [EmailService],
 })
 export class NotificationsModule {}

@@ -9,16 +9,14 @@ export class EmailService {
     email: string,
     confirmationCode: string,
   ): Promise<void> {
-    this.mailerService
-      .sendMail({
-        to: email,
-        subject: 'Finish registration',
-        template: 'confirm-email',
-        context: {
-          confirmationCode,
-        },
-      })
-      .catch((err) => console.log('Error sending email: ' + err));
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Finish registration',
+      template: 'confirm-email',
+      context: {
+        confirmationCode,
+      },
+    });
   }
 
   async sendPasswordRecoveryEmail(

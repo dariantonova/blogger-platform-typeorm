@@ -15,18 +15,19 @@ import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { AuthQueryRepository } from '../infrastructure/query/auth.query-repository';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
-import { UsersService } from '../application/users.service';
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
 import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
 import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.input-dto';
+import { CommandBus } from '@nestjs/cqrs';
+import { RegisterUserCommand } from '../application/usecases/users/register-user.usecase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private commandBus: CommandBus,
     private authService: AuthService,
     private authQueryRepository: AuthQueryRepository,
-    private usersService: UsersService,
   ) {}
 
   @Post('login')
@@ -47,7 +48,9 @@ export class AuthController {
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async register(@Body() body: CreateUserInputDto): Promise<void> {
-    await this.usersService.registerUser(body);
+    await this.commandBus.execute<RegisterUserCommand>(
+      new RegisterUserCommand(body),
+    );
   }
 
   @Post('registration-email-resending')

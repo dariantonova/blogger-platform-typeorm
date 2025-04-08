@@ -17,11 +17,12 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { UserAccountsConfig } from './user-accounts.config';
 import { CoreModule } from '../../core/core.module';
 import { CoreConfig } from '../../core/core.config';
-import { CreateUserUseCase } from './application/usecases/create-user.usecase';
+import { CreateUserUseCase } from './application/usecases/admins/create-user.usecase';
 import { CqrsModule } from '@nestjs/cqrs';
-import { DeleteUserUseCase } from './application/usecases/delete-user.usecase';
+import { DeleteUserUseCase } from './application/usecases/admins/delete-user.usecase';
+import { RegisterUserUseCase } from './application/usecases/users/register-user.usecase';
 
-const useCases = [CreateUserUseCase, DeleteUserUseCase];
+const useCases = [CreateUserUseCase, DeleteUserUseCase, RegisterUserUseCase];
 
 @Module({
   imports: [

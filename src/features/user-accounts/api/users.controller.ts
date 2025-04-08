@@ -18,8 +18,8 @@ import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
 import { CommandBus } from '@nestjs/cqrs';
-import { CreateUserCommand } from '../application/usecases/create-user.usecase';
-import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
+import { CreateUserCommand } from '../application/usecases/admins/create-user.usecase';
+import { DeleteUserCommand } from '../application/usecases/admins/delete-user.usecase';
 
 @Controller('users')
 export class UsersController {

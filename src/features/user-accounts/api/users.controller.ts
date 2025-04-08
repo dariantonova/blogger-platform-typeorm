@@ -18,12 +18,15 @@ import { UserViewDto } from './view-dto/users.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateUserCommand } from '../application/usecases/create-user.usecase';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private usersService: UsersService,
     private usersQueryRepository: UsersQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -37,7 +40,10 @@ export class UsersController {
   @Post()
   @UseGuards(BasicAuthGuard)
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
-    const createdUserId = await this.usersService.createUser(body);
+    const createdUserId = await this.commandBus.execute<
+      CreateUserCommand,
+      string
+    >(new CreateUserCommand(body));
     return this.usersQueryRepository.findByIdOrInternalFail(createdUserId);
   }
 

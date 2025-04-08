@@ -17,6 +17,10 @@ import { NotificationsModule } from '../notifications/notifications.module';
 import { UserAccountsConfig } from './user-accounts.config';
 import { CoreModule } from '../../core/core.module';
 import { CoreConfig } from '../../core/core.config';
+import { CreateUserUseCase } from './application/usecases/create-user.usecase';
+import { CqrsModule } from '@nestjs/cqrs';
+
+const useCases = [CreateUserUseCase];
 
 @Module({
   imports: [
@@ -34,6 +38,7 @@ import { CoreConfig } from '../../core/core.config';
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     NotificationsModule,
     CoreModule,
+    CqrsModule.forRoot(),
   ],
   controllers: [UsersController, AuthController],
   providers: [
@@ -47,6 +52,7 @@ import { CoreConfig } from '../../core/core.config';
     JwtStrategy,
     AuthQueryRepository,
     UserAccountsConfig,
+    ...useCases,
   ],
 })
 export class UserAccountModule {}

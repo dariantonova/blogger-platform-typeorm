@@ -19,8 +19,9 @@ import { CoreModule } from '../../core/core.module';
 import { CoreConfig } from '../../core/core.config';
 import { CreateUserUseCase } from './application/usecases/create-user.usecase';
 import { CqrsModule } from '@nestjs/cqrs';
+import { DeleteUserUseCase } from './application/usecases/delete-user.usecase';
 
-const useCases = [CreateUserUseCase];
+const useCases = [CreateUserUseCase, DeleteUserUseCase];
 
 @Module({
   imports: [

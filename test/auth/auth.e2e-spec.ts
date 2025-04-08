@@ -14,16 +14,16 @@ import { EmailService } from '../../src/features/notifications/email.service';
 import { EmailServiceMock } from '../mock/email-service.mock';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersTestManager } from '../users/helpers/users.test-manager';
-import {
-  confirmationCodeLifetime,
-  UserModelType,
-} from '../../src/features/user-accounts/domain/user.entity';
+import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 import { RegistrationEmailResendingInputDto } from '../../src/features/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { PasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/password-recovery.input-dto';
 import { CryptoService } from '../../src/features/user-accounts/application/crypto.service';
 import { NewPasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/new-password-recovery.input-dto';
+import { CoreConfig } from '../../src/core/core.config';
+import { ConfigService } from '@nestjs/config';
+import { UserAccountsConfig } from '../../src/features/user-accounts/user-accounts.config';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -36,20 +36,30 @@ describe('auth', () => {
     app = await initApp((builder: TestingModuleBuilder) => {
       builder
         .overrideProvider(JwtService)
-        .useValue(
-          new JwtService({
-            secret: 'access-token-secret',
-            signOptions: {
-              expiresIn: '2s',
-            },
-          }),
-        )
+        .useFactory({
+          inject: [CoreConfig],
+          factory: (coreConfig: CoreConfig) => {
+            return new JwtService({
+              secret: coreConfig.accessJwtSecret,
+              signOptions: {
+                expiresIn: '2s',
+              },
+            });
+          },
+        })
         .overrideProvider(EmailService)
-        .useClass(EmailServiceMock);
+        .useClass(EmailServiceMock)
+        .overrideProvider(UserAccountsConfig)
+        .useFactory({
+          inject: [ConfigService],
+          factory: (configService: ConfigService) => {
+            return {
+              ...new UserAccountsConfig(configService),
+              emailConfirmationCodeLifetimeInSeconds: 2,
+            };
+          },
+        });
     });
-
-    confirmationCodeLifetime.hours = 0;
-    confirmationCodeLifetime.seconds = 2;
 
     UserModel = app.get<UserModelType>(getModelToken('User'));
 

@@ -6,23 +6,36 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserAccountModule } from './features/user-accounts/user-accounts.module';
 import { BloggerPlatformModule } from './features/blogger-platform/blogger-platform.module';
 import { TestingModule } from './features/testing/testing.module';
+import { CoreConfig } from './core/core.config';
+import { configValidationUtility } from './core/config-validation.utility';
 import { CoreModule } from './core/core.module';
+import { ErrorExceptionFilter } from './core/exceptions/filters/error-exceptions.filter';
 
-const MONGO_URI = process.env.MONGO_URI || '';
-const DB_NAME = process.env.DB_NAME || '';
+const testingModule: any[] = [];
+if (
+  configValidationUtility.convertToBoolean(process.env.INCLUDE_TESTING_MODULE)
+) {
+  testingModule.push(TestingModule);
+}
 
 @Module({
   imports: [
-    MongooseModule.forRoot(MONGO_URI, {
-      dbName: DB_NAME,
+    MongooseModule.forRootAsync({
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => {
+        return {
+          uri: coreConfig.mongoUri,
+          dbName: coreConfig.dbName,
+        };
+      },
     }),
     UserAccountModule,
     BloggerPlatformModule,
-    TestingModule,
+    ...testingModule,
     CoreModule,
     configModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, ErrorExceptionFilter],
 })
 export class AppModule {}

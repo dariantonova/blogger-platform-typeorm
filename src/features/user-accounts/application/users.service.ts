@@ -6,6 +6,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CryptoService } from './crypto.service';
 import { randomUUID } from 'node:crypto';
 import { EmailService } from '../../notifications/email.service';
+import { UserAccountsConfig } from '../user-accounts.config';
 
 @Injectable()
 export class UsersService {
@@ -15,6 +16,7 @@ export class UsersService {
     private usersRepository: UsersRepository,
     private cryptoService: CryptoService,
     private emailService: EmailService,
+    private userAccountsConfig: UserAccountsConfig,
   ) {}
 
   async createUser(dto: CreateUserDto): Promise<string> {
@@ -50,11 +52,14 @@ export class UsersService {
       dto.password,
     );
 
-    const user = this.UserModel.createInstance({
-      login: dto.login,
-      email: dto.email,
-      passwordHash,
-    });
+    const user = this.UserModel.createInstance(
+      {
+        login: dto.login,
+        email: dto.email,
+        passwordHash,
+      },
+      this.userAccountsConfig.isUserAutomaticallyConfirmed,
+    );
 
     await this.usersRepository.save(user);
 
@@ -71,7 +76,10 @@ export class UsersService {
 
   async updateUserConfirmationCode(user: UserDocument): Promise<string> {
     const confirmationCode = randomUUID();
-    user.setConfirmationCode(confirmationCode);
+    user.setConfirmationCode(
+      confirmationCode,
+      this.userAccountsConfig.emailConfirmationCodeLifetimeInSeconds,
+    );
 
     await this.usersRepository.save(user);
 

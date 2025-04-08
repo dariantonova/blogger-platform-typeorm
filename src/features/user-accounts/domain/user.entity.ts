@@ -9,7 +9,7 @@ import {
 } from './password-recovery-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
-import { add, Duration } from 'date-fns';
+import { add } from 'date-fns';
 
 export const loginConstraints = {
   minLength: 3,
@@ -25,10 +25,6 @@ export const passwordConstraints = {
 export const emailConstraints = {
   match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
 };
-
-export const confirmationCodeLifetime: Duration = { hours: 2 };
-
-export const passwordRecoveryCodeLifetime: Duration = { hours: 1 };
 
 @Schema({ timestamps: true })
 export class User {
@@ -74,7 +70,10 @@ export class User {
   })
   deletedAt: Date | null;
 
-  static createInstance(dto: CreateUserDomainDto): UserDocument {
+  static createInstance(
+    dto: CreateUserDomainDto,
+    isConfirmed: boolean,
+  ): UserDocument {
     const user = new this();
 
     user.login = dto.login;
@@ -83,7 +82,7 @@ export class User {
     user.confirmationInfo = {
       confirmationCode: '',
       expirationDate: new Date(),
-      isConfirmed: false,
+      isConfirmed,
     };
     user.passwordRecoveryInfo = {
       recoveryCodeHash: '',
@@ -101,24 +100,22 @@ export class User {
     this.deletedAt = new Date();
   }
 
-  setConfirmationCode(code: string) {
+  setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
     this.confirmationInfo.confirmationCode = code;
-    this.confirmationInfo.expirationDate = add(
-      new Date(),
-      confirmationCodeLifetime,
-    );
+    this.confirmationInfo.expirationDate = add(new Date(), {
+      seconds: codeLifetimeInSeconds,
+    });
   }
 
   makeConfirmed() {
     this.confirmationInfo.isConfirmed = true;
   }
 
-  setPasswordRecoveryCodeHash(codeHash: string) {
+  setPasswordRecoveryCodeHash(codeHash: string, codeLifetimeInSeconds: number) {
     this.passwordRecoveryInfo.recoveryCodeHash = codeHash;
-    this.passwordRecoveryInfo.expirationDate = add(
-      new Date(),
-      passwordRecoveryCodeLifetime,
-    );
+    this.passwordRecoveryInfo.expirationDate = add(new Date(), {
+      seconds: codeLifetimeInSeconds,
+    });
   }
 
   resetPasswordRecoveryInfo() {

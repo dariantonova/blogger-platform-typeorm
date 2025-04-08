@@ -14,17 +14,26 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { UserAccountsConfig } from './user-accounts.config';
+import { CoreModule } from '../../core/core.module';
+import { CoreConfig } from '../../core/core.config';
 
 @Module({
   imports: [
-    JwtModule.register({
-      secret: 'access-token-secret',
-      signOptions: {
-        expiresIn: '5m',
+    JwtModule.registerAsync({
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => {
+        return {
+          secret: coreConfig.accessJwtSecret,
+          signOptions: {
+            expiresIn: coreConfig.accessTokenLifetimeInSeconds + 's',
+          },
+        };
       },
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     NotificationsModule,
+    CoreModule,
   ],
   controllers: [UsersController, AuthController],
   providers: [
@@ -37,6 +46,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     CryptoService,
     JwtStrategy,
     AuthQueryRepository,
+    UserAccountsConfig,
   ],
 })
 export class UserAccountModule {}

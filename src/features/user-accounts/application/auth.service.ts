@@ -6,6 +6,7 @@ import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../notifications/email.service';
 import { UsersService } from './users.service';
 import { randomBytes } from 'node:crypto';
+import { UserAccountsConfig } from '../user-accounts.config';
 
 @Injectable()
 export class AuthService {
@@ -15,6 +16,7 @@ export class AuthService {
     private jwtService: JwtService,
     private emailService: EmailService,
     private usersService: UsersService,
+    private userAccountsConfig: UserAccountsConfig,
   ) {}
 
   async validateUser(
@@ -125,7 +127,10 @@ export class AuthService {
     const recoveryCodeHash =
       this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
 
-    user.setPasswordRecoveryCodeHash(recoveryCodeHash);
+    user.setPasswordRecoveryCodeHash(
+      recoveryCodeHash,
+      this.userAccountsConfig.passwordRecoveryCodeLifetimeInSeconds,
+    );
 
     await this.usersRepository.save(user);
 

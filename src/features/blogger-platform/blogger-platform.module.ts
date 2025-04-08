@@ -17,6 +17,10 @@ import { CommentsQueryRepository } from './comments/infrastructure/query/comment
 import { CommentsService } from './comments/application/comments.service';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
 import { IsExistingBlogIdConstraint } from './posts/api/validation/is-existing-blog-id.decorator';
+import { CqrsModule } from '@nestjs/cqrs';
+import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
+
+const useCases = [DeleteBlogUseCase];
 
 @Module({
   imports: [
@@ -25,6 +29,7 @@ import { IsExistingBlogIdConstraint } from './posts/api/validation/is-existing-b
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
     ]),
+    CqrsModule.forRoot(),
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [
@@ -38,6 +43,7 @@ import { IsExistingBlogIdConstraint } from './posts/api/validation/is-existing-b
     CommentsService,
     CommentsRepository,
     IsExistingBlogIdConstraint,
+    ...useCases,
   ],
 })
 export class BloggerPlatformModule {}

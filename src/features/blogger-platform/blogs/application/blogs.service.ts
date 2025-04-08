@@ -15,15 +15,15 @@ export class BlogsService {
     private postsService: PostsService,
   ) {}
 
-  async deleteBlog(id: string): Promise<void> {
-    const blog = await this.blogsRepository.findByIdOrNotFoundFail(id);
-
-    blog.makeDeleted();
-
-    await this.blogsRepository.save(blog);
-
-    await this.postsService.deleteBlogPosts(blog._id.toString());
-  }
+  // async deleteBlog(id: string): Promise<void> {
+  //   const blog = await this.blogsRepository.findByIdOrNotFoundFail(id);
+  //
+  //   blog.makeDeleted();
+  //
+  //   await this.blogsRepository.save(blog);
+  //
+  //   await this.postsService.deleteBlogPosts(blog._id.toString());
+  // }
 
   async createBlog(dto: CreateBlogDto): Promise<string> {
     const blog = this.BlogModel.createInstance(dto);

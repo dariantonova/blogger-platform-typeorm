@@ -22,6 +22,8 @@ import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.i
 import { CommandBus } from '@nestjs/cqrs';
 import { RegisterUserCommand } from '../application/usecases/users/register-user.usecase';
 import { LoginUserCommand } from '../application/usecases/login-user.usecase';
+import { ResendRegistrationEmailCommand } from '../application/usecases/resend-registration-email.usecase';
+import { ConfirmRegistrationCommand } from '../application/usecases/confirm-registration.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -61,7 +63,9 @@ export class AuthController {
   async resendRegistrationEmail(
     @Body() body: RegistrationEmailResendingInputDto,
   ): Promise<void> {
-    await this.authService.resendRegistrationEmail(body.email);
+    await this.commandBus.execute<ResendRegistrationEmailCommand>(
+      new ResendRegistrationEmailCommand(body.email),
+    );
   }
 
   @Post('registration-confirmation')
@@ -69,7 +73,9 @@ export class AuthController {
   async confirmRegistration(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
-    await this.authService.confirmRegistration(body.code);
+    await this.commandBus.execute<ConfirmRegistrationCommand>(
+      new ConfirmRegistrationCommand(body.code),
+    );
   }
 
   @Post('password-recovery')

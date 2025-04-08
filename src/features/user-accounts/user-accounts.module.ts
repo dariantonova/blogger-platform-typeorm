@@ -23,6 +23,7 @@ import { DeleteUserUseCase } from './application/usecases/admins/delete-user.use
 import { RegisterUserUseCase } from './application/usecases/users/register-user.usecase';
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 import { ResendRegistrationEmailUseCase } from './application/usecases/resend-registration-email.usecase';
+import { ConfirmRegistrationUseCase } from './application/usecases/confirm-registration.usecase';
 
 const useCases = [
   CreateUserUseCase,
@@ -30,6 +31,7 @@ const useCases = [
   RegisterUserUseCase,
   LoginUserUseCase,
   ResendRegistrationEmailUseCase,
+  ConfirmRegistrationUseCase,
 ];
 
 @Module({

@@ -40,82 +40,82 @@ export class AuthService {
     return { id: user._id.toString() };
   }
 
-  async login(user: UserContextDto): Promise<{ accessToken: string }> {
-    const accessToken = this.jwtService.sign(user);
-    return { accessToken };
-  }
+  // async login(user: UserContextDto): Promise<{ accessToken: string }> {
+  //   const accessToken = this.jwtService.sign(user);
+  //   return { accessToken };
+  // }
 
-  async resendRegistrationEmail(email: string): Promise<void> {
-    const user = await this.usersRepository.findUserByEmail(email);
+  // async resendRegistrationEmail(email: string): Promise<void> {
+  //   const user = await this.usersRepository.findUserByEmail(email);
+  //
+  //   if (!user) {
+  //     throw new BadRequestException({
+  //       errors: [
+  //         {
+  //           field: 'email',
+  //           message: 'User with specified email does not exist',
+  //         },
+  //       ],
+  //     });
+  //   }
+  //
+  //   if (user.confirmationInfo.isConfirmed) {
+  //     throw new BadRequestException({
+  //       errors: [
+  //         {
+  //           field: 'email',
+  //           message: 'User is already confirmed',
+  //         },
+  //       ],
+  //     });
+  //   }
+  //
+  //   const newConfirmationCode =
+  //     await this.usersService.updateUserConfirmationCode(user);
+  //
+  //   this.emailService.sendConfirmationEmail(email, newConfirmationCode);
+  // }
 
-    if (!user) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'email',
-            message: 'User with specified email does not exist',
-          },
-        ],
-      });
-    }
-
-    if (user.confirmationInfo.isConfirmed) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'email',
-            message: 'User is already confirmed',
-          },
-        ],
-      });
-    }
-
-    const newConfirmationCode =
-      await this.usersService.updateUserConfirmationCode(user);
-
-    this.emailService.sendConfirmationEmail(email, newConfirmationCode);
-  }
-
-  async confirmRegistration(confirmationCode: string): Promise<void> {
-    const user =
-      await this.usersRepository.findUserByConfirmationCode(confirmationCode);
-    if (!user) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'code',
-            message: 'Confirmation code is incorrect',
-          },
-        ],
-      });
-    }
-
-    if (user.confirmationInfo.isConfirmed) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'code',
-            message: 'Confirmation code has already been applied',
-          },
-        ],
-      });
-    }
-
-    if (new Date() > user.confirmationInfo.expirationDate) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'code',
-            message: 'Confirmation code is expired',
-          },
-        ],
-      });
-    }
-
-    user.makeConfirmed();
-
-    await this.usersRepository.save(user);
-  }
+  // async confirmRegistration(confirmationCode: string): Promise<void> {
+  //   const user =
+  //     await this.usersRepository.findUserByConfirmationCode(confirmationCode);
+  //   if (!user) {
+  //     throw new BadRequestException({
+  //       errors: [
+  //         {
+  //           field: 'code',
+  //           message: 'Confirmation code is incorrect',
+  //         },
+  //       ],
+  //     });
+  //   }
+  //
+  //   if (user.confirmationInfo.isConfirmed) {
+  //     throw new BadRequestException({
+  //       errors: [
+  //         {
+  //           field: 'code',
+  //           message: 'Confirmation code has already been applied',
+  //         },
+  //       ],
+  //     });
+  //   }
+  //
+  //   if (new Date() > user.confirmationInfo.expirationDate) {
+  //     throw new BadRequestException({
+  //       errors: [
+  //         {
+  //           field: 'code',
+  //           message: 'Confirmation code is expired',
+  //         },
+  //       ],
+  //     });
+  //   }
+  //
+  //   user.makeConfirmed();
+  //
+  //   await this.usersRepository.save(user);
+  // }
 
   async recoverPassword(email: string): Promise<void> {
     const user = await this.usersRepository.findUserByEmail(email);

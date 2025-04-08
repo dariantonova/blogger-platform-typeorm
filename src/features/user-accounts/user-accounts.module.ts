@@ -22,12 +22,14 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteUserUseCase } from './application/usecases/admins/delete-user.usecase';
 import { RegisterUserUseCase } from './application/usecases/users/register-user.usecase';
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
+import { ResendRegistrationEmailUseCase } from './application/usecases/resend-registration-email.usecase';
 
 const useCases = [
   CreateUserUseCase,
   DeleteUserUseCase,
   RegisterUserUseCase,
   LoginUserUseCase,
+  ResendRegistrationEmailUseCase,
 ];
 
 @Module({

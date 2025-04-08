@@ -25,6 +25,7 @@ import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
+import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 
 @Controller('blogs')
 export class BlogsController {
@@ -52,7 +53,10 @@ export class BlogsController {
 
   @Post()
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
-    const createdBlogId = await this.blogsService.createBlog(body);
+    const createdBlogId = await this.commandBus.execute<
+      CreateBlogCommand,
+      string
+    >(new CreateBlogCommand(body));
     return this.blogsQueryRepository.findByIdOrInternalFail(createdBlogId);
   }
 

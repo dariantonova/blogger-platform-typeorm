@@ -19,8 +19,9 @@ import { CommentsRepository } from './comments/infrastructure/comments.repositor
 import { IsExistingBlogIdConstraint } from './posts/api/validation/is-existing-blog-id.decorator';
 import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
+import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
 
-const useCases = [DeleteBlogUseCase];
+const useCases = [DeleteBlogUseCase, CreateBlogUseCase];
 
 @Module({
   imports: [

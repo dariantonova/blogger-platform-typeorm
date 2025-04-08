@@ -25,13 +25,13 @@ export class BlogsService {
   //   await this.postsService.deleteBlogPosts(blog._id.toString());
   // }
 
-  async createBlog(dto: CreateBlogDto): Promise<string> {
-    const blog = this.BlogModel.createInstance(dto);
-
-    await this.blogsRepository.save(blog);
-
-    return blog._id.toString();
-  }
+  // async createBlog(dto: CreateBlogDto): Promise<string> {
+  //   const blog = this.BlogModel.createInstance(dto);
+  //
+  //   await this.blogsRepository.save(blog);
+  //
+  //   return blog._id.toString();
+  // }
 
   async updateBlog(id: string, dto: UpdateBlogDto): Promise<void> {
     const blog = await this.blogsRepository.findByIdOrNotFoundFail(id);

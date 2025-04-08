@@ -21,6 +21,7 @@ import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dt
 import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.input-dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { RegisterUserCommand } from '../application/usecases/users/register-user.usecase';
+import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -36,7 +37,9 @@ export class AuthController {
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<{ accessToken: string }> {
-    return this.authService.login(user);
+    return this.commandBus.execute<LoginUserCommand>(
+      new LoginUserCommand({ userId: user.id }),
+    );
   }
 
   @Get('me')

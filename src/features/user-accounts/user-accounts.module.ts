@@ -24,6 +24,7 @@ import { RegisterUserUseCase } from './application/usecases/users/register-user.
 import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 import { ResendRegistrationEmailUseCase } from './application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationUseCase } from './application/usecases/confirm-registration.usecase';
+import { RecoverPasswordUseCase } from './application/usecases/recover-password.usecase';
 
 const useCases = [
   CreateUserUseCase,
@@ -32,6 +33,7 @@ const useCases = [
   LoginUserUseCase,
   ResendRegistrationEmailUseCase,
   ConfirmRegistrationUseCase,
+  RecoverPasswordUseCase,
 ];
 
 @Module({

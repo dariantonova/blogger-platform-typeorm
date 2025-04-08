@@ -117,25 +117,25 @@ export class AuthService {
   //   await this.usersRepository.save(user);
   // }
 
-  async recoverPassword(email: string): Promise<void> {
-    const user = await this.usersRepository.findUserByEmail(email);
-    if (!user) {
-      return;
-    }
-
-    const recoveryCode = randomBytes(32).toString('hex');
-    const recoveryCodeHash =
-      this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
-
-    user.setPasswordRecoveryCodeHash(
-      recoveryCodeHash,
-      this.userAccountsConfig.passwordRecoveryCodeLifetimeInSeconds,
-    );
-
-    await this.usersRepository.save(user);
-
-    this.emailService.sendPasswordRecoveryEmail(user.email, recoveryCode);
-  }
+  // async recoverPassword(email: string): Promise<void> {
+  //   const user = await this.usersRepository.findUserByEmail(email);
+  //   if (!user) {
+  //     return;
+  //   }
+  //
+  //   const recoveryCode = randomBytes(32).toString('hex');
+  //   const recoveryCodeHash =
+  //     this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
+  //
+  //   user.setPasswordRecoveryCodeHash(
+  //     recoveryCodeHash,
+  //     this.userAccountsConfig.passwordRecoveryCodeLifetimeInSeconds,
+  //   );
+  //
+  //   await this.usersRepository.save(user);
+  //
+  //   this.emailService.sendPasswordRecoveryEmail(user.email, recoveryCode);
+  // }
 
   async setNewPassword(
     newPassword: string,

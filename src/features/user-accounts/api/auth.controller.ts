@@ -24,6 +24,7 @@ import { RegisterUserCommand } from '../application/usecases/users/register-user
 import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 import { ResendRegistrationEmailCommand } from '../application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationCommand } from '../application/usecases/confirm-registration.usecase';
+import { RecoverPasswordCommand } from '../application/usecases/recover-password.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -81,7 +82,9 @@ export class AuthController {
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async recoverPassword(@Body() body: PasswordRecoveryInputDto): Promise<void> {
-    await this.authService.recoverPassword(body.email);
+    await this.commandBus.execute<RecoverPasswordCommand>(
+      new RecoverPasswordCommand(body.email),
+    );
   }
 
   @Post('new-password')

@@ -5,6 +5,7 @@ import { EmailService } from './email.service';
 import { CoreConfig } from '../../core/core.config';
 import { SendConfirmationEmailWhenUserRegisteredEventHandler } from './event-handlers/send-confirmation-email-when-user-registered.event-handler';
 import { SendConfirmationEmailWhenUserRequestedResendEventHandler } from './event-handlers/send-confirmation-email-when-user-requested-resend.event-handler';
+import { SendRecoveryEmailWhenPasswordRecoveryRequestedEventHandler } from './event-handlers/send-recovery-email-when-password-recovery-requested.event-handler';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SendConfirmationEmailWhenUserRequestedResendEventHandler } from './even
     EmailService,
     SendConfirmationEmailWhenUserRegisteredEventHandler,
     SendConfirmationEmailWhenUserRequestedResendEventHandler,
+    SendRecoveryEmailWhenPasswordRecoveryRequestedEventHandler,
   ],
   exports: [EmailService],
 })

@@ -38,6 +38,5 @@ import { SendRecoveryEmailWhenPasswordRecoveryRequestedEventHandler } from './ev
     SendConfirmationEmailWhenUserRequestedResendEventHandler,
     SendRecoveryEmailWhenPasswordRecoveryRequestedEventHandler,
   ],
-  exports: [EmailService],
 })
 export class NotificationsModule {}

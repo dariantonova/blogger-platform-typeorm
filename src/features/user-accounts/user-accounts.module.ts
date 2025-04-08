@@ -13,7 +13,6 @@ import { AuthController } from './api/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
-import { NotificationsModule } from '../notifications/notifications.module';
 import { UserAccountsConfig } from './user-accounts.config';
 import { CoreModule } from '../../core/core.module';
 import { CoreConfig } from '../../core/core.config';
@@ -25,6 +24,7 @@ import { LoginUserUseCase } from './application/usecases/login-user.usecase';
 import { ResendRegistrationEmailUseCase } from './application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationUseCase } from './application/usecases/confirm-registration.usecase';
 import { RecoverPasswordUseCase } from './application/usecases/recover-password.usecase';
+import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
 
 const useCases = [
   CreateUserUseCase,
@@ -34,6 +34,7 @@ const useCases = [
   ResendRegistrationEmailUseCase,
   ConfirmRegistrationUseCase,
   RecoverPasswordUseCase,
+  SetNewPasswordUseCase,
 ];
 
 @Module({
@@ -50,7 +51,6 @@ const useCases = [
       },
     }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    NotificationsModule,
     CoreModule,
     CqrsModule.forRoot(),
   ],
@@ -69,4 +69,4 @@ const useCases = [
     ...useCases,
   ],
 })
-export class UserAccountModule {}
+export class UserAccountsModule {}

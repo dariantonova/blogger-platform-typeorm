@@ -7,7 +7,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from '../application/auth.service';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request';
@@ -25,12 +24,12 @@ import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 import { ResendRegistrationEmailCommand } from '../application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationCommand } from '../application/usecases/confirm-registration.usecase';
 import { RecoverPasswordCommand } from '../application/usecases/recover-password.usecase';
+import { SetNewPasswordCommand } from '../application/usecases/set-new-password.usecase';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private commandBus: CommandBus,
-    private authService: AuthService,
     private authQueryRepository: AuthQueryRepository,
   ) {}
 
@@ -92,6 +91,8 @@ export class AuthController {
   async setNewPassword(
     @Body() body: NewPasswordRecoveryInputDto,
   ): Promise<void> {
-    await this.authService.setNewPassword(body.newPassword, body.recoveryCode);
+    await this.commandBus.execute<SetNewPasswordCommand>(
+      new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
+    );
   }
 }

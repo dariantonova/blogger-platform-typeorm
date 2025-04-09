@@ -21,10 +21,11 @@ import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { CommentsService } from '../../comments/application/comments.service';
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
+import { GetPostByIdOrInternalFailQuery } from '../application/queries/get-post-by-id-or-internal-fail.query';
 
 @Controller('posts')
 export class PostsController {
@@ -33,6 +34,7 @@ export class PostsController {
     private commentsService: CommentsService,
     private commentsQueryRepository: CommentsQueryRepository,
     private commandBus: CommandBus,
+    private queryBus: QueryBus,
   ) {}
 
   @Get()
@@ -55,7 +57,10 @@ export class PostsController {
       CreatePostCommand,
       string
     >(new CreatePostCommand(body));
-    return this.postsQueryRepository.findByIdOrInternalFail(createdPostId);
+
+    return this.queryBus.execute(
+      new GetPostByIdOrInternalFailQuery(createdPostId),
+    );
   }
 
   @Put(':id')

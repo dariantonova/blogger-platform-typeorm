@@ -17,7 +17,6 @@ import { CreateBlogInputDto } from './input-dto/create-blog.input-dto';
 import { UpdateBlogInputDto } from './input-dto/update-blog.input-dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
-import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -29,11 +28,11 @@ import { GetBlogsQuery } from '../application/queries/get-blogs.query';
 import { GetBlogByIdOrNotFoundFailQuery } from '../application/queries/get-blog-by-id-or-not-found-fail.query';
 import { GetBlogByIdOrInternalFailQuery } from '../application/queries/get-blog-by-id-or-internal-fail.query';
 import { GetBlogPostsQuery } from '../application/queries/get-blog-posts.query';
+import { GetPostByIdOrInternalFailQuery } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
@@ -106,6 +105,8 @@ export class BlogsController {
       }),
     );
 
-    return this.postsQueryRepository.findByIdOrInternalFail(createdPostId);
+    return this.queryBus.execute(
+      new GetPostByIdOrInternalFailQuery(createdPostId),
+    );
   }
 }

@@ -10,7 +10,6 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { BlogsService } from '../application/blogs.service';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -26,11 +25,11 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validat
 import { CommandBus } from '@nestjs/cqrs';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private blogsService: BlogsService,
     private blogsQueryRepository: BlogsQueryRepository,
     private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
@@ -66,7 +65,9 @@ export class BlogsController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
-    await this.blogsService.updateBlog(id, body);
+    await this.commandBus.execute<UpdateBlogCommand>(
+      new UpdateBlogCommand(id, body),
+    );
   }
 
   @Delete(':id')

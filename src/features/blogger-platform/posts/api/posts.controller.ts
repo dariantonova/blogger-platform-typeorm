@@ -22,6 +22,8 @@ import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { CommentsService } from '../../comments/application/comments.service';
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -30,6 +32,7 @@ export class PostsController {
     private postsQueryRepository: PostsQueryRepository,
     private commentsService: CommentsService,
     private commentsQueryRepository: CommentsQueryRepository,
+    private commandBus: CommandBus,
   ) {}
 
   @Get()
@@ -48,7 +51,10 @@ export class PostsController {
 
   @Post()
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
-    const createdPostId = await this.postsService.createPost(body);
+    const createdPostId = await this.commandBus.execute<
+      CreatePostCommand,
+      string
+    >(new CreatePostCommand(body));
     return this.postsQueryRepository.findByIdOrInternalFail(createdPostId);
   }
 

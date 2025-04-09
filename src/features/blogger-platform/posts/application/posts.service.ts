@@ -18,21 +18,21 @@ export class PostsService {
     private commentsService: CommentsService,
   ) {}
 
-  async createPost(dto: CreatePostDto): Promise<string> {
-    const blog = await this.blogsRepository.findByIdOrNotFoundFail(dto.blogId);
-
-    const post = this.PostModel.createInstance({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: dto.blogId,
-      blogName: blog.name,
-    });
-
-    await this.postsRepository.save(post);
-
-    return post._id.toString();
-  }
+  // async createPost(dto: CreatePostDto): Promise<string> {
+  //   const blog = await this.blogsRepository.findByIdOrNotFoundFail(dto.blogId);
+  //
+  //   const post = this.PostModel.createInstance({
+  //     title: dto.title,
+  //     shortDescription: dto.shortDescription,
+  //     content: dto.content,
+  //     blogId: dto.blogId,
+  //     blogName: blog.name,
+  //   });
+  //
+  //   await this.postsRepository.save(post);
+  //
+  //   return post._id.toString();
+  // }
 
   async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
     const post = await this.postsRepository.findByIdOrNotFoundFail(id);

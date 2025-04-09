@@ -19,8 +19,14 @@ import { CqrsModule } from '@nestjs/cqrs';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
 import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
+import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
 
-const useCases = [DeleteBlogUseCase, CreateBlogUseCase, UpdateBlogUseCase];
+const useCases = [
+  DeleteBlogUseCase,
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  CreatePostUseCase,
+];
 
 @Module({
   imports: [

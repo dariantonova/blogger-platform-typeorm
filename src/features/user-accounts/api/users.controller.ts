@@ -52,6 +52,6 @@ export class UsersController {
   async deleteUser(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
-    await this.commandBus.execute<DeleteUserCommand>(new DeleteUserCommand(id));
+    await this.commandBus.execute(new DeleteUserCommand(id));
   }
 }

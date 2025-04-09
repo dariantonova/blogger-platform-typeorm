@@ -22,11 +22,12 @@ import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
+import { GetBlogsQuery } from '../application/queries/get-blogs.query';
 
 @Controller('blogs')
 export class BlogsController {
@@ -35,13 +36,14 @@ export class BlogsController {
     private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
+    private queryBus: QueryBus,
   ) {}
 
   @Get()
   async getBlogs(
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
-    return this.blogsQueryRepository.findBlogs(query);
+    return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
   @Get(':id')
@@ -66,9 +68,7 @@ export class BlogsController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
-    await this.commandBus.execute<UpdateBlogCommand>(
-      new UpdateBlogCommand(id, body),
-    );
+    await this.commandBus.execute(new UpdateBlogCommand(id, body));
   }
 
   @Delete(':id')
@@ -76,7 +76,7 @@ export class BlogsController {
   async deleteBlog(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
-    await this.commandBus.execute<DeleteBlogCommand>(new DeleteBlogCommand(id));
+    await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
   @Get(':blogId/posts')

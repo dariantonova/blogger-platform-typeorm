@@ -39,9 +39,7 @@ export class AuthController {
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
   ): Promise<{ accessToken: string }> {
-    return this.commandBus.execute<LoginUserCommand>(
-      new LoginUserCommand({ userId: user.id }),
-    );
+    return this.commandBus.execute(new LoginUserCommand({ userId: user.id }));
   }
 
   @Get('me')
@@ -53,9 +51,7 @@ export class AuthController {
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async register(@Body() body: CreateUserInputDto): Promise<void> {
-    await this.commandBus.execute<RegisterUserCommand>(
-      new RegisterUserCommand(body),
-    );
+    await this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('registration-email-resending')
@@ -63,7 +59,7 @@ export class AuthController {
   async resendRegistrationEmail(
     @Body() body: RegistrationEmailResendingInputDto,
   ): Promise<void> {
-    await this.commandBus.execute<ResendRegistrationEmailCommand>(
+    await this.commandBus.execute(
       new ResendRegistrationEmailCommand(body.email),
     );
   }
@@ -73,17 +69,13 @@ export class AuthController {
   async confirmRegistration(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
-    await this.commandBus.execute<ConfirmRegistrationCommand>(
-      new ConfirmRegistrationCommand(body.code),
-    );
+    await this.commandBus.execute(new ConfirmRegistrationCommand(body.code));
   }
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async recoverPassword(@Body() body: PasswordRecoveryInputDto): Promise<void> {
-    await this.commandBus.execute<RecoverPasswordCommand>(
-      new RecoverPasswordCommand(body.email),
-    );
+    await this.commandBus.execute(new RecoverPasswordCommand(body.email));
   }
 
   @Post('new-password')
@@ -91,7 +83,7 @@ export class AuthController {
   async setNewPassword(
     @Body() body: NewPasswordRecoveryInputDto,
   ): Promise<void> {
-    await this.commandBus.execute<SetNewPasswordCommand>(
+    await this.commandBus.execute(
       new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
     );
   }

@@ -26,7 +26,7 @@ import { ConfirmRegistrationUseCase } from './application/usecases/confirm-regis
 import { RecoverPasswordUseCase } from './application/usecases/recover-password.usecase';
 import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
 
-const useCases = [
+const commandHandlers = [
   CreateUserUseCase,
   DeleteUserUseCase,
   RegisterUserUseCase,
@@ -66,7 +66,7 @@ const useCases = [
     JwtStrategy,
     AuthQueryRepository,
     UserAccountsConfig,
-    ...useCases,
+    ...commandHandlers,
   ],
 })
 export class UserAccountsModule {}

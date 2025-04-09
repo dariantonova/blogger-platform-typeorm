@@ -1,4 +1,3 @@
-import { PostsService } from '../application/posts.service';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
 import {
   Body,
@@ -65,9 +64,7 @@ export class PostsController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
-    await this.commandBus.execute<UpdatePostCommand>(
-      new UpdatePostCommand(id, body),
-    );
+    await this.commandBus.execute(new UpdatePostCommand(id, body));
   }
 
   @Delete(':id')
@@ -75,7 +72,7 @@ export class PostsController {
   async deletePost(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
-    await this.commandBus.execute<DeletePostCommand>(new DeletePostCommand(id));
+    await this.commandBus.execute(new DeletePostCommand(id));
   }
 
   @Get(':postId/comments')

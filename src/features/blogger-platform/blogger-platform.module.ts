@@ -22,8 +22,9 @@ import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usec
 import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
 import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
+import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query';
 
-const useCases = [
+const commandHandlers = [
   DeleteBlogUseCase,
   CreateBlogUseCase,
   UpdateBlogUseCase,
@@ -31,6 +32,8 @@ const useCases = [
   UpdatePostUseCase,
   DeletePostUseCase,
 ];
+
+const queryHandlers = [GetBlogsQueryHandler];
 
 @Module({
   imports: [
@@ -52,7 +55,8 @@ const useCases = [
     CommentsService,
     CommentsRepository,
     IsExistingBlogIdConstraint,
-    ...useCases,
+    ...commandHandlers,
+    ...queryHandlers,
   ],
 })
 export class BloggerPlatformModule {}

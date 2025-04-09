@@ -30,6 +30,7 @@ import { GetPostByIdOrInternalFailQueryHandler } from './posts/application/queri
 import { GetPostByIdOrNotFoundFailQueryHandler } from './posts/application/queries/get-post-by-id-or-not-found-fail.query';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query';
 import { GetPostCommentsQueryHandler } from './posts/application/queries/get-post-comments.query';
+import { GetCommentByIdOrNotFoundQueryHandler } from './comments/application/queries/get-comment-by-id-or-not-found-fail.query';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -49,6 +50,7 @@ const queryHandlers = [
   GetPostByIdOrNotFoundFailQueryHandler,
   GetPostsQueryHandler,
   GetPostCommentsQueryHandler,
+  GetCommentByIdOrNotFoundQueryHandler,
 ];
 
 @Module({

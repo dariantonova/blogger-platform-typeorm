@@ -7,6 +7,10 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { GetCommentsQueryParams } from '../../api/input-dto/get-comments-query-params.input-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
+import { FilterQuery } from 'mongoose';
+import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -32,10 +36,31 @@ export class CommentsQueryRepository {
     return CommentViewDto.mapToView(comment);
   }
 
-  async countPostComments(postId: string): Promise<number> {
-    return this.CommentModel.countDocuments({
+  async findPostComments(
+    postId: string,
+    query: GetCommentsQueryParams,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    const filter: FilterQuery<Comment> = {
       postId,
       deletedAt: null,
+    };
+
+    const comments = await this.CommentModel.find(filter)
+      .sort({
+        [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
+        _id: 1,
+      })
+      .skip(query.calculateSkip())
+      .limit(query.pageSize);
+
+    const items = comments.map(CommentViewDto.mapToView);
+    const totalCount = await this.CommentModel.countDocuments(filter);
+
+    return PaginatedViewDto.mapToView<CommentViewDto[]>({
+      items,
+      totalCount,
+      page: query.pageNumber,
+      pageSize: query.pageSize,
     });
   }
 }

@@ -17,8 +17,6 @@ import { CreatePostInputDto } from './input-dto/create-post.input-dto';
 import { UpdatePostInputDto } from './input-dto/update-post.input-dto';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
-import { CommentsService } from '../../comments/application/comments.service';
-import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
@@ -27,12 +25,11 @@ import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
 import { GetPostByIdOrInternalFailQuery } from '../application/queries/get-post-by-id-or-internal-fail.query';
 import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-by-id-or-not-found-fail.query';
 import { GetPostsQuery } from '../application/queries/get-posts.query';
+import { GetPostCommentsQuery } from '../application/queries/get-post-comments.query';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private commentsService: CommentsService,
-    private commentsQueryRepository: CommentsQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
@@ -85,17 +82,6 @@ export class PostsController {
     @Param('postId', ObjectIdValidationPipe) postId: string,
     @Query() query: GetCommentsQueryParams,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    const comments = await this.commentsService.getPostComments(postId, query);
-
-    const items = comments.map(CommentViewDto.mapToView);
-    const totalCount =
-      await this.commentsQueryRepository.countPostComments(postId);
-
-    return PaginatedViewDto.mapToView<CommentViewDto[]>({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-    });
+    return this.queryBus.execute(new GetPostCommentsQuery(postId, query));
   }
 }

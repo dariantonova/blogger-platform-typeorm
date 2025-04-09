@@ -10,7 +10,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UsersQueryRepository } from '../infrastructure/query/users.query-repository';
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
 import { UserViewDto } from './view-dto/users.view-dto';
@@ -21,11 +20,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/usecases/admins/create-user.usecase';
 import { DeleteUserCommand } from '../application/usecases/admins/delete-user.usecase';
 import { GetUsersQuery } from '../application/queries/get-users.query';
+import { GetUserByIdOrInternalFailQuery } from '../application/queries/get-user-by-id-or-internal-fail.query';
 
 @Controller('users')
 export class UsersController {
   constructor(
-    private usersQueryRepository: UsersQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
   ) {}
@@ -45,7 +44,10 @@ export class UsersController {
       CreateUserCommand,
       string
     >(new CreateUserCommand(body));
-    return this.usersQueryRepository.findByIdOrInternalFail(createdUserId);
+
+    return this.queryBus.execute(
+      new GetUserByIdOrInternalFailQuery(createdUserId),
+    );
   }
 
   @Delete(':id')

@@ -26,6 +26,7 @@ import { ConfirmRegistrationUseCase } from './application/usecases/confirm-regis
 import { RecoverPasswordUseCase } from './application/usecases/recover-password.usecase';
 import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
 import { GetUsersQueryHandler } from './application/queries/get-users.query';
+import { GetUserByIdOrInternalFailQueryHandler } from './application/queries/get-user-by-id-or-internal-fail.query';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -38,7 +39,10 @@ const commandHandlers = [
   SetNewPasswordUseCase,
 ];
 
-const queryHandlers = [GetUsersQueryHandler];
+const queryHandlers = [
+  GetUsersQueryHandler,
+  GetUserByIdOrInternalFailQueryHandler,
+];
 
 @Module({
   imports: [

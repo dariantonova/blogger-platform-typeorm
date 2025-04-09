@@ -29,6 +29,7 @@ import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query';
 import { GetBlogByIdOrNotFoundFailQuery } from '../application/queries/get-blog-by-id-or-not-found-fail.query';
+import { GetBlogByIdOrInternalFailQuery } from '../application/queries/get-blog-by-id-or-internal-fail.query';
 
 @Controller('blogs')
 export class BlogsController {
@@ -60,7 +61,10 @@ export class BlogsController {
       CreateBlogCommand,
       string
     >(new CreateBlogCommand(body));
-    return this.blogsQueryRepository.findByIdOrInternalFail(createdBlogId);
+
+    return this.queryBus.execute(
+      new GetBlogByIdOrInternalFailQuery(createdBlogId),
+    );
   }
 
   @Put(':id')

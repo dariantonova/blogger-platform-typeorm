@@ -23,6 +23,7 @@ import { CreatePostUseCase } from './posts/application/usecases/create-post.usec
 import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query';
+import { GetBlogByIdOrNotFoundFailQueryHandler } from './blogs/application/queries/get-blog-by-id-or-not-found-fail.query';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -33,7 +34,10 @@ const commandHandlers = [
   DeletePostUseCase,
 ];
 
-const queryHandlers = [GetBlogsQueryHandler];
+const queryHandlers = [
+  GetBlogsQueryHandler,
+  GetBlogByIdOrNotFoundFailQueryHandler,
+];
 
 @Module({
   imports: [

@@ -28,6 +28,7 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query';
+import { GetBlogByIdOrNotFoundFailQuery } from '../application/queries/get-blog-by-id-or-not-found-fail.query';
 
 @Controller('blogs')
 export class BlogsController {
@@ -50,7 +51,7 @@ export class BlogsController {
   async getBlog(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<BlogViewDto> {
-    return this.blogsQueryRepository.findByIdOrNotFoundFail(id);
+    return this.queryBus.execute(new GetBlogByIdOrNotFoundFailQuery(id));
   }
 
   @Post()

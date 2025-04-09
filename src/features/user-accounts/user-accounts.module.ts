@@ -25,6 +25,7 @@ import { ResendRegistrationEmailUseCase } from './application/usecases/resend-re
 import { ConfirmRegistrationUseCase } from './application/usecases/confirm-registration.usecase';
 import { RecoverPasswordUseCase } from './application/usecases/recover-password.usecase';
 import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
+import { GetUsersQueryHandler } from './application/queries/get-users.query';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -36,6 +37,8 @@ const commandHandlers = [
   RecoverPasswordUseCase,
   SetNewPasswordUseCase,
 ];
+
+const queryHandlers = [GetUsersQueryHandler];
 
 @Module({
   imports: [
@@ -67,6 +70,7 @@ const commandHandlers = [
     AuthQueryRepository,
     UserAccountsConfig,
     ...commandHandlers,
+    ...queryHandlers,
   ],
 })
 export class UserAccountsModule {}

@@ -17,15 +17,17 @@ import { UserViewDto } from './view-dto/users.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../application/usecases/admins/create-user.usecase';
 import { DeleteUserCommand } from '../application/usecases/admins/delete-user.usecase';
+import { GetUsersQuery } from '../application/queries/get-users.query';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private usersQueryRepository: UsersQueryRepository,
     private commandBus: CommandBus,
+    private queryBus: QueryBus,
   ) {}
 
   @Get()
@@ -33,7 +35,7 @@ export class UsersController {
   async getUsers(
     @Query() query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
-    return this.usersQueryRepository.findUsers(query);
+    return this.queryBus.execute(new GetUsersQuery(query));
   }
 
   @Post()

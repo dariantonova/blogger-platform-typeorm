@@ -26,6 +26,7 @@ import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
 import { GetPostByIdOrInternalFailQuery } from '../application/queries/get-post-by-id-or-internal-fail.query';
+import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-by-id-or-not-found-fail.query';
 
 @Controller('posts')
 export class PostsController {
@@ -48,7 +49,7 @@ export class PostsController {
   async getPost(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<PostViewDto> {
-    return this.postsQueryRepository.findByIdOrNotFoundFail(id);
+    return this.queryBus.execute(new GetPostByIdOrNotFoundFailQuery(id));
   }
 
   @Post()

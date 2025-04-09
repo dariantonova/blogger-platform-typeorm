@@ -27,6 +27,7 @@ import { GetBlogByIdOrNotFoundFailQueryHandler } from './blogs/application/queri
 import { GetBlogByIdOrInternalFailQueryHandler } from './blogs/application/queries/get-blog-by-id-or-internal-fail.query';
 import { GetBlogPostsQueryHandler } from './blogs/application/queries/get-blog-posts.query';
 import { GetPostByIdOrInternalFailQueryHandler } from './posts/application/queries/get-post-by-id-or-internal-fail.query';
+import { GetPostByIdOrNotFoundFailQueryHandler } from './posts/application/queries/get-post-by-id-or-not-found-fail.query';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -43,6 +44,7 @@ const queryHandlers = [
   GetBlogByIdOrInternalFailQueryHandler,
   GetBlogPostsQueryHandler,
   GetPostByIdOrInternalFailQueryHandler,
+  GetPostByIdOrNotFoundFailQueryHandler,
 ];
 
 @Module({

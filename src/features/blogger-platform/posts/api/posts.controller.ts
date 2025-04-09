@@ -25,11 +25,11 @@ import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validat
 import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
+import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
 
 @Controller('posts')
 export class PostsController {
   constructor(
-    private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
     private commentsService: CommentsService,
     private commentsQueryRepository: CommentsQueryRepository,
@@ -75,7 +75,7 @@ export class PostsController {
   async deletePost(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
-    await this.postsService.deletePost(id);
+    await this.commandBus.execute<DeletePostCommand>(new DeletePostCommand(id));
   }
 
   @Get(':postId/comments')

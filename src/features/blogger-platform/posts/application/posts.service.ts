@@ -50,15 +50,15 @@ export class PostsService {
   //   await this.postsRepository.save(post);
   // }
 
-  async deletePost(id: string): Promise<void> {
-    const post = await this.postsRepository.findByIdOrNotFoundFail(id);
-
-    post.makeDeleted();
-
-    await this.postsRepository.save(post);
-
-    await this.commentsService.deletePostComments(post._id.toString());
-  }
+  // async deletePost(id: string): Promise<void> {
+  //   const post = await this.postsRepository.findByIdOrNotFoundFail(id);
+  //
+  //   post.makeDeleted();
+  //
+  //   await this.postsRepository.save(post);
+  //
+  //   await this.commentsService.deletePostComments(post._id.toString());
+  // }
 
   async getBlogPosts(
     blogId: string,

@@ -27,6 +27,7 @@ import { RecoverPasswordUseCase } from './application/usecases/recover-password.
 import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
 import { GetUsersQueryHandler } from './application/queries/get-users.query';
 import { GetUserByIdOrInternalFailQueryHandler } from './application/queries/get-user-by-id-or-internal-fail.query';
+import { MeQueryHandler } from './application/queries/me.query';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -42,6 +43,7 @@ const commandHandlers = [
 const queryHandlers = [
   GetUsersQueryHandler,
   GetUserByIdOrInternalFailQueryHandler,
+  MeQueryHandler,
 ];
 
 @Module({

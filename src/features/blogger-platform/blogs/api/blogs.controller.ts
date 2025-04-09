@@ -10,7 +10,6 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { BlogViewDto } from './view-dto/blogs.view-dto';
@@ -18,7 +17,6 @@ import { CreateBlogInputDto } from './input-dto/create-blog.input-dto';
 import { UpdateBlogInputDto } from './input-dto/update-blog.input-dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
-import { PostsService } from '../../posts/application/posts.service';
 import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 import { CreateBlogPostInputDto } from './input-dto/create-blog-post.input-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
@@ -30,12 +28,11 @@ import { CreatePostCommand } from '../../posts/application/usecases/create-post.
 import { GetBlogsQuery } from '../application/queries/get-blogs.query';
 import { GetBlogByIdOrNotFoundFailQuery } from '../application/queries/get-blog-by-id-or-not-found-fail.query';
 import { GetBlogByIdOrInternalFailQuery } from '../application/queries/get-blog-by-id-or-internal-fail.query';
+import { GetBlogPostsQuery } from '../application/queries/get-blog-posts.query';
 
 @Controller('blogs')
 export class BlogsController {
   constructor(
-    private blogsQueryRepository: BlogsQueryRepository,
-    private postsService: PostsService,
     private postsQueryRepository: PostsQueryRepository,
     private commandBus: CommandBus,
     private queryBus: QueryBus,
@@ -89,17 +86,7 @@ export class BlogsController {
     @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const posts = await this.postsService.getBlogPosts(blogId, query);
-
-    const items = posts.map(PostViewDto.mapToView);
-    const totalCount = await this.postsQueryRepository.countBlogPosts(blogId);
-
-    return PaginatedViewDto.mapToView<PostViewDto[]>({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-    });
+    return this.queryBus.execute(new GetBlogPostsQuery(blogId, query));
   }
 
   @Post(':blogId/posts')

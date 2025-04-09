@@ -15,13 +15,10 @@ export class PostsQueryRepository {
     private PostModel: PostModelType,
   ) {}
 
-  async findPosts(
+  private async findByFilterAndQuery(
+    filter: FilterQuery<Post>,
     query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const filter: FilterQuery<Post> = {
-      deletedAt: null,
-    };
-
     const posts = await this.PostModel.find(filter)
       .sort({
         [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
@@ -30,9 +27,8 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const totalCount = await this.PostModel.countDocuments(filter);
-
     const items = posts.map(PostViewDto.mapToView);
+    const totalCount = await this.PostModel.countDocuments(filter);
 
     return PaginatedViewDto.mapToView<PostViewDto[]>({
       items,
@@ -40,6 +36,16 @@ export class PostsQueryRepository {
       page: query.pageNumber,
       pageSize: query.pageSize,
     });
+  }
+
+  async findPosts(
+    query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const filter: FilterQuery<Post> = {
+      deletedAt: null,
+    };
+
+    return this.findByFilterAndQuery(filter, query);
   }
 
   async findById(id: string): Promise<PostDocument | null> {
@@ -69,10 +75,15 @@ export class PostsQueryRepository {
     return PostViewDto.mapToView(post);
   }
 
-  async countBlogPosts(blogId: string): Promise<number> {
-    return this.PostModel.countDocuments({
+  async findBlogPosts(
+    blogId: string,
+    query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const filter: FilterQuery<Post> = {
       blogId,
       deletedAt: null,
-    });
+    };
+
+    return this.findByFilterAndQuery(filter, query);
   }
 }

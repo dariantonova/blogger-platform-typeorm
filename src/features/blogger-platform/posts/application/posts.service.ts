@@ -34,21 +34,21 @@ export class PostsService {
   //   return post._id.toString();
   // }
 
-  async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
-    const post = await this.postsRepository.findByIdOrNotFoundFail(id);
-
-    const blog = await this.blogsRepository.findByIdOrInternalFail(dto.blogId);
-
-    post.update({
-      title: dto.title,
-      shortDescription: dto.shortDescription,
-      content: dto.content,
-      blogId: dto.blogId,
-      blogName: blog.name,
-    });
-
-    await this.postsRepository.save(post);
-  }
+  // async updatePost(id: string, dto: UpdatePostDto): Promise<void> {
+  //   const post = await this.postsRepository.findByIdOrNotFoundFail(id);
+  //
+  //   const blog = await this.blogsRepository.findByIdOrInternalFail(dto.blogId);
+  //
+  //   post.update({
+  //     title: dto.title,
+  //     shortDescription: dto.shortDescription,
+  //     content: dto.content,
+  //     blogId: dto.blogId,
+  //     blogName: blog.name,
+  //   });
+  //
+  //   await this.postsRepository.save(post);
+  // }
 
   async deletePost(id: string): Promise<void> {
     const post = await this.postsRepository.findByIdOrNotFoundFail(id);

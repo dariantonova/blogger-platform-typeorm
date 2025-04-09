@@ -24,6 +24,7 @@ import { CommentsQueryRepository } from '../../comments/infrastructure/query/com
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreatePostCommand } from '../application/usecases/create-post.usecase';
+import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -64,7 +65,9 @@ export class PostsController {
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdatePostInputDto,
   ): Promise<void> {
-    await this.postsService.updatePost(id, body);
+    await this.commandBus.execute<UpdatePostCommand>(
+      new UpdatePostCommand(id, body),
+    );
   }
 
   @Delete(':id')

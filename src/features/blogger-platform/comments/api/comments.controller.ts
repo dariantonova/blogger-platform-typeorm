@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -17,6 +18,7 @@ import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { UpdateCommentInputDto } from './input-dto/update-comment.input-dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
+import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
 
 @Controller('comments')
 export class CommentsController {
@@ -41,5 +43,15 @@ export class CommentsController {
     @Body() body: UpdateCommentInputDto,
   ): Promise<void> {
     await this.commandBus.execute(new UpdateCommentCommand(id, body, user.id));
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async deleteComment(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('id', ObjectIdValidationPipe) id: string,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteCommentCommand(id, user.id));
   }
 }

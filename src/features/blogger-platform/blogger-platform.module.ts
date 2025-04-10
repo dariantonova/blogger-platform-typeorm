@@ -35,6 +35,7 @@ import { CreateCommentUseCase } from './comments/application/usecases/create-com
 import { GetCommentByIdOrInternalFailQueryHandler } from './comments/application/queries/get-comment-by-id-or-internal-fail.query';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
+import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment.usecase';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -45,6 +46,7 @@ const commandHandlers = [
   DeletePostUseCase,
   CreateCommentUseCase,
   UpdateCommentUseCase,
+  DeleteCommentUseCase,
 ];
 
 const queryHandlers = [

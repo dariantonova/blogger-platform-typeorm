@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -19,13 +20,14 @@ import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comment
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { CreatePostCommand } from '../application/usecases/create-post.usecase';
-import { UpdatePostCommand } from '../application/usecases/update-post.usecase';
-import { DeletePostCommand } from '../application/usecases/delete-post.usecase';
+import { CreatePostCommand } from '../application/usecases/admins/create-post.usecase';
+import { UpdatePostCommand } from '../application/usecases/admins/update-post.usecase';
+import { DeletePostCommand } from '../application/usecases/admins/delete-post.usecase';
 import { GetPostByIdOrInternalFailQuery } from '../application/queries/get-post-by-id-or-internal-fail.query';
 import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-by-id-or-not-found-fail.query';
 import { GetPostsQuery } from '../application/queries/get-posts.query';
 import { GetPostCommentsQuery } from '../application/queries/get-post-comments.query';
+import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -49,6 +51,7 @@ export class PostsController {
   }
 
   @Post()
+  @UseGuards(BasicAuthGuard)
   async createPost(@Body() body: CreatePostInputDto): Promise<PostViewDto> {
     const createdPostId = await this.commandBus.execute<
       CreatePostCommand,
@@ -62,6 +65,7 @@ export class PostsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async updatePost(
     @Param('id', ObjectIdValidationPipe) id: string,
     @Body() body: UpdatePostInputDto,
@@ -71,6 +75,7 @@ export class PostsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(BasicAuthGuard)
   async deletePost(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {

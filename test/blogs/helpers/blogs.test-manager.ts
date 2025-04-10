@@ -2,7 +2,12 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateBlogInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import request, { Response } from 'supertest';
 import { BlogViewDto } from '../../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
-import { BLOGS_PATH, DEFAULT_PAGE_SIZE, QueryType } from '../../helpers/helper';
+import {
+  BLOGS_PATH,
+  DEFAULT_PAGE_SIZE,
+  QueryType,
+  VALID_BASIC_AUTH_VALUE,
+} from '../../helpers/helper';
 
 export const DEFAULT_BLOGS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -12,9 +17,11 @@ export class BlogsTestManager {
   async createBlog(
     createDto: any,
     expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .post(BLOGS_PATH)
+      .set('Authorization', auth)
       .send(createDto)
       .expect(expectedStatusCode);
   }
@@ -62,9 +69,11 @@ export class BlogsTestManager {
   async deleteBlog(
     id: string,
     expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .delete(BLOGS_PATH + '/' + id)
+      .set('Authorization', auth)
       .expect(expectedStatusCode);
   }
 
@@ -78,10 +87,17 @@ export class BlogsTestManager {
     id: string,
     updateDto: any,
     expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
       .put(BLOGS_PATH + '/' + id)
+      .set('Authorization', auth)
       .send(updateDto)
       .expect(expectedStatusCode);
+  }
+
+  async checkBlogsCount(count: number): Promise<void> {
+    const getBlogsResponse = await this.getBlogs(HttpStatus.OK);
+    expect(getBlogsResponse.body.totalCount).toBe(count);
   }
 }

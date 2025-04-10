@@ -9,6 +9,7 @@ import {
   generateNonExistingId,
   getPageOfArray,
   initApp,
+  invalidBasicAuthTestValues,
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
@@ -112,19 +113,21 @@ describe('blog posts', () => {
 
     describe('validation', () => {
       let blogId: string;
-      let validInput: CreateBlogPostInputDto;
+      const validInput: CreateBlogPostInputDto = {
+        title: 'post',
+        shortDescription: 'short description',
+        content: 'content',
+      };
 
       beforeAll(async () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        validInput = {
-          title: 'post',
-          shortDescription: 'short description',
-          content: 'content',
-        };
-
         blogId = blog.id;
+      });
+
+      afterEach(async () => {
+        await postsTestManager.checkBlogPostsCount(blogId, 0);
       });
 
       it('should return 400 if title is invalid', async () => {
@@ -332,6 +335,37 @@ describe('blog posts', () => {
           ]),
         });
         expect(response.body.errorsMessages).toHaveLength(3);
+      });
+    });
+
+    describe('authorization', () => {
+      let blogId: string;
+      const validInput: CreateBlogPostInputDto = {
+        title: 'post',
+        shortDescription: 'short description',
+        content: 'content',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        blogId = blog.id;
+      });
+
+      afterEach(async () => {
+        await postsTestManager.checkBlogPostsCount(blogId, 0);
+      });
+
+      it('should forbid creating blog post for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await postsTestManager.createBlogPost(
+            blogId,
+            validInput,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
       });
     });
   });

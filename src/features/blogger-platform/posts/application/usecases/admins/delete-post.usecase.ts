@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepository } from '../../infrastructure/posts.repository';
-import { CommentsService } from '../../../comments/application/comments.service';
+import { PostsRepository } from '../../../infrastructure/posts.repository';
+import { CommentsService } from '../../../../comments/application/comments.service';
 
 export class DeletePostCommand {
   constructor(public postId: string) {}

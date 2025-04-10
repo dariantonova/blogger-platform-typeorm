@@ -5,6 +5,7 @@ import {
   generateNonExistingId,
   getPageOfArray,
   initApp,
+  invalidBasicAuthTestValues,
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
@@ -427,6 +428,10 @@ describe('blogs', () => {
         await deleteAllData(app);
       });
 
+      afterEach(async () => {
+        await blogsTestManager.checkBlogsCount(0);
+      });
+
       it('should return 400 if name is invalid', async () => {
         const invalidDataCases: any[] = [];
 
@@ -638,13 +643,39 @@ describe('blogs', () => {
         expect(response.body.errorsMessages).toHaveLength(3);
       });
     });
+
+    describe('authorization', () => {
+      const validInput: CreateBlogInputDto = {
+        name: 'blog',
+        description: 'description',
+        websiteUrl: 'https://site.com',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+
+      afterEach(async () => {
+        await blogsTestManager.checkBlogsCount(0);
+      });
+
+      it('should forbid creating blog for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await blogsTestManager.createBlog(
+            validInput,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
   });
 
   describe('update blog', () => {
     const validInputDto: UpdateBlogInputDto = {
-      name: 'name',
-      description: 'description',
-      websiteUrl: 'https://site.com',
+      name: 'after',
+      description: 'description after update',
+      websiteUrl: 'https://site-after-update.com',
     };
 
     beforeAll(async () => {
@@ -726,9 +757,9 @@ describe('blogs', () => {
     describe('validation', () => {
       let blogToUpdate: BlogViewDto;
       const validInput: UpdateBlogInputDto = {
-        name: 'blog',
-        description: 'description',
-        websiteUrl: 'https://site.com',
+        name: 'after',
+        description: 'description after update',
+        websiteUrl: 'https://site-after-update.com',
       };
 
       beforeAll(async () => {
@@ -953,6 +984,33 @@ describe('blogs', () => {
         expect(response.body.errorsMessages).toHaveLength(3);
       });
     });
+
+    describe('authorization', () => {
+      let blogToUpdate: BlogViewDto;
+      const validInput: UpdateBlogInputDto = {
+        name: 'after',
+        description: 'description after update',
+        websiteUrl: 'https://site-after-update.com',
+      };
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+        blogToUpdate = blogs[0];
+      });
+
+      it('should forbid updating blog for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await blogsTestManager.updateBlog(
+            blogToUpdate.id,
+            validInput,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
   });
 
   describe('delete blog', () => {
@@ -988,6 +1046,31 @@ describe('blogs', () => {
       await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
 
       await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
+    });
+
+    describe('authorization', () => {
+      let blogToDelete: BlogViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+        blogToDelete = blogs[0];
+      });
+
+      afterEach(async () => {
+        await blogsTestManager.checkBlogsCount(1);
+      });
+
+      it('should forbid deleting blog for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await blogsTestManager.deleteBlog(
+            blogToDelete.id,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
     });
   });
 });

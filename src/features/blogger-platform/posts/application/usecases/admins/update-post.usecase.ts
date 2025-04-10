@@ -1,7 +1,7 @@
-import { UpdatePostDto } from '../../dto/update-post.dto';
+import { UpdatePostDto } from '../../../dto/update-post.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepository } from '../../infrastructure/posts.repository';
-import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
+import { PostsRepository } from '../../../infrastructure/posts.repository';
+import { BlogsRepository } from '../../../../blogs/infrastructure/blogs.repository';
 
 export class UpdatePostCommand {
   constructor(

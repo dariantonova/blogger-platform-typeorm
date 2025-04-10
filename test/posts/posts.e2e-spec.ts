@@ -4,6 +4,7 @@ import {
   generateNonExistingId,
   getPageOfArray,
   initApp,
+  invalidBasicAuthTestValues,
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
@@ -461,6 +462,10 @@ describe('posts', () => {
         };
       });
 
+      afterEach(async () => {
+        await postsTestManager.checkPostsCount(0);
+      });
+
       it('should return 400 if title is invalid', async () => {
         const invalidDataCases: any[] = [];
 
@@ -756,6 +761,36 @@ describe('posts', () => {
         expect(response.body.errorsMessages).toHaveLength(4);
       });
     });
+
+    describe('authorization', () => {
+      let validInput: CreatePostInputDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        validInput = {
+          title: 'post',
+          shortDescription: 'short description',
+          content: 'content',
+          blogId: blog.id,
+        };
+      });
+
+      afterEach(async () => {
+        await postsTestManager.checkPostsCount(0);
+      });
+
+      it('should forbid creating post for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await postsTestManager.createPost(
+            validInput,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
   });
 
   describe('update post', () => {
@@ -862,7 +897,7 @@ describe('posts', () => {
 
     describe('validation', () => {
       let postToUpdate: PostViewDto;
-      let validInput: CreatePostInputDto;
+      let validInput: UpdatePostInputDto;
 
       beforeAll(async () => {
         await deleteAllData(app);
@@ -1183,6 +1218,41 @@ describe('posts', () => {
         expect(response.body.errorsMessages).toHaveLength(4);
       });
     });
+
+    describe('authorization', () => {
+      let postToUpdate: PostViewDto;
+      let validInput: UpdatePostInputDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogs =
+          await blogsCommonTestManager.createBlogsWithGeneratedData(2);
+        const posts = await postsTestManager.createPostsWithGeneratedData(
+          1,
+          blogs[0].id,
+        );
+        postToUpdate = posts[0];
+
+        validInput = {
+          title: 'post',
+          shortDescription: 'short description',
+          content: 'content',
+          blogId: blogs[1].id,
+        };
+      });
+
+      it('should forbid updating post for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await postsTestManager.updatePost(
+            postToUpdate.id,
+            validInput,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
   });
 
   describe('delete post', () => {
@@ -1246,6 +1316,36 @@ describe('posts', () => {
       const responseBody: PaginatedViewDto<PostViewDto[]> =
         getPostsResponse.body;
       expect(responseBody.items).toEqual(blog1Posts.toReversed());
+    });
+
+    describe('authorization', () => {
+      let postToDelete: PostViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogs =
+          await blogsCommonTestManager.createBlogsWithGeneratedData(1);
+        const posts = await postsTestManager.createPostsWithGeneratedData(
+          1,
+          blogs[0].id,
+        );
+        postToDelete = posts[0];
+      });
+
+      afterEach(async () => {
+        await postsTestManager.checkPostsCount(1);
+      });
+
+      it('should forbid deleting post for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await postsTestManager.deletePost(
+            postToDelete.id,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
     });
   });
 });

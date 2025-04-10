@@ -1,17 +1,45 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import { CommentViewDto } from './view-dto/comments.view-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
-import { QueryBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetCommentByIdOrNotFoundFailQuery } from '../application/queries/get-comment-by-id-or-not-found-fail.query';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
+import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { UpdateCommentInputDto } from './input-dto/update-comment.input-dto';
+import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private queryBus: QueryBus) {}
+  constructor(
+    private queryBus: QueryBus,
+    private commandBus: CommandBus,
+  ) {}
 
   @Get(':id')
   async getComment(
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<CommentViewDto> {
     return this.queryBus.execute(new GetCommentByIdOrNotFoundFailQuery(id));
+  }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async updateComment(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('id', ObjectIdValidationPipe) id: string,
+    @Body() body: UpdateCommentInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(new UpdateCommentCommand(id, body, user.id));
   }
 }

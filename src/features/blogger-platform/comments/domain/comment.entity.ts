@@ -8,8 +8,8 @@ import {
   BaseLikesInfoSchema,
 } from '../../common/schemas/base-likes-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
-import { CreateCommentDto } from '../dto/create-comment.dto';
 import { CreateCommentDomainDto } from './dto/create-comment.domain.dto';
+import { UpdateCommentDto } from '../dto/update-comment.dto';
 
 export const contentConstraints = {
   minLength: 20,
@@ -74,6 +74,10 @@ export class Comment {
       throw new Error('Comment is already deleted');
     }
     this.deletedAt = new Date();
+  }
+
+  update(dto: UpdateCommentDto) {
+    this.content = dto.content;
   }
 }
 

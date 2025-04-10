@@ -1,13 +1,13 @@
-import { GetCommentsQueryParams } from '../api/input-dto/get-comments-query-params.input-dto';
 import {
   Comment,
   CommentDocument,
   CommentModelType,
 } from '../domain/comment.entity';
 import { FilterQuery } from 'mongoose';
-import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ObjectId } from 'mongodb';
+import { CommentViewDto } from '../api/view-dto/comments.view-dto';
 
 @Injectable()
 export class CommentsRepository {
@@ -15,24 +15,6 @@ export class CommentsRepository {
     @InjectModel(Comment.name)
     private CommentModel: CommentModelType,
   ) {}
-
-  async findPostComments(
-    postId: string,
-    query: GetCommentsQueryParams,
-  ): Promise<CommentDocument[]> {
-    const filter: FilterQuery<Comment> = {
-      postId,
-      deletedAt: null,
-    };
-
-    return this.CommentModel.find(filter)
-      .sort({
-        [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
-        _id: 1,
-      })
-      .skip(query.calculateSkip())
-      .limit(query.pageSize);
-  }
 
   async findAllPostComments(postId: string): Promise<CommentDocument[]> {
     const filter: FilterQuery<Comment> = {
@@ -45,5 +27,22 @@ export class CommentsRepository {
 
   async save(comment: CommentDocument): Promise<void> {
     await comment.save();
+  }
+
+  async findById(id: string): Promise<CommentDocument | null> {
+    return this.CommentModel.findOne({
+      _id: new ObjectId(id),
+      deletedAt: null,
+    });
+  }
+
+  async findByIdOrNotFoundFail(id: string): Promise<CommentDocument> {
+    const comment = await this.findById(id);
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    return comment;
   }
 }

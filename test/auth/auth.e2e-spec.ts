@@ -24,6 +24,7 @@ import { NewPasswordRecoveryInputDto } from '../../src/features/user-accounts/ap
 import { CoreConfig } from '../../src/core/core.config';
 import { ConfigService } from '@nestjs/config';
 import { UserAccountsConfig } from '../../src/features/user-accounts/user-accounts.config';
+import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -35,7 +36,7 @@ describe('auth', () => {
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
       builder
-        .overrideProvider(JwtService)
+        .overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
         .useFactory({
           inject: [CoreConfig],
           factory: (coreConfig: CoreConfig) => {
@@ -241,7 +242,7 @@ describe('auth', () => {
       };
 
       const response = await authTestManager.login(data, HttpStatus.OK);
-      expect(response.body).toEqual({ accessToken: expect.any(String) });
+      authTestManager.checkLoginResponse(response);
     });
 
     // log in by email
@@ -252,7 +253,7 @@ describe('auth', () => {
       };
 
       const response = await authTestManager.login(data, HttpStatus.OK);
-      expect(response.body).toEqual({ accessToken: expect.any(String) });
+      authTestManager.checkLoginResponse(response);
     });
 
     it('should return 401 when trying to log in deleted user', async () => {

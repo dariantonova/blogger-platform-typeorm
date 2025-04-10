@@ -10,11 +10,10 @@ import { AuthService } from './application/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { CryptoService } from './application/crypto.service';
 import { AuthController } from './api/auth.controller';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { JwtStrategy } from './guards/bearer/jwt.strategy';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
 import { UserAccountsConfig } from './user-accounts.config';
-import { CoreModule } from '../../core/core.module';
 import { CoreConfig } from '../../core/core.config';
 import { CreateUserUseCase } from './application/usecases/admins/create-user.usecase';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -28,6 +27,10 @@ import { SetNewPasswordUseCase } from './application/usecases/set-new-password.u
 import { GetUsersQueryHandler } from './application/queries/get-users.query';
 import { GetUserByIdOrInternalFailQueryHandler } from './application/queries/get-user-by-id-or-internal-fail.query';
 import { MeQueryHandler } from './application/queries/me.query';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from './constants/auth-tokens.inject-constants';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -48,23 +51,36 @@ const queryHandlers = [
 
 @Module({
   imports: [
-    JwtModule.registerAsync({
-      inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => {
-        return {
-          secret: coreConfig.accessJwtSecret,
-          signOptions: {
-            expiresIn: coreConfig.accessTokenLifetimeInSeconds + 's',
-          },
-        };
-      },
-    }),
+    JwtModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    CoreModule,
     CqrsModule.forRoot(),
   ],
   controllers: [UsersController, AuthController],
   providers: [
+    {
+      provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig): JwtService => {
+        return new JwtService({
+          secret: coreConfig.accessJwtSecret,
+          signOptions: {
+            expiresIn: coreConfig.accessTokenLifetimeInSeconds + 's',
+          },
+        });
+      },
+    },
+    {
+      provide: REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig): JwtService => {
+        return new JwtService({
+          secret: coreConfig.refreshJwtSecret,
+          signOptions: {
+            expiresIn: coreConfig.refreshTokenLifetimeInSeconds + 's',
+          },
+        });
+      },
+    },
     UsersService,
     UsersQueryRepository,
     UsersRepository,

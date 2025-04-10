@@ -61,6 +61,20 @@ export class CoreConfig {
   includeTestingModule: boolean;
 
   @IsNotEmpty({
+    message: 'Set Env variable REFRESH_JWT_SECRET, example: mysecretkey123',
+  })
+  refreshJwtSecret: string;
+
+  @IsNumber(
+    {},
+    {
+      message:
+        'Set Env variable REFRESH_TOKEN_LIFETIME_IN_SECONDS, example: 36000',
+    },
+  )
+  refreshTokenLifetimeInSeconds: number;
+
+  @IsNotEmpty({
     message: 'Set Env variable ACCESS_JWT_SECRET, example: mysecretkey123',
   })
   accessJwtSecret: string;
@@ -104,6 +118,15 @@ export class CoreConfig {
     this.accessTokenLifetimeInSeconds = configValidationUtility.convertToNumber(
       this.configService.get('ACCESS_TOKEN_LIFETIME_IN_SECONDS'),
     ) as number;
+
+    this.refreshJwtSecret = this.configService.get(
+      'REFRESH_JWT_SECRET',
+    ) as string;
+
+    this.refreshTokenLifetimeInSeconds =
+      configValidationUtility.convertToNumber(
+        this.configService.get('REFRESH_TOKEN_LIFETIME_IN_SECONDS'),
+      ) as number;
   }
 
   constructor(private configService: ConfigService) {

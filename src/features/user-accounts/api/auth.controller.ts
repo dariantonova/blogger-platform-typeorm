@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
@@ -19,12 +20,16 @@ import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dt
 import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RegisterUserCommand } from '../application/usecases/users/register-user.usecase';
-import { LoginUserCommand } from '../application/usecases/login-user.usecase';
+import {
+  LoginResultDto,
+  LoginUserCommand,
+} from '../application/usecases/login-user.usecase';
 import { ResendRegistrationEmailCommand } from '../application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationCommand } from '../application/usecases/confirm-registration.usecase';
 import { RecoverPasswordCommand } from '../application/usecases/recover-password.usecase';
 import { SetNewPasswordCommand } from '../application/usecases/set-new-password.usecase';
 import { MeQuery } from '../application/queries/me.query';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -38,8 +43,21 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<{ accessToken: string }> {
-    return this.commandBus.execute(new LoginUserCommand({ userId: user.id }));
+    const loginResult = await this.commandBus.execute<
+      LoginUserCommand,
+      LoginResultDto
+    >(new LoginUserCommand({ userId: user.id }));
+
+    response.cookie('refreshToken', loginResult.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(loginResult.refreshTokenExpiresAt * 1000),
+      path: '/auth',
+    });
+
+    return { accessToken: loginResult.accessToken };
   }
 
   @Get('me')

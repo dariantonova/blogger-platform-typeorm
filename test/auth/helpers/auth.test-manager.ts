@@ -1,6 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
+import { parse } from 'cookie';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}
@@ -78,5 +79,16 @@ export class AuthTestManager {
       .post(AUTH_PATH + '/new-password')
       .send(dto)
       .expect(expectedStatusCode);
+  }
+
+  checkLoginResponse(response: Response) {
+    expect(response.body).toEqual({ accessToken: expect.any(String) });
+
+    const cookies = response.headers['set-cookie'] as unknown as string[];
+    const refreshCookie = cookies.find((c) => c.startsWith('refreshToken='));
+    expect(refreshCookie).toBeDefined();
+
+    const parsed = parse(refreshCookie as string);
+    expect(parsed.refreshToken?.length).not.toBe(0);
   }
 }

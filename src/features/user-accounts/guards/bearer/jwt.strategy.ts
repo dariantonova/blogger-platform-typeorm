@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { UserContextDto } from '../dto/user-context.dto';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { CoreConfig } from '../../../../core/core.config';
+import { AccessJwtPayload } from '../../dto/access-jwt-payload';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -18,12 +19,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(payload: { id: string }): Promise<UserContextDto> {
-    const user = await this.usersRepository.findById(payload.id);
+  async validate(payload: AccessJwtPayload): Promise<UserContextDto> {
+    const user = await this.usersRepository.findById(payload.userId);
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
 
-    return { id: payload.id };
+    return { id: payload.userId };
   }
 }

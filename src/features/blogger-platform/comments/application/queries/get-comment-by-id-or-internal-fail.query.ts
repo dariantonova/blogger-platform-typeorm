@@ -2,19 +2,19 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { CommentViewDto } from '../../api/view-dto/comments.view-dto';
 import { CommentsQueryRepository } from '../../infrastructure/query/comments.query-repository';
 
-export class GetCommentByIdOrNotFoundFailQuery {
+export class GetCommentByIdOrInternalFailQuery {
   constructor(public commentId: string) {}
 }
 
-@QueryHandler(GetCommentByIdOrNotFoundFailQuery)
-export class GetCommentByIdOrNotFoundFailQueryHandler
-  implements IQueryHandler<GetCommentByIdOrNotFoundFailQuery, CommentViewDto>
+@QueryHandler(GetCommentByIdOrInternalFailQuery)
+export class GetCommentByIdOrInternalFailQueryHandler
+  implements IQueryHandler<GetCommentByIdOrInternalFailQuery, CommentViewDto>
 {
   constructor(private commentsQueryRepository: CommentsQueryRepository) {}
 
   async execute({
     commentId,
-  }: GetCommentByIdOrNotFoundFailQuery): Promise<CommentViewDto> {
-    return this.commentsQueryRepository.findByIdOrNotFoundFail(commentId);
+  }: GetCommentByIdOrInternalFailQuery): Promise<CommentViewDto> {
+    return this.commentsQueryRepository.findByIdOrInternalFail(commentId);
   }
 }

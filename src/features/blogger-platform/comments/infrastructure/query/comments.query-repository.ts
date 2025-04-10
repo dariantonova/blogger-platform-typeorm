@@ -6,7 +6,11 @@ import {
 } from '../../domain/comment.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ObjectId } from 'mongodb';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { GetCommentsQueryParams } from '../../api/input-dto/get-comments-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { FilterQuery } from 'mongoose';
@@ -31,6 +35,16 @@ export class CommentsQueryRepository {
 
     if (!comment) {
       throw new NotFoundException('Comment not found');
+    }
+
+    return CommentViewDto.mapToView(comment);
+  }
+
+  async findByIdOrInternalFail(id: string): Promise<CommentViewDto> {
+    const comment = await this.findById(id);
+
+    if (!comment) {
+      throw new InternalServerErrorException('Comment not found');
     }
 
     return CommentViewDto.mapToView(comment);

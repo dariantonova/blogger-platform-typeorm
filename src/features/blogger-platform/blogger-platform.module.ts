@@ -30,7 +30,10 @@ import { GetPostByIdOrInternalFailQueryHandler } from './posts/application/queri
 import { GetPostByIdOrNotFoundFailQueryHandler } from './posts/application/queries/get-post-by-id-or-not-found-fail.query';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query';
 import { GetPostCommentsQueryHandler } from './posts/application/queries/get-post-comments.query';
-import { GetCommentByIdOrNotFoundQueryHandler } from './comments/application/queries/get-comment-by-id-or-not-found-fail.query';
+import { GetCommentByIdOrNotFoundFailQueryHandler } from './comments/application/queries/get-comment-by-id-or-not-found-fail.query';
+import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
+import { GetCommentByIdOrInternalFailQueryHandler } from './comments/application/queries/get-comment-by-id-or-internal-fail.query';
+import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -39,6 +42,7 @@ const commandHandlers = [
   CreatePostUseCase,
   UpdatePostUseCase,
   DeletePostUseCase,
+  CreateCommentUseCase,
 ];
 
 const queryHandlers = [
@@ -50,7 +54,8 @@ const queryHandlers = [
   GetPostByIdOrNotFoundFailQueryHandler,
   GetPostsQueryHandler,
   GetPostCommentsQueryHandler,
-  GetCommentByIdOrNotFoundQueryHandler,
+  GetCommentByIdOrNotFoundFailQueryHandler,
+  GetCommentByIdOrInternalFailQueryHandler,
 ];
 
 @Module({
@@ -61,6 +66,7 @@ const queryHandlers = [
       { name: Comment.name, schema: CommentSchema },
     ]),
     CqrsModule.forRoot(),
+    UserAccountsModule,
   ],
   controllers: [BlogsController, PostsController, CommentsController],
   providers: [

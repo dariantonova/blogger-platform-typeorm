@@ -8,12 +8,20 @@ import {
   BaseLikesInfoSchema,
 } from '../../common/schemas/base-likes-info.schema';
 import { HydratedDocument, Model } from 'mongoose';
+import { CreateCommentDto } from '../dto/create-comment.dto';
+import { CreateCommentDomainDto } from './dto/create-comment.domain.dto';
+
+export const contentConstraints = {
+  minLength: 20,
+  maxLength: 300,
+};
 
 @Schema({ timestamps: true })
 export class Comment {
   @Prop({
     type: String,
     required: true,
+    ...contentConstraints,
   })
   content: string;
 
@@ -42,6 +50,24 @@ export class Comment {
     default: null,
   })
   deletedAt: Date | null;
+
+  static createInstance(dto: CreateCommentDomainDto): CommentDocument {
+    const comment = new this();
+
+    comment.content = dto.content;
+    comment.postId = dto.postId;
+    comment.commentatorInfo = {
+      userId: dto.userId,
+      userLogin: dto.userLogin,
+    };
+    comment.likesInfo = {
+      likesCount: 0,
+      dislikesCount: 0,
+    };
+    comment.deletedAt = null;
+
+    return comment as CommentDocument;
+  }
 
   makeDeleted() {
     if (this.deletedAt !== null) {

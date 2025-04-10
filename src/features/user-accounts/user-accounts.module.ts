@@ -31,6 +31,7 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from './constants/auth-tokens.inject-constants';
+import { UsersExternalQueryRepository } from './infrastructure/external-query/users.external-query-repository';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -93,6 +94,8 @@ const queryHandlers = [
     UserAccountsConfig,
     ...commandHandlers,
     ...queryHandlers,
+    UsersExternalQueryRepository,
   ],
+  exports: [UsersExternalQueryRepository],
 })
 export class UserAccountsModule {}

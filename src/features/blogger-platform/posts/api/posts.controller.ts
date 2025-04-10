@@ -28,6 +28,12 @@ import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-
 import { GetPostsQuery } from '../application/queries/get-posts.query';
 import { GetPostCommentsQuery } from '../application/queries/get-post-comments.query';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
+import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { CreatePostCommentInputDto } from './input-dto/create-post-comment.input-dto';
+import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
+import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query';
 
 @Controller('posts')
 export class PostsController {
@@ -88,5 +94,28 @@ export class PostsController {
     @Query() query: GetCommentsQueryParams,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     return this.queryBus.execute(new GetPostCommentsQuery(postId, query));
+  }
+
+  @Post(':postId/comments')
+  @UseGuards(JwtAuthGuard)
+  async createPostComment(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('postId', ObjectIdValidationPipe) postId: string,
+    @Body() body: CreatePostCommentInputDto,
+  ): Promise<CommentViewDto> {
+    const createdCommentId = await this.commandBus.execute<
+      CreateCommentCommand,
+      string
+    >(
+      new CreateCommentCommand({
+        content: body.content,
+        postId,
+        userId: user.id,
+      }),
+    );
+
+    return this.queryBus.execute(
+      new GetCommentByIdOrInternalFailQuery(createdCommentId),
+    );
   }
 }

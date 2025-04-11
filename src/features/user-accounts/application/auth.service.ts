@@ -14,8 +14,7 @@ export class AuthService {
     loginOrEmail: string,
     password: string,
   ): Promise<UserContextDto | null> {
-    const user =
-      await this.usersRepository.findUserByLoginOrEmail(loginOrEmail);
+    const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
     if (!user) {
       return null;
     }

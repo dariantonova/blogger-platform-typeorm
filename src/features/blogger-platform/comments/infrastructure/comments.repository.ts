@@ -7,7 +7,6 @@ import { FilterQuery } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ObjectId } from 'mongodb';
-import { CommentViewDto } from '../api/view-dto/comments.view-dto';
 
 @Injectable()
 export class CommentsRepository {

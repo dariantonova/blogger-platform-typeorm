@@ -27,7 +27,7 @@ export class SetNewPasswordUseCase
       this.cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
 
     const user =
-      await this.usersRepository.findUserByPasswordRecoveryCodeHash(
+      await this.usersRepository.findByPasswordRecoveryCodeHash(
         recoveryCodeHash,
       );
     if (!user) {

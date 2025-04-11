@@ -19,7 +19,7 @@ export class ResendRegistrationEmailUseCase
   ) {}
 
   async execute({ email }: ResendRegistrationEmailCommand): Promise<void> {
-    const user = await this.usersRepository.findUserByEmail(email);
+    const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
       throw new BadRequestException({

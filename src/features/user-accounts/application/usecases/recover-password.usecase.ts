@@ -21,7 +21,7 @@ export class RecoverPasswordUseCase
   ) {}
 
   async execute({ email }: RecoverPasswordCommand): Promise<void> {
-    const user = await this.usersRepository.findUserByEmail(email);
+    const user = await this.usersRepository.findByEmail(email);
     if (!user) {
       return;
     }

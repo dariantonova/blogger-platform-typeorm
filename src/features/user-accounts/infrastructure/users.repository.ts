@@ -46,23 +46,21 @@ export class UsersRepository {
     return user;
   }
 
-  async findUserByLogin(login: string): Promise<UserDocument | null> {
+  async findByLogin(login: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({
       login,
       deletedAt: null,
     });
   }
 
-  async findUserByEmail(email: string): Promise<UserDocument | null> {
+  async findByEmail(email: string): Promise<UserDocument | null> {
     return this.UserModel.findOne({
       email,
       deletedAt: null,
     });
   }
 
-  async findUserByLoginOrEmail(
-    loginOrEmail: string,
-  ): Promise<UserDocument | null> {
+  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument | null> {
     const filter: FilterQuery<User> = {
       deletedAt: null,
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
@@ -70,7 +68,7 @@ export class UsersRepository {
     return this.UserModel.findOne(filter);
   }
 
-  async findUserByConfirmationCode(
+  async findByConfirmationCode(
     confirmationCode: string,
   ): Promise<UserDocument | null> {
     return this.UserModel.findOne({
@@ -79,7 +77,7 @@ export class UsersRepository {
     });
   }
 
-  async findUserByPasswordRecoveryCodeHash(
+  async findByPasswordRecoveryCodeHash(
     recoveryCodeHash: string,
   ): Promise<UserDocument | null> {
     return this.UserModel.findOne({

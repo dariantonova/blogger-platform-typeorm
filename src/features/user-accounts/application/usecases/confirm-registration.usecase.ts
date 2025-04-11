@@ -16,7 +16,7 @@ export class ConfirmRegistrationUseCase
     confirmationCode,
   }: ConfirmRegistrationCommand): Promise<void> {
     const user =
-      await this.usersRepository.findUserByConfirmationCode(confirmationCode);
+      await this.usersRepository.findByConfirmationCode(confirmationCode);
     if (!user) {
       throw new BadRequestException({
         errors: [

@@ -24,9 +24,7 @@ export class CreateUserUseCase
   ) {}
 
   async execute({ dto }: CreateUserCommand): Promise<string> {
-    const userWithSameLogin = await this.usersRepository.findUserByLogin(
-      dto.login,
-    );
+    const userWithSameLogin = await this.usersRepository.findByLogin(dto.login);
     if (userWithSameLogin) {
       throw new BadRequestException({
         errors: [
@@ -38,9 +36,7 @@ export class CreateUserUseCase
       });
     }
 
-    const userWithSameEmail = await this.usersRepository.findUserByEmail(
-      dto.email,
-    );
+    const userWithSameEmail = await this.usersRepository.findByEmail(dto.email);
     if (userWithSameEmail) {
       throw new BadRequestException({
         errors: [

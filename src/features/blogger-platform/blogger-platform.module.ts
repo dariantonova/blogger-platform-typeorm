@@ -36,6 +36,9 @@ import { GetCommentByIdOrInternalFailQueryHandler } from './comments/application
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
 import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment.usecase';
+import { Like, LikeSchema } from './likes/domain/like.entity';
+import { LikesRepository } from './likes/infrastructure/likes.repository';
+import { MakePostLikeOperationUseCase } from './posts/application/usecases/make-post-like-operation.usecase';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -47,6 +50,7 @@ const commandHandlers = [
   CreateCommentUseCase,
   UpdateCommentUseCase,
   DeleteCommentUseCase,
+  MakePostLikeOperationUseCase,
 ];
 
 const queryHandlers = [
@@ -68,6 +72,7 @@ const queryHandlers = [
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: Comment.name, schema: CommentSchema },
+      { name: Like.name, schema: LikeSchema },
     ]),
     CqrsModule.forRoot(),
     UserAccountsModule,
@@ -85,6 +90,7 @@ const queryHandlers = [
     IsExistingBlogIdConstraint,
     ...commandHandlers,
     ...queryHandlers,
+    LikesRepository,
   ],
 })
 export class BloggerPlatformModule {}

@@ -34,6 +34,8 @@ import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.d
 import { CreatePostCommentInputDto } from './input-dto/create-post-comment.input-dto';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
 import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query';
+import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
+import { MakePostLikeOperationCommand } from '../application/usecases/make-post-like-operation.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -116,6 +118,23 @@ export class PostsController {
 
     return this.queryBus.execute(
       new GetCommentByIdOrInternalFailQuery(createdCommentId),
+    );
+  }
+
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async makePostLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('postId', ObjectIdValidationPipe) postId: string,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakePostLikeOperationCommand({
+        postId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
     );
   }
 }

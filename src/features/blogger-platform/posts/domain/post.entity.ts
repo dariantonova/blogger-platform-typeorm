@@ -108,6 +108,12 @@ export class Post {
   updateBlogName(blogName: string) {
     this.blogName = blogName;
   }
+
+  updateExtendedLikesInfo(extendedLikesInfo: ExtendedLikesInfo) {
+    this.extendedLikesInfo.likesCount = extendedLikesInfo.likesCount;
+    this.extendedLikesInfo.dislikesCount = extendedLikesInfo.dislikesCount;
+    this.extendedLikesInfo.newestLikes = extendedLikesInfo.newestLikes;
+  }
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

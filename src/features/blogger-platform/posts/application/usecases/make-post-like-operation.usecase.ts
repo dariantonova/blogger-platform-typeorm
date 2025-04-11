@@ -75,18 +75,18 @@ export class MakePostLikeOperationUseCase
   private async mapLikesToLikesDetails(
     likes: LikeDocument[],
   ): Promise<LikeDetails[]> {
-    return Promise.all(
-      likes.map(async (like) => {
-        const user =
-          await this.usersExternalQueryRepository.findByIdOrInternalFail(
-            like.userId,
-          );
-        return {
-          userId: like.userId,
-          login: user.login,
-          addedAt: like.createdAt,
-        };
-      }),
-    );
+    const likesDetailsPromises = likes.map(async (like) => {
+      const user =
+        await this.usersExternalQueryRepository.findByIdOrInternalFail(
+          like.userId,
+        );
+
+      return {
+        userId: like.userId,
+        login: user.login,
+        addedAt: like.createdAt,
+      };
+    });
+    return Promise.all(likesDetailsPromises);
   }
 }

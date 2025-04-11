@@ -30,6 +30,7 @@ import { RecoverPasswordCommand } from '../application/usecases/recover-password
 import { SetNewPasswordCommand } from '../application/usecases/set-new-password.usecase';
 import { MeQuery } from '../application/queries/me.query';
 import { Response } from 'express';
+import { LoginSuccessViewDto } from './view-dto/login-success.view-dto';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,7 @@ export class AuthController {
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<LoginSuccessViewDto> {
     const loginResult = await this.commandBus.execute<
       LoginUserCommand,
       LoginResultDto

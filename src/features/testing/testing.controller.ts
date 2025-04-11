@@ -11,9 +11,9 @@ export class TestingController {
   async deleteAll(): Promise<void> {
     const collections = await this.databaseConnection.listCollections();
 
-    const promises = collections.map((collection) => {
-      this.databaseConnection.collection(collection.name).deleteMany({});
-    });
+    const promises = collections.map((collection) =>
+      this.databaseConnection.collection(collection.name).deleteMany({}),
+    );
     await Promise.all(promises);
   }
 }

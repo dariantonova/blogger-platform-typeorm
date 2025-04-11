@@ -37,6 +37,7 @@ import { DeleteCommentUseCase } from './comments/application/usecases/delete-com
 import { Like, LikeSchema } from './likes/domain/like.entity';
 import { LikesRepository } from './likes/infrastructure/likes.repository';
 import { MakePostLikeOperationUseCase } from './posts/application/usecases/make-post-like-operation.usecase';
+import { MakeCommentLikeOperationUseCase } from './comments/application/usecases/make-comment-like-operation.usecase';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -49,6 +50,7 @@ const commandHandlers = [
   UpdateCommentUseCase,
   DeleteCommentUseCase,
   MakePostLikeOperationUseCase,
+  MakeCommentLikeOperationUseCase,
 ];
 
 const queryHandlers = [

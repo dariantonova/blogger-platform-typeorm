@@ -19,6 +19,8 @@ import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.d
 import { UpdateCommentInputDto } from './input-dto/update-comment.input-dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
+import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
+import { MakeCommentLikeOperationCommand } from '../application/usecases/make-comment-like-operation.usecase';
 
 @Controller('comments')
 export class CommentsController {
@@ -53,5 +55,22 @@ export class CommentsController {
     @Param('id', ObjectIdValidationPipe) id: string,
   ): Promise<void> {
     await this.commandBus.execute(new DeleteCommentCommand(id, user.id));
+  }
+
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async makeCommentLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('commentId', ObjectIdValidationPipe) commentId: string,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakeCommentLikeOperationCommand({
+        commentId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
+    );
   }
 }

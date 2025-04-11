@@ -42,6 +42,16 @@ export class LikesRepository {
     });
   }
 
+  async countLikesAndDislikesOfParent(parentId: string): Promise<{
+    likesCount: number;
+    dislikesCount: number;
+  }> {
+    const likesCount = await this.countLikesOfParent(parentId);
+    const dislikesCount = await this.countDislikesOfParent(parentId);
+
+    return { likesCount, dislikesCount };
+  }
+
   async findNewestLikesOfParent(
     parentId: string,
     quantity: number,

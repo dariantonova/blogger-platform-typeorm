@@ -20,7 +20,7 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
 
     await this.blogsRepository.save(blog);
 
-    await this.deleteBlogPosts(blog._id.toString());
+    await this.deleteBlogPosts(blogId);
   }
 
   private async deleteBlogPosts(blogId: string): Promise<void> {

@@ -52,10 +52,8 @@ export class MakePostLikeOperationUseCase
   }
 
   private async updatePostLikesInfo(post: PostDocument): Promise<void> {
-    const likesCount = await this.likesRepository.countLikesOfParent(post.id);
-    const dislikesCount = await this.likesRepository.countDislikesOfParent(
-      post.id,
-    );
+    const { likesCount, dislikesCount } =
+      await this.likesRepository.countLikesAndDislikesOfParent(post.id);
 
     const newestLikes = await this.likesRepository.findNewestLikesOfParent(
       post.id,

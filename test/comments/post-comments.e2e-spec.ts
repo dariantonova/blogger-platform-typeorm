@@ -1,5 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { CommentsTestManager } from './helpers/comments.test-manager';
+import {
+  CommentsTestManager,
+  DEFAULT_COMMENTS_PAGE_SIZE,
+} from './helpers/comments.test-manager';
 import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import {
   delay,
@@ -62,50 +65,157 @@ describe('post comments', () => {
   });
 
   describe('get post comments', () => {
-    let blog: BlogViewDto;
-
     beforeAll(async () => {
       await deleteAllData(app);
-
-      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
     });
 
-    it('should return 404 when trying to get comments of non-existing post', async () => {
-      const nonExistingId = generateNonExistingId();
-      await commentsTestManager.getPostComments(
-        nonExistingId,
-        HttpStatus.NOT_FOUND,
-      );
+    describe('common', () => {
+      let blog: BlogViewDto;
+      let validAuth: string;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+        const userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        await usersCommonTestManager.createUser(userData);
+        const userAccessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        validAuth = 'Bearer ' + userAccessToken;
+      });
+
+      it('should return empty array if post has no comments', async () => {
+        const post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+        );
+
+        const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
+        expect(responseBody.items).toEqual([]);
+      });
+
+      it('should return post comments with default pagination and sorting', async () => {
+        const post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+        const postComments =
+          await commentsTestManager.createCommentsWithGeneratedData(
+            2,
+            post.id,
+            validAuth,
+          );
+
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+        );
+        const responseBody = response.body as PaginatedViewDto<
+          CommentViewDto[]
+        >;
+
+        expect(responseBody.items).toEqual(postComments.toReversed());
+        expect(responseBody.totalCount).toBe(postComments.length);
+        expect(responseBody.pagesCount).toBe(1);
+        expect(responseBody.page).toBe(1);
+        expect(responseBody.pageSize).toBe(DEFAULT_COMMENTS_PAGE_SIZE);
+      });
+
+      it(`shouldn't return comments of other posts`, async () => {
+        const posts = await postsCommonTestManager.createPostsWithGeneratedData(
+          2,
+          blog.id,
+        );
+        const post1Comments =
+          await commentsTestManager.createCommentsWithGeneratedData(
+            2,
+            posts[0].id,
+            validAuth,
+          );
+        await commentsTestManager.createCommentsWithGeneratedData(
+          2,
+          posts[1].id,
+          validAuth,
+        );
+
+        const response = await commentsTestManager.getPostComments(
+          posts[0].id,
+          HttpStatus.OK,
+        );
+        const responseBody = response.body as PaginatedViewDto<
+          CommentViewDto[]
+        >;
+        expect(responseBody.items).toEqual(post1Comments.toReversed());
+      });
+
+      it(`shouldn't return deleted comments`, async () => {
+        const post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+        const postComments =
+          await commentsTestManager.createCommentsWithGeneratedData(
+            1,
+            post.id,
+            validAuth,
+          );
+        await commentsTestManager.deleteComment(
+          postComments[0].id,
+          validAuth,
+          HttpStatus.NO_CONTENT,
+        );
+
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+        );
+        const responseBody = response.body as PaginatedViewDto<
+          CommentViewDto[]
+        >;
+        expect(responseBody.items).toEqual([]);
+      });
     });
 
-    it('should return 404 when post id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
-      await commentsTestManager.getPostComments(
-        invalidId,
-        HttpStatus.NOT_FOUND,
-      );
-    });
+    describe('not found', () => {
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
 
-    it('should return 404 when trying to get comments of deleted post', async () => {
-      const post = await postsCommonTestManager.createPostWithGeneratedData(
-        blog.id,
-      );
-      await postsCommonTestManager.deletePost(post.id);
+      it('should return 404 when trying to get comments of non-existing post', async () => {
+        const nonExistingId = generateNonExistingId();
+        await commentsTestManager.getPostComments(
+          nonExistingId,
+          HttpStatus.NOT_FOUND,
+        );
+      });
 
-      await commentsTestManager.getPostComments(post.id, HttpStatus.NOT_FOUND);
-    });
+      it('should return 404 when post id is not valid ObjectId', async () => {
+        const invalidId = 'not ObjectId';
+        await commentsTestManager.getPostComments(
+          invalidId,
+          HttpStatus.NOT_FOUND,
+        );
+      });
 
-    it('should return empty array if post has no comments', async () => {
-      const post = await postsCommonTestManager.createPostWithGeneratedData(
-        blog.id,
-      );
-      const response = await commentsTestManager.getPostComments(
-        post.id,
-        HttpStatus.OK,
-      );
+      it('should return 404 when trying to get comments of deleted post', async () => {
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        const postToDelete =
+          await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+        await postsCommonTestManager.deletePost(postToDelete.id);
 
-      const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
-      expect(responseBody.items).toEqual([]);
+        await commentsTestManager.getPostComments(
+          postToDelete.id,
+          HttpStatus.NOT_FOUND,
+        );
+      });
     });
   });
 

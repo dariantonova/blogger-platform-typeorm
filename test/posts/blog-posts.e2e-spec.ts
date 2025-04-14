@@ -442,11 +442,11 @@ describe('blog posts', () => {
 
     it(`shouldn't return deleted posts`, async () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      const posts = await postsTestManager.createPostsWithGeneratedData(
+      const blogPosts = await postsTestManager.createPostsWithGeneratedData(
         1,
         blog.id,
       );
-      await postsTestManager.deletePost(posts[0].id, HttpStatus.NO_CONTENT);
+      await postsTestManager.deletePost(blogPosts[0].id, HttpStatus.NO_CONTENT);
 
       const response = await postsTestManager.getBlogPosts(
         blog.id,

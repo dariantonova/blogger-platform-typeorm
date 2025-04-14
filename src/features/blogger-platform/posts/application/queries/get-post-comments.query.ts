@@ -4,11 +4,13 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dt
 import { CommentViewDto } from '../../../comments/api/view-dto/comments.view-dto';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { CommentsQueryRepository } from '../../../comments/infrastructure/query/comments.query-repository';
+import { CommentsQueryService } from '../../../comments/application/comments.query-service';
 
 export class GetPostCommentsQuery {
   constructor(
     public postId: string,
     public queryParams: GetCommentsQueryParams,
+    public currentUserId: string | undefined,
   ) {}
 }
 
@@ -20,14 +22,28 @@ export class GetPostCommentsQueryHandler
   constructor(
     private postsRepository: PostsRepository,
     private commentsQueryRepository: CommentsQueryRepository,
+    private commentsQueryService: CommentsQueryService,
   ) {}
 
   async execute({
     postId,
     queryParams,
+    currentUserId,
   }: GetPostCommentsQuery): Promise<PaginatedViewDto<CommentViewDto[]>> {
     await this.postsRepository.findByIdOrNotFoundFail(postId);
 
-    return this.commentsQueryRepository.findPostComments(postId, queryParams);
+    const paginatedComments =
+      await this.commentsQueryRepository.findPostComments(postId, queryParams);
+
+    const commentsViewDtos = await Promise.all(
+      paginatedComments.items.map((comment) =>
+        this.commentsQueryService.mapCommentToView(comment, currentUserId),
+      ),
+    );
+
+    return {
+      ...paginatedComments,
+      items: commentsViewDtos,
+    };
   }
 }

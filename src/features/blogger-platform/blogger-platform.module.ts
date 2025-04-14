@@ -38,6 +38,8 @@ import { Like, LikeSchema } from './likes/domain/like.entity';
 import { LikesRepository } from './likes/infrastructure/likes.repository';
 import { MakePostLikeOperationUseCase } from './posts/application/usecases/make-post-like-operation.usecase';
 import { MakeCommentLikeOperationUseCase } from './comments/application/usecases/make-comment-like-operation.usecase';
+import { LikesQueryRepository } from './likes/infrastructure/query/likes.query-repository';
+import { CommentsQueryService } from './comments/application/comments.query-service';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -89,6 +91,8 @@ const queryHandlers = [
     ...commandHandlers,
     ...queryHandlers,
     LikesRepository,
+    LikesQueryRepository,
+    CommentsQueryService,
   ],
 })
 export class BloggerPlatformModule {}

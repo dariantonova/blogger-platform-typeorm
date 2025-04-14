@@ -36,6 +36,7 @@ import { CreateCommentCommand } from '../../comments/application/usecases/create
 import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query';
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakePostLikeOperationCommand } from '../application/usecases/make-post-like-operation.usecase';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 
 @Controller('posts')
 export class PostsController {
@@ -94,8 +95,11 @@ export class PostsController {
   async getPostComments(
     @Param('postId', ObjectIdValidationPipe) postId: string,
     @Query() query: GetCommentsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    return this.queryBus.execute(new GetPostCommentsQuery(postId, query));
+    return this.queryBus.execute(
+      new GetPostCommentsQuery(postId, query, user?.id),
+    );
   }
 
   @Post(':postId/comments')
@@ -117,7 +121,7 @@ export class PostsController {
     );
 
     return this.queryBus.execute(
-      new GetCommentByIdOrInternalFailQuery(createdCommentId),
+      new GetCommentByIdOrInternalFailQuery(createdCommentId, user.id),
     );
   }
 

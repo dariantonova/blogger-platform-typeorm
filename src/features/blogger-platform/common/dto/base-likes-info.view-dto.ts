@@ -6,12 +6,15 @@ export class BaseLikesInfoViewDto {
   dislikesCount: number;
   myStatus: LikeStatus;
 
-  static mapToView(likeInfo: BaseLikesInfo): BaseLikesInfoViewDto {
+  static mapToView(
+    likeInfo: BaseLikesInfo,
+    myStatus: LikeStatus,
+  ): BaseLikesInfoViewDto {
     const dto = new BaseLikesInfoViewDto();
 
     dto.likesCount = likeInfo.likesCount;
     dto.dislikesCount = likeInfo.dislikesCount;
-    dto.myStatus = LikeStatus.None;
+    dto.myStatus = myStatus;
 
     return dto;
   }

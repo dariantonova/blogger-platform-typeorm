@@ -21,6 +21,7 @@ import { UpdateCommentCommand } from '../application/usecases/update-comment.use
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommand } from '../application/usecases/make-comment-like-operation.usecase';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 
 @Controller('comments')
 export class CommentsController {
@@ -32,8 +33,11 @@ export class CommentsController {
   @Get(':id')
   async getComment(
     @Param('id', ObjectIdValidationPipe) id: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<CommentViewDto> {
-    return this.queryBus.execute(new GetCommentByIdOrNotFoundFailQuery(id));
+    return this.queryBus.execute(
+      new GetCommentByIdOrNotFoundFailQuery(id, user?.id),
+    );
   }
 
   @Put(':id')

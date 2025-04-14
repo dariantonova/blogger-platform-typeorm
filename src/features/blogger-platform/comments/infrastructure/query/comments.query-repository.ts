@@ -1,4 +1,3 @@
-import { CommentViewDto } from '../../api/view-dto/comments.view-dto';
 import {
   Comment,
   CommentDocument,
@@ -30,30 +29,30 @@ export class CommentsQueryRepository {
     });
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<CommentViewDto> {
+  async findByIdOrNotFoundFail(id: string): Promise<CommentDocument> {
     const comment = await this.findById(id);
 
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
 
-    return CommentViewDto.mapToView(comment);
+    return comment;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<CommentViewDto> {
+  async findByIdOrInternalFail(id: string): Promise<CommentDocument> {
     const comment = await this.findById(id);
 
     if (!comment) {
       throw new InternalServerErrorException('Comment not found');
     }
 
-    return CommentViewDto.mapToView(comment);
+    return comment;
   }
 
   async findPostComments(
     postId: string,
     query: GetCommentsQueryParams,
-  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+  ): Promise<PaginatedViewDto<CommentDocument[]>> {
     const filter: FilterQuery<Comment> = {
       postId,
       deletedAt: null,
@@ -67,11 +66,10 @@ export class CommentsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const items = comments.map(CommentViewDto.mapToView);
     const totalCount = await this.CommentModel.countDocuments(filter);
 
-    return PaginatedViewDto.mapToView<CommentViewDto[]>({
-      items,
+    return PaginatedViewDto.mapToView<CommentDocument[]>({
+      items: comments,
       totalCount,
       page: query.pageNumber,
       pageSize: query.pageSize,

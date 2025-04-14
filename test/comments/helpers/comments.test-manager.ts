@@ -9,7 +9,7 @@ export class CommentsTestManager {
     id: string,
     expectedStatusCode: HttpStatus,
   ): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .get(COMMENTS_PATH + '/' + id)
       .expect(expectedStatusCode);
   }
@@ -18,10 +18,23 @@ export class CommentsTestManager {
     postId: string,
     expectedStatusCode: HttpStatus,
     query: QueryType = {},
-  ) {
-    return await request(this.app.getHttpServer())
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + postId + '/comments')
       .query(query)
+      .expect(expectedStatusCode);
+  }
+
+  async createPostComment(
+    postId: string,
+    dto: any,
+    auth: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(POSTS_PATH + '/' + postId + '/comments')
+      .set('Authorization', auth)
+      .send(dto)
       .expect(expectedStatusCode);
   }
 }

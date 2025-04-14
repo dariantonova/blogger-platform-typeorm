@@ -1,6 +1,7 @@
 import { CommentatorInfoViewDto } from './commentator-info.view-dto';
 import { BaseLikesInfoViewDto } from '../../../common/dto/base-likes-info.view-dto';
 import { CommentDocument } from '../../domain/comment.entity';
+import { LikeStatus } from '../../../likes/dto/like-status';
 
 export class CommentViewDto {
   id: string;
@@ -9,7 +10,10 @@ export class CommentViewDto {
   createdAt: string;
   likesInfo: BaseLikesInfoViewDto;
 
-  static mapToView(comment: CommentDocument): CommentViewDto {
+  static mapToView(
+    comment: CommentDocument,
+    myStatus: LikeStatus,
+  ): CommentViewDto {
     const dto = new CommentViewDto();
 
     dto.id = comment._id.toString();
@@ -18,7 +22,7 @@ export class CommentViewDto {
       comment.commentatorInfo,
     );
     dto.createdAt = comment.createdAt.toISOString();
-    dto.likesInfo = BaseLikesInfoViewDto.mapToView(comment.likesInfo);
+    dto.likesInfo = BaseLikesInfoViewDto.mapToView(comment.likesInfo, myStatus);
 
     return dto;
   }

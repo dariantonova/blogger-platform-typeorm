@@ -338,119 +338,119 @@ describe('post comments', () => {
       });
     });
 
-    // describe('sorting', () => {
-    //   let post: PostViewDto;
-    //   let comments: CommentViewDto[];
-    //
-    //   beforeAll(async () => {
-    //     await deleteAllData(app);
-    //
-    //     const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-    //
-    //     const userData = {
-    //       login: 'user1',
-    //       email: 'user1@example.com',
-    //       password: 'qwerty',
-    //     };
-    //     await usersCommonTestManager.createUser(userData);
-    //     const userAccessToken = await authTestManager.getNewAccessToken(
-    //       userData.login,
-    //       userData.password,
-    //     );
-    //     const validAuth = 'Bearer ' + userAccessToken;
-    //
-    //     post = await postsCommonTestManager.createPostWithGeneratedData(
-    //       blog.id,
-    //     );
-    //     comments = await commentsTestManager.createCommentsWithGeneratedData(
-    //       4,
-    //       post.id,
-    //       validAuth,
-    //     );
-    //   });
-    //
-    //   it('should return comments sorted by creation date in desc order', async () => {
-    //     const expectedItems = sortArrByDateStrField(
-    //       comments,
-    //       'createdAt',
-    //       'desc',
-    //     );
-    //
-    //     const response1 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortBy: PostsSortBy.CreatedAt,
-    //         sortDirection: SortDirection.Desc,
-    //       },
-    //     );
-    //     expect(response1.body.items).toEqual(expectedItems);
-    //
-    //     const response2 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortDirection: SortDirection.Desc,
-    //       },
-    //     );
-    //     expect(response2.body.items).toEqual(expectedItems);
-    //
-    //     const response3 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortBy: PostsSortBy.CreatedAt,
-    //       },
-    //     );
-    //     expect(response3.body.items).toEqual(expectedItems);
-    //
-    //     const response4 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //     );
-    //     expect(response4.body.items).toEqual(expectedItems);
-    //   });
-    //
-    //   it('should return comments sorted by creation date in asc order', async () => {
-    //     const expectedItems = sortArrByDateStrField(
-    //       comments,
-    //       'createdAt',
-    //       'asc',
-    //     );
-    //
-    //     const response1 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortBy: PostsSortBy.CreatedAt,
-    //         sortDirection: SortDirection.Asc,
-    //       },
-    //     );
-    //     expect(response1.body.items).toEqual(expectedItems);
-    //
-    //     const response2 = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortDirection: SortDirection.Asc,
-    //       },
-    //     );
-    //     expect(response2.body.items).toEqual(expectedItems);
-    //   });
-    //
-    //   it(`should return comments in order of creation if sort field doesn't exist`, async () => {
-    //     const expectedItems = comments;
-    //
-    //     const response = await commentsTestManager.getPostComments(
-    //       post.id,
-    //       HttpStatus.OK,
-    //       {
-    //         sortBy: 'nonExisting',
-    //       },
-    //     );
-    //     expect(response.body.items).toEqual(expectedItems);
-    //   });
-    // });
+    describe('sorting', () => {
+      let post: PostViewDto;
+      let comments: CommentViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+        const userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        await usersCommonTestManager.createUser(userData);
+        const userAccessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        const validAuth = 'Bearer ' + userAccessToken;
+
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+        comments = await commentsTestManager.createCommentsWithGeneratedData(
+          4,
+          post.id,
+          validAuth,
+        );
+      });
+
+      it('should return comments sorted by creation date in desc order', async () => {
+        const expectedItems = sortArrByDateStrField(
+          comments,
+          'createdAt',
+          'desc',
+        );
+
+        const response1 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response2.body.items).toEqual(expectedItems);
+
+        const response3 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+          },
+        );
+        expect(response3.body.items).toEqual(expectedItems);
+
+        const response4 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+        );
+        expect(response4.body.items).toEqual(expectedItems);
+      });
+
+      it('should return comments sorted by creation date in asc order', async () => {
+        const expectedItems = sortArrByDateStrField(
+          comments,
+          'createdAt',
+          'asc',
+        );
+
+        const response1 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response2.body.items).toEqual(expectedItems);
+      });
+
+      it(`should return comments in order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = comments;
+
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            sortBy: 'nonExisting',
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+    });
   });
 
   describe('create post comment', () => {

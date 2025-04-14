@@ -22,6 +22,7 @@ import { DeleteCommentCommand } from '../application/usecases/delete-comment.use
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommand } from '../application/usecases/make-comment-like-operation.usecase';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
 
 @Controller('comments')
 export class CommentsController {
@@ -31,6 +32,7 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
+  @UseGuards(JwtOptionalAuthGuard)
   async getComment(
     @Param('id', ObjectIdValidationPipe) id: string,
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,

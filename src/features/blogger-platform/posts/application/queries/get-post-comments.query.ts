@@ -2,9 +2,9 @@ import { GetCommentsQueryParams } from '../../../comments/api/input-dto/get-comm
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { CommentViewDto } from '../../../comments/api/view-dto/comments.view-dto';
-import { PostsRepository } from '../../infrastructure/posts.repository';
 import { CommentsQueryRepository } from '../../../comments/infrastructure/query/comments.query-repository';
 import { CommentsQueryService } from '../../../comments/application/comments.query-service';
+import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 
 export class GetPostCommentsQuery {
   constructor(
@@ -20,7 +20,7 @@ export class GetPostCommentsQueryHandler
     IQueryHandler<GetPostCommentsQuery, PaginatedViewDto<CommentViewDto[]>>
 {
   constructor(
-    private postsRepository: PostsRepository,
+    private postsQueryRepository: PostsQueryRepository,
     private commentsQueryRepository: CommentsQueryRepository,
     private commentsQueryService: CommentsQueryService,
   ) {}
@@ -30,7 +30,7 @@ export class GetPostCommentsQueryHandler
     queryParams,
     currentUserId,
   }: GetPostCommentsQuery): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    await this.postsRepository.findByIdOrNotFoundFail(postId);
+    await this.postsQueryRepository.findByIdOrNotFoundFail(postId);
 
     const paginatedComments =
       await this.commentsQueryRepository.findPostComments(postId, queryParams);

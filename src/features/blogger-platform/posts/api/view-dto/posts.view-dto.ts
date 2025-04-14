@@ -1,5 +1,6 @@
 import { ExtendedLikesInfoViewDto } from '../../../common/dto/extended-likes-info.view-dto';
 import { PostDocument } from '../../domain/post.entity';
+import { LikeStatus } from '../../../likes/dto/like-status';
 
 export class PostViewDto {
   id: string;
@@ -11,7 +12,7 @@ export class PostViewDto {
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfoViewDto;
 
-  static mapToView(post: PostDocument): PostViewDto {
+  static mapToView(post: PostDocument, myStatus: LikeStatus): PostViewDto {
     const dto = new PostViewDto();
 
     dto.id = post._id.toString();
@@ -23,6 +24,7 @@ export class PostViewDto {
     dto.createdAt = post.createdAt.toISOString();
     dto.extendedLikesInfo = ExtendedLikesInfoViewDto.mapToView(
       post.extendedLikesInfo,
+      myStatus,
     );
 
     return dto;

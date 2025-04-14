@@ -2,13 +2,15 @@ import { GetPostsQueryParams } from '../../../posts/api/input-dto/get-posts-quer
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { PostViewDto } from '../../../posts/api/view-dto/posts.view-dto';
-import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { PostsQueryRepository } from '../../../posts/infrastructure/query/posts.query-repository';
+import { PostsQueryService } from '../../../posts/application/posts.query-service';
+import { BlogsQueryRepository } from '../../infrastructure/query/blogs.query-repository';
 
 export class GetBlogPostsQuery {
   constructor(
     public blogId: string,
     public queryParams: GetPostsQueryParams,
+    public currentUserId: string | undefined,
   ) {}
 }
 
@@ -17,16 +19,26 @@ export class GetBlogPostsQueryHandler
   implements IQueryHandler<GetBlogPostsQuery, PaginatedViewDto<PostViewDto[]>>
 {
   constructor(
-    private blogsRepository: BlogsRepository,
+    private blogsQueryRepository: BlogsQueryRepository,
     private postsQueryRepository: PostsQueryRepository,
+    private postsQueryService: PostsQueryService,
   ) {}
 
   async execute({
     blogId,
     queryParams,
+    currentUserId,
   }: GetBlogPostsQuery): Promise<PaginatedViewDto<PostViewDto[]>> {
-    await this.blogsRepository.findByIdOrNotFoundFail(blogId);
+    await this.blogsQueryRepository.findByIdOrNotFoundFail(blogId);
 
-    return this.postsQueryRepository.findBlogPosts(blogId, queryParams);
+    const paginatedPosts = await this.postsQueryRepository.findBlogPosts(
+      blogId,
+      queryParams,
+    );
+
+    return this.postsQueryService.mapPaginatedPostsToView(
+      paginatedPosts,
+      currentUserId,
+    );
   }
 }

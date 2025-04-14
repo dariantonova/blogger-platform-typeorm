@@ -40,6 +40,7 @@ import { MakePostLikeOperationUseCase } from './posts/application/usecases/make-
 import { MakeCommentLikeOperationUseCase } from './comments/application/usecases/make-comment-like-operation.usecase';
 import { LikesQueryRepository } from './likes/infrastructure/query/likes.query-repository';
 import { CommentsQueryService } from './comments/application/comments.query-service';
+import { PostsQueryService } from './posts/application/posts.query-service';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -93,6 +94,7 @@ const queryHandlers = [
     LikesRepository,
     LikesQueryRepository,
     CommentsQueryService,
+    PostsQueryService,
   ],
 })
 export class BloggerPlatformModule {}

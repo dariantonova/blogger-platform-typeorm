@@ -37,6 +37,7 @@ import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/qu
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakePostLikeOperationCommand } from '../application/usecases/make-post-like-operation.usecase';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
 
 @Controller('posts')
 export class PostsController {
@@ -46,17 +47,23 @@ export class PostsController {
   ) {}
 
   @Get()
+  @UseGuards(JwtOptionalAuthGuard)
   async getPosts(
     @Query() query: GetPostsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.queryBus.execute(new GetPostsQuery(query));
+    return this.queryBus.execute(new GetPostsQuery(query, user?.id));
   }
 
   @Get(':id')
+  @UseGuards(JwtOptionalAuthGuard)
   async getPost(
     @Param('id', ObjectIdValidationPipe) id: string,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PostViewDto> {
-    return this.queryBus.execute(new GetPostByIdOrNotFoundFailQuery(id));
+    return this.queryBus.execute(
+      new GetPostByIdOrNotFoundFailQuery(id, user?.id),
+    );
   }
 
   @Post()
@@ -68,7 +75,7 @@ export class PostsController {
     >(new CreatePostCommand(body));
 
     return this.queryBus.execute(
-      new GetPostByIdOrInternalFailQuery(createdPostId),
+      new GetPostByIdOrInternalFailQuery(createdPostId, undefined),
     );
   }
 
@@ -92,6 +99,7 @@ export class PostsController {
   }
 
   @Get(':postId/comments')
+  @UseGuards(JwtOptionalAuthGuard)
   async getPostComments(
     @Param('postId', ObjectIdValidationPipe) postId: string,
     @Query() query: GetCommentsQueryParams,
@@ -121,7 +129,7 @@ export class PostsController {
     );
 
     return this.queryBus.execute(
-      new GetCommentByIdOrInternalFailQuery(createdCommentId, user.id),
+      new GetCommentByIdOrInternalFailQuery(createdCommentId, undefined),
     );
   }
 

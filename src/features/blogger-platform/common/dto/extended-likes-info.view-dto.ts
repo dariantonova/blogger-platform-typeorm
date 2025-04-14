@@ -8,12 +8,13 @@ export class ExtendedLikesInfoViewDto extends BaseLikesInfoViewDto {
 
   static mapToView(
     extendedLikesInfo: ExtendedLikesInfo,
+    myStatus: LikeStatus,
   ): ExtendedLikesInfoViewDto {
     const dto = new ExtendedLikesInfoViewDto();
 
     dto.likesCount = extendedLikesInfo.likesCount;
     dto.dislikesCount = extendedLikesInfo.dislikesCount;
-    dto.myStatus = LikeStatus.None;
+    dto.myStatus = myStatus;
     dto.newestLikes = extendedLikesInfo.newestLikes.map(
       LikeDetailsViewDto.mapToView,
     );

@@ -1,6 +1,5 @@
 import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
-import { PostViewDto } from '../../api/view-dto/posts.view-dto';
 import { FilterQuery } from 'mongoose';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { Post, PostDocument, PostModelType } from '../../domain/post.entity';
@@ -18,7 +17,7 @@ export class PostsQueryRepository {
   private async findByFilterAndQuery(
     filter: FilterQuery<Post>,
     query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+  ): Promise<PaginatedViewDto<PostDocument[]>> {
     const posts = await this.PostModel.find(filter)
       .sort({
         [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
@@ -27,11 +26,10 @@ export class PostsQueryRepository {
       .skip(query.calculateSkip())
       .limit(query.pageSize);
 
-    const items = posts.map(PostViewDto.mapToView);
     const totalCount = await this.PostModel.countDocuments(filter);
 
-    return PaginatedViewDto.mapToView<PostViewDto[]>({
-      items,
+    return PaginatedViewDto.mapToView<PostDocument[]>({
+      items: posts,
       totalCount,
       page: query.pageNumber,
       pageSize: query.pageSize,
@@ -40,7 +38,7 @@ export class PostsQueryRepository {
 
   async findPosts(
     query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+  ): Promise<PaginatedViewDto<PostDocument[]>> {
     const filter: FilterQuery<Post> = {
       deletedAt: null,
     };
@@ -55,30 +53,30 @@ export class PostsQueryRepository {
     });
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<PostViewDto> {
+  async findByIdOrNotFoundFail(id: string): Promise<PostDocument> {
     const post = await this.findById(id);
 
     if (!post) {
       throw new NotFoundException('Post not found');
     }
 
-    return PostViewDto.mapToView(post);
+    return post;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<PostViewDto> {
+  async findByIdOrInternalFail(id: string): Promise<PostDocument> {
     const post = await this.findById(id);
 
     if (!post) {
       throw new Error('Post not found');
     }
 
-    return PostViewDto.mapToView(post);
+    return post;
   }
 
   async findBlogPosts(
     blogId: string,
     query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+  ): Promise<PaginatedViewDto<PostDocument[]>> {
     const filter: FilterQuery<Post> = {
       blogId,
       deletedAt: null,

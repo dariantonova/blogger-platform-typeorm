@@ -31,6 +31,9 @@ import { GetBlogByIdOrInternalFailQuery } from '../application/queries/get-blog-
 import { GetBlogPostsQuery } from '../application/queries/get-blog-posts.query';
 import { GetPostByIdOrInternalFailQuery } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -86,11 +89,15 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
+  @UseGuards(JwtOptionalAuthGuard)
   async getBlogPosts(
     @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Query() query: GetPostsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    return this.queryBus.execute(new GetBlogPostsQuery(blogId, query));
+    return this.queryBus.execute(
+      new GetBlogPostsQuery(blogId, query, user?.id),
+    );
   }
 
   @Post(':blogId/posts')
@@ -112,7 +119,7 @@ export class BlogsController {
     );
 
     return this.queryBus.execute(
-      new GetPostByIdOrInternalFailQuery(createdPostId),
+      new GetPostByIdOrInternalFailQuery(createdPostId, undefined),
     );
   }
 }

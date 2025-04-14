@@ -8,7 +8,9 @@ import {
   delay,
   deleteAllData,
   generateNonExistingId,
+  getPageOfArray,
   initApp,
+  sortArrByDateStrField,
 } from '../helpers/helper';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
@@ -27,6 +29,8 @@ import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
+import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
+import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 
 describe('post comments', () => {
   let app: INestApplication;
@@ -217,6 +221,236 @@ describe('post comments', () => {
         );
       });
     });
+
+    describe('pagination', () => {
+      let post: PostViewDto;
+      let postComments: CommentViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+        const userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        await usersCommonTestManager.createUser(userData);
+        const userAccessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        const validAuth = 'Bearer ' + userAccessToken;
+
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+        postComments =
+          await commentsTestManager.createCommentsWithGeneratedData(
+            12,
+            post.id,
+            validAuth,
+          );
+      });
+
+      it('should return specified page of comments array', async () => {
+        const pageNumber = 2;
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+          },
+        );
+        const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
+
+        const expectedPageSize = DEFAULT_COMMENTS_PAGE_SIZE;
+        const expectedItems = getPageOfArray(
+          postComments.toReversed(),
+          pageNumber,
+          expectedPageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(expectedPageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return specified number of comments', async () => {
+        const pageSize = 2;
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            pageSize,
+          },
+        );
+        const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
+
+        const expectedPageNumber = 1;
+        const expectedItems = getPageOfArray(
+          postComments.toReversed(),
+          expectedPageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(expectedPageNumber);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return correct page with specified page size', async () => {
+        const pageNumber = 2;
+        const pageSize = 2;
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+            pageSize,
+          },
+        );
+        const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
+
+        const expectedItems = getPageOfArray(
+          postComments.toReversed(),
+          pageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return empty array if page number exceeds total number of pages', async () => {
+        const pageNumber = 20;
+        const response = await commentsTestManager.getPostComments(
+          post.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+          },
+        );
+        const responseBody: PaginatedViewDto<CommentViewDto[]> = response.body;
+        expect(responseBody.items).toEqual([]);
+      });
+    });
+
+    // describe('sorting', () => {
+    //   let post: PostViewDto;
+    //   let comments: CommentViewDto[];
+    //
+    //   beforeAll(async () => {
+    //     await deleteAllData(app);
+    //
+    //     const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+    //
+    //     const userData = {
+    //       login: 'user1',
+    //       email: 'user1@example.com',
+    //       password: 'qwerty',
+    //     };
+    //     await usersCommonTestManager.createUser(userData);
+    //     const userAccessToken = await authTestManager.getNewAccessToken(
+    //       userData.login,
+    //       userData.password,
+    //     );
+    //     const validAuth = 'Bearer ' + userAccessToken;
+    //
+    //     post = await postsCommonTestManager.createPostWithGeneratedData(
+    //       blog.id,
+    //     );
+    //     comments = await commentsTestManager.createCommentsWithGeneratedData(
+    //       4,
+    //       post.id,
+    //       validAuth,
+    //     );
+    //   });
+    //
+    //   it('should return comments sorted by creation date in desc order', async () => {
+    //     const expectedItems = sortArrByDateStrField(
+    //       comments,
+    //       'createdAt',
+    //       'desc',
+    //     );
+    //
+    //     const response1 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortBy: PostsSortBy.CreatedAt,
+    //         sortDirection: SortDirection.Desc,
+    //       },
+    //     );
+    //     expect(response1.body.items).toEqual(expectedItems);
+    //
+    //     const response2 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortDirection: SortDirection.Desc,
+    //       },
+    //     );
+    //     expect(response2.body.items).toEqual(expectedItems);
+    //
+    //     const response3 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortBy: PostsSortBy.CreatedAt,
+    //       },
+    //     );
+    //     expect(response3.body.items).toEqual(expectedItems);
+    //
+    //     const response4 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //     );
+    //     expect(response4.body.items).toEqual(expectedItems);
+    //   });
+    //
+    //   it('should return comments sorted by creation date in asc order', async () => {
+    //     const expectedItems = sortArrByDateStrField(
+    //       comments,
+    //       'createdAt',
+    //       'asc',
+    //     );
+    //
+    //     const response1 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortBy: PostsSortBy.CreatedAt,
+    //         sortDirection: SortDirection.Asc,
+    //       },
+    //     );
+    //     expect(response1.body.items).toEqual(expectedItems);
+    //
+    //     const response2 = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortDirection: SortDirection.Asc,
+    //       },
+    //     );
+    //     expect(response2.body.items).toEqual(expectedItems);
+    //   });
+    //
+    //   it(`should return comments in order of creation if sort field doesn't exist`, async () => {
+    //     const expectedItems = comments;
+    //
+    //     const response = await commentsTestManager.getPostComments(
+    //       post.id,
+    //       HttpStatus.OK,
+    //       {
+    //         sortBy: 'nonExisting',
+    //       },
+    //     );
+    //     expect(response.body.items).toEqual(expectedItems);
+    //   });
+    // });
   });
 
   describe('create post comment', () => {

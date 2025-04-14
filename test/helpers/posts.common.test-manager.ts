@@ -3,10 +3,6 @@ import request, { Response } from 'supertest';
 import { POSTS_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
 import { CreatePostInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
-import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
-import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
-import { CreatePostCommentInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
-import { PostsTestManager } from '../posts/helpers/posts.test-manager';
 
 export class PostsCommonTestManager {
   constructor(private app: INestApplication) {}

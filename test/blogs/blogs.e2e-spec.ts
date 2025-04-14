@@ -644,7 +644,7 @@ describe('blogs', () => {
       });
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       const validInput: CreateBlogInputDto = {
         name: 'blog',
         description: 'description',
@@ -985,7 +985,7 @@ describe('blogs', () => {
       });
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let blogToUpdate: BlogViewDto;
       const validInput: UpdateBlogInputDto = {
         name: 'after',
@@ -1048,7 +1048,7 @@ describe('blogs', () => {
       await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NOT_FOUND);
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let blogToDelete: BlogViewDto;
 
       beforeAll(async () => {

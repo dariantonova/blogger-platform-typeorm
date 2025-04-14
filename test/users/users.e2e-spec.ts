@@ -71,7 +71,7 @@ describe('users', () => {
       expect(paginatedUsers.items).toEqual([createdUser]);
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       const validInputDto: CreateUserInputDto = {
         login: 'user',
         email: 'user@example.com',
@@ -403,7 +403,7 @@ describe('users', () => {
       await usersTestManager.deleteUser(users[1].id, HttpStatus.NOT_FOUND);
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let userToDelete: UserViewDto;
 
       beforeAll(async () => {
@@ -461,7 +461,7 @@ describe('users', () => {
       expect(responseBody.items).toEqual([]);
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       beforeAll(async () => {
         await deleteAllData(app);
       });

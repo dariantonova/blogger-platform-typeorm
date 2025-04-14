@@ -297,7 +297,7 @@ describe('auth', () => {
       expect(userInfo.userId).toBe(user.id);
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       const userData: CreateUserDto = {
         login: 'auth',
         email: 'auth@example.com',

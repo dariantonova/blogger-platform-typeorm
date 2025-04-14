@@ -338,7 +338,7 @@ describe('blog posts', () => {
       });
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let blogId: string;
       const validInput: CreateBlogPostInputDto = {
         title: 'post',

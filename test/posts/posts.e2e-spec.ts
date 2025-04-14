@@ -762,7 +762,7 @@ describe('posts', () => {
       });
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let validInput: CreatePostInputDto;
 
       beforeAll(async () => {
@@ -1219,7 +1219,7 @@ describe('posts', () => {
       });
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let postToUpdate: PostViewDto;
       let validInput: UpdatePostInputDto;
 
@@ -1318,7 +1318,7 @@ describe('posts', () => {
       expect(responseBody.items).toEqual(blog1Posts.toReversed());
     });
 
-    describe('authorization', () => {
+    describe('authentication', () => {
       let postToDelete: PostViewDto;
 
       beforeAll(async () => {

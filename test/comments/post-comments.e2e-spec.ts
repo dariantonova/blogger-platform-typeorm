@@ -55,13 +55,18 @@ describe('post comments', () => {
       });
     });
 
-    commentsTestManager = new CommentsTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
 
     const UserModel = app.get<UserModelType>(getModelToken('User'));
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+
+    commentsTestManager = new CommentsTestManager(
+      app,
+      usersCommonTestManager,
+      authTestManager,
+    );
   });
 
   afterAll(async () => {
@@ -82,17 +87,7 @@ describe('post comments', () => {
 
         blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
-        const userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
-        const userAccessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        validAuth = 'Bearer ' + userAccessToken;
+        validAuth = await commentsTestManager.getValidAuth();
       });
 
       it('should return empty array if post has no comments', async () => {
@@ -230,22 +225,12 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-
-        const userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
-        const userAccessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        const validAuth = 'Bearer ' + userAccessToken;
-
         post = await postsCommonTestManager.createPostWithGeneratedData(
           blog.id,
         );
+
+        const validAuth = await commentsTestManager.getValidAuth();
+
         postComments =
           await commentsTestManager.createCommentsWithGeneratedData(
             12,
@@ -346,22 +331,12 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-
-        const userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
-        const userAccessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        const validAuth = 'Bearer ' + userAccessToken;
-
         post = await postsCommonTestManager.createPostWithGeneratedData(
           blog.id,
         );
+
+        const validAuth = await commentsTestManager.getValidAuth();
+
         comments = await commentsTestManager.createCommentsWithGeneratedData(
           4,
           post.id,
@@ -524,25 +499,12 @@ describe('post comments', () => {
     });
 
     describe('not found', () => {
-      let blog: BlogViewDto;
       let validAuth: string;
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-
-        const userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
-        const userAccessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        validAuth = 'Bearer ' + userAccessToken;
+        validAuth = await commentsTestManager.getValidAuth();
       });
 
       it('should return 404 when trying to create comment of non-existing post', async () => {
@@ -566,6 +528,7 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to create comment of deleted post', async () => {
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         const postToDelete =
           await postsCommonTestManager.createPostWithGeneratedData(blog.id);
         await postsCommonTestManager.deletePost(postToDelete.id);
@@ -591,17 +554,7 @@ describe('post comments', () => {
           blog.id,
         );
 
-        const userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
-        const userAccessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        validAuth = 'Bearer ' + userAccessToken;
+        validAuth = await commentsTestManager.getValidAuth();
       });
 
       it('should return 400 if content is invalid', async () => {

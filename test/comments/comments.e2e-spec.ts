@@ -5,14 +5,30 @@ import {
   initApp,
 } from '../helpers/helper';
 import { CommentsTestManager } from './helpers/comments.test-manager';
+import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
+import { AuthTestManager } from '../auth/helpers/auth.test-manager';
+import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
+import { getModelToken } from '@nestjs/mongoose';
 
 describe('comments', () => {
   let app: INestApplication;
   let commentsTestManager: CommentsTestManager;
+  let usersCommonTestManager: UsersCommonTestManager;
+  let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
     app = await initApp();
-    commentsTestManager = new CommentsTestManager(app);
+
+    authTestManager = new AuthTestManager(app);
+
+    const UserModel = app.get<UserModelType>(getModelToken('User'));
+    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+
+    commentsTestManager = new CommentsTestManager(
+      app,
+      usersCommonTestManager,
+      authTestManager,
+    );
   });
 
   afterAll(async () => {

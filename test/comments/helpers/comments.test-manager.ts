@@ -123,4 +123,17 @@ export class CommentsTestManager {
     );
     return 'Bearer ' + userAccessToken;
   }
+
+  async updateComment(
+    commentId: string,
+    dto: any,
+    auth: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .put(COMMENTS_PATH + '/' + commentId)
+      .set('Authorization', auth)
+      .send(dto)
+      .expect(expectedStatusCode);
+  }
 }

@@ -20,6 +20,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
 
 describe('comments', () => {
   let app: INestApplication;
@@ -357,6 +358,350 @@ describe('comments', () => {
 
         await commentsTestManager.deleteComment(
           user1Comment.id,
+          user2AuthString,
+          HttpStatus.FORBIDDEN,
+        );
+      });
+    });
+  });
+
+  describe('update comment', () => {
+    const validInputDto: UpdateCommentInputDto = {
+      content: 'after'.repeat(10),
+    };
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    describe('success', () => {
+      let post: PostViewDto;
+      let validAuth: string;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+
+        validAuth = await commentsTestManager.getValidAuth();
+      });
+
+      it('should successfully update comment', async () => {
+        const createCommentResponse =
+          await commentsTestManager.createPostComment(
+            post.id,
+            {
+              content: 'before'.repeat(10),
+            },
+            validAuth,
+            HttpStatus.CREATED,
+          );
+        const commentBeforeUpdate = createCommentResponse.body;
+
+        const inputDto: UpdateCommentInputDto = {
+          content: 'after'.repeat(10),
+        };
+
+        await commentsTestManager.updateComment(
+          commentBeforeUpdate.id,
+          inputDto,
+          validAuth,
+          HttpStatus.NO_CONTENT,
+        );
+
+        const getUpdatedCommentResponse = await commentsTestManager.getComment(
+          commentBeforeUpdate.id,
+          HttpStatus.OK,
+        );
+        const updatedComment = getUpdatedCommentResponse.body as CommentViewDto;
+
+        expect(updatedComment.content).toBe(inputDto.content);
+        expect(updatedComment.id).toBe(commentBeforeUpdate.id);
+        expect(updatedComment.commentatorInfo).toEqual(
+          commentBeforeUpdate.commentatorInfo,
+        );
+        expect(updatedComment.createdAt).toBe(commentBeforeUpdate.createdAt);
+        expect(updatedComment.likesInfo).toEqual(commentBeforeUpdate.likesInfo);
+      });
+    });
+
+    describe('not found', () => {
+      let validAuth: string;
+      let post: PostViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        validAuth = await commentsTestManager.getValidAuth();
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+      });
+
+      it('should return 404 when trying to update non-existing comment', async () => {
+        const nonExistingPost = generateNonExistingId();
+        await commentsTestManager.updateComment(
+          nonExistingPost,
+          validInputDto,
+          validAuth,
+          HttpStatus.NOT_FOUND,
+        );
+      });
+
+      it('should return 404 when comment id is not valid ObjectId', async () => {
+        const invalidId = 'not ObjectId';
+        await commentsTestManager.updateComment(
+          invalidId,
+          validInputDto,
+          validAuth,
+          HttpStatus.NOT_FOUND,
+        );
+      });
+
+      it('should return 404 when trying to update deleted comment', async () => {
+        const commentToDelete =
+          await commentsTestManager.createCommentWithGeneratedData(
+            post.id,
+            validAuth,
+          );
+
+        await commentsTestManager.deleteComment(
+          commentToDelete.id,
+          validAuth,
+          HttpStatus.NO_CONTENT,
+        );
+
+        await commentsTestManager.updateComment(
+          commentToDelete.id,
+          validInputDto,
+          validAuth,
+          HttpStatus.NOT_FOUND,
+        );
+      });
+    });
+
+    describe('validation', () => {
+      let post: PostViewDto;
+      let validAuth: string;
+      let comment: CommentViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+
+        validAuth = await commentsTestManager.getValidAuth();
+
+        comment = await commentsTestManager.createCommentWithGeneratedData(
+          post.id,
+          validAuth,
+        );
+      });
+
+      it('should return 400 if content is invalid', async () => {
+        const invalidDataCases: any[] = [];
+
+        // missing
+        const data1 = {};
+        invalidDataCases.push(data1);
+
+        // not string
+        const data2 = {
+          content: 4,
+        };
+        invalidDataCases.push(data2);
+
+        // empty
+        const data3 = {
+          content: '',
+        };
+        invalidDataCases.push(data3);
+
+        // empty string with spaces
+        const data4 = {
+          content: '  ',
+        };
+        invalidDataCases.push(data4);
+
+        // too short
+        const data5 = {
+          content: 'a'.repeat(19),
+        };
+        invalidDataCases.push(data5);
+
+        // too long
+        const data6 = {
+          content: 'a'.repeat(301),
+        };
+        invalidDataCases.push(data6);
+
+        for (const data of invalidDataCases) {
+          const response = await commentsTestManager.updateComment(
+            comment.id,
+            data,
+            validAuth,
+            HttpStatus.BAD_REQUEST,
+          );
+          expect(response.body).toEqual({
+            errorsMessages: [
+              {
+                field: 'content',
+                message: expect.any(String),
+              },
+            ],
+          });
+        }
+      });
+    });
+
+    describe('authentication', () => {
+      let userData: CreateUserInputDto;
+      let user: UserViewDto;
+      let comment: CommentViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        const post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+
+        userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        user = await usersCommonTestManager.createUser(userData);
+        const userAccessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        const validAuth = 'Bearer ' + userAccessToken;
+
+        comment = await commentsTestManager.createCommentWithGeneratedData(
+          post.id,
+          validAuth,
+        );
+      });
+
+      // non-existing token
+      it('should return 401 if access token is invalid', async () => {
+        const accessToken = 'random';
+        await commentsTestManager.updateComment(
+          comment.id,
+          validInputDto,
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // wrong format auth header
+      it('should return 401 if auth header format is invalid', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        await commentsTestManager.updateComment(
+          comment.id,
+          validInputDto,
+          accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // expired token
+      it('should return 401 if access token is expired', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+
+        await delay(2000);
+
+        await commentsTestManager.updateComment(
+          comment.id,
+          validInputDto,
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // user was deleted
+      it('should return 401 if user was deleted', async () => {
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        await usersCommonTestManager.deleteUser(user.id);
+        await commentsTestManager.updateComment(
+          comment.id,
+          validInputDto,
+          'Bearer ' + accessToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+    });
+
+    describe('authorization', () => {
+      let post: PostViewDto;
+      let user1AuthString: string;
+      let user2AuthString: string;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        post = await postsCommonTestManager.createPostWithGeneratedData(
+          blog.id,
+        );
+
+        const usersData: CreateUserInputDto[] = [
+          {
+            login: 'user1',
+            email: 'user1@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user2',
+            email: 'user2@example.com',
+            password: 'qwerty',
+          },
+        ];
+
+        await usersCommonTestManager.createUsers(usersData);
+
+        const user1AuthToken = await authTestManager.getNewAccessToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+        const user2AuthToken = await authTestManager.getNewAccessToken(
+          usersData[1].login,
+          usersData[1].password,
+        );
+
+        user1AuthString = 'Bearer ' + user1AuthToken;
+        user2AuthString = 'Bearer ' + user2AuthToken;
+      });
+
+      it('should return 403 when user is trying to delete a comment that is not their own', async () => {
+        const user1Comment =
+          await commentsTestManager.createCommentWithGeneratedData(
+            post.id,
+            user1AuthString,
+          );
+
+        await commentsTestManager.updateComment(
+          user1Comment.id,
+          validInputDto,
           user2AuthString,
           HttpStatus.FORBIDDEN,
         );

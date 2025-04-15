@@ -55,8 +55,8 @@ describe('post comments', () => {
       });
     });
 
-    postsCommonTestManager = new PostsCommonTestManager(app);
     blogsCommonTestManager = new BlogsCommonTestManager(app);
+    postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
 
     const UserModel = app.get<UserModelType>(getModelToken('User'));
@@ -184,8 +184,12 @@ describe('post comments', () => {
     });
 
     describe('not found', () => {
+      let blog: BlogViewDto;
+
       beforeAll(async () => {
         await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       });
 
       it('should return 404 when trying to get comments of non-existing post', async () => {
@@ -205,7 +209,6 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to get comments of deleted post', async () => {
-        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         const postToDelete =
           await postsCommonTestManager.createPostWithGeneratedData(blog.id);
         await postsCommonTestManager.deletePost(postToDelete.id);
@@ -499,10 +502,13 @@ describe('post comments', () => {
     });
 
     describe('not found', () => {
+      let blog: BlogViewDto;
       let validAuth: string;
 
       beforeAll(async () => {
         await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
         validAuth = await commentsTestManager.getValidAuth();
       });
@@ -528,7 +534,6 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to create comment of deleted post', async () => {
-        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         const postToDelete =
           await postsCommonTestManager.createPostWithGeneratedData(blog.id);
         await postsCommonTestManager.deletePost(postToDelete.id);

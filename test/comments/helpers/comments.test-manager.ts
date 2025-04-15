@@ -53,6 +53,29 @@ export class CommentsTestManager {
       .expect(expectedStatusCode);
   }
 
+  generateCommentData(
+    postId: string,
+    commentNumber: number = 1,
+  ): CreatePostCommentInputDto {
+    return {
+      content: `comment ${commentNumber}`.repeat(10),
+    };
+  }
+
+  async createCommentWithGeneratedData(
+    postId: string,
+    auth: string,
+  ): Promise<CommentViewDto> {
+    const inputData = this.generateCommentData(postId);
+    const createCommentResponse = await this.createPostComment(
+      postId,
+      inputData,
+      auth,
+      HttpStatus.CREATED,
+    );
+    return createCommentResponse.body;
+  }
+
   async createCommentsWithGeneratedData(
     numberOfComments: number,
     postId: string,
@@ -61,9 +84,7 @@ export class CommentsTestManager {
     const result: CommentViewDto[] = [];
 
     for (let i = 1; i <= numberOfComments; i++) {
-      const inputDto: CreatePostCommentInputDto = {
-        content: `comment ${i}`.repeat(10),
-      };
+      const inputDto = this.generateCommentData(postId, i);
 
       const createCommentResponse = await this.createPostComment(
         postId,

@@ -8,6 +8,8 @@ import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { ObjectId } from 'mongodb';
 import * as process from 'node:process';
+import { EmailService } from '../../src/features/notifications/email.service';
+import { EmailServiceMock } from '../mock/email-service.mock';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
@@ -37,7 +39,9 @@ export const initApp = async (
 ): Promise<INestApplication> => {
   const testingModuleBuilder = Test.createTestingModule({
     imports: [AppModule],
-  });
+  })
+    .overrideProvider(EmailService)
+    .useClass(EmailServiceMock);
 
   customBuilderSetup(testingModuleBuilder);
 

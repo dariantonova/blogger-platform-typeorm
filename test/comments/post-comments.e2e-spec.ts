@@ -562,6 +562,10 @@ describe('post comments', () => {
         validAuth = await commentsTestManager.getValidAuth();
       });
 
+      afterEach(async () => {
+        await commentsTestManager.checkPostCommentsCount(post.id, 0);
+      });
+
       it('should return 400 if content is invalid', async () => {
         const invalidDataCases: any[] = [];
 
@@ -637,6 +641,10 @@ describe('post comments', () => {
           password: 'qwerty',
         };
         user = await usersCommonTestManager.createUser(userData);
+      });
+
+      afterEach(async () => {
+        await commentsTestManager.checkPostCommentsCount(post.id, 0);
       });
 
       // non-existing token

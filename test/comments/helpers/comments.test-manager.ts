@@ -136,4 +136,12 @@ export class CommentsTestManager {
       .send(dto)
       .expect(expectedStatusCode);
   }
+
+  async checkPostCommentsCount(postId: string, count: number): Promise<void> {
+    const getPostCommentsResponse = await this.getPostComments(
+      postId,
+      HttpStatus.OK,
+    );
+    expect(getPostCommentsResponse.body.totalCount).toBe(count);
+  }
 }

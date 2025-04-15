@@ -226,13 +226,14 @@ describe('comments', () => {
     describe('authentication', () => {
       let userData: CreateUserInputDto;
       let user: UserViewDto;
+      let post: PostViewDto;
       let comment: CommentViewDto;
 
       beforeAll(async () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        const post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createPostWithGeneratedData(
           blog.id,
         );
 
@@ -252,6 +253,10 @@ describe('comments', () => {
           post.id,
           validAuth,
         );
+      });
+
+      afterEach(async () => {
+        await commentsTestManager.checkPostCommentsCount(post.id, 1);
       });
 
       // non-existing token
@@ -361,6 +366,8 @@ describe('comments', () => {
           user2AuthString,
           HttpStatus.FORBIDDEN,
         );
+
+        await commentsTestManager.checkPostCommentsCount(post.id, 1);
       });
     });
   });

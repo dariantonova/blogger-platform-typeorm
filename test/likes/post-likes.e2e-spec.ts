@@ -1,0 +1,143 @@
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { delay, deleteAllData, initApp } from '../helpers/helper';
+import { PostLikesTestManager } from './helpers/post-likes.test-manager';
+import { TestingModuleBuilder } from '@nestjs/testing';
+import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
+import { CoreConfig } from '../../src/core/core.config';
+import { JwtService } from '@nestjs/jwt';
+import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
+import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
+import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
+import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
+import { AuthTestManager } from '../auth/helpers/auth.test-manager';
+import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
+import { getModelToken } from '@nestjs/mongoose';
+import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
+import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
+import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
+
+describe('post likes', () => {
+  let app: INestApplication;
+  let postLikesTestManager: PostLikesTestManager;
+  let postsCommonTestManager: PostsCommonTestManager;
+  let blogsCommonTestManager: BlogsCommonTestManager;
+  let usersCommonTestManager: UsersCommonTestManager;
+  let authTestManager: AuthTestManager;
+
+  beforeAll(async () => {
+    app = await initApp((builder: TestingModuleBuilder) => {
+      builder.overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
+        inject: [CoreConfig],
+        factory: (coreConfig: CoreConfig) => {
+          return new JwtService({
+            secret: coreConfig.accessJwtSecret,
+            signOptions: {
+              expiresIn: '2s',
+            },
+          });
+        },
+      });
+    });
+
+    const LikeModel = app.get<LikeModelType>(getModelToken('Like'));
+    postLikesTestManager = new PostLikesTestManager(app, LikeModel);
+
+    blogsCommonTestManager = new BlogsCommonTestManager(app);
+    postsCommonTestManager = new PostsCommonTestManager(app);
+    authTestManager = new AuthTestManager(app);
+
+    const UserModel = app.get<UserModelType>(getModelToken('User'));
+    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('authentication', () => {
+    let post: PostViewDto;
+    let user: UserViewDto;
+    let userData: CreateUserDto;
+    const inputDto: LikeInputDto = {
+      likeStatus: LikeStatus.Like,
+    };
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+
+      userData = {
+        login: 'user1',
+        email: 'user1@example.com',
+        password: 'qwerty',
+      };
+      user = await usersCommonTestManager.createUser(userData);
+    });
+
+    afterEach(async () => {
+      await postLikesTestManager.checkPostLikesCount(post.id, 0);
+    });
+
+    // non-existing token
+    it('should return 401 if access token is invalid', async () => {
+      const accessToken = 'random';
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        'Bearer ' + accessToken,
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
+    // wrong format auth header
+    it('should return 401 if auth header format is invalid', async () => {
+      const accessToken = await authTestManager.getNewAccessToken(
+        userData.login,
+        userData.password,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        accessToken,
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
+    // expired token
+    it('should return 401 if access token is expired', async () => {
+      const accessToken = await authTestManager.getNewAccessToken(
+        userData.login,
+        userData.password,
+      );
+
+      await delay(2000);
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        'Bearer ' + accessToken,
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
+    // user was deleted
+    it('should return 401 if user was deleted', async () => {
+      const accessToken = await authTestManager.getNewAccessToken(
+        userData.login,
+        userData.password,
+      );
+      await usersCommonTestManager.deleteUser(user.id);
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        'Bearer ' + accessToken,
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+  });
+});

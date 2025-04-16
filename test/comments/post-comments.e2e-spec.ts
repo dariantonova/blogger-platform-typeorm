@@ -696,6 +696,7 @@ describe('post comments', () => {
           userData.password,
         );
         await usersCommonTestManager.deleteUser(user.id);
+
         await commentsTestManager.createPostComment(
           post.id,
           validInputDto,

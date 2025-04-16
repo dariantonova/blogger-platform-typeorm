@@ -30,6 +30,7 @@ describe('posts', () => {
 
   beforeAll(async () => {
     app = await initApp();
+
     postsTestManager = new PostsTestManager(app);
     blogsCommonTestManager = new BlogsCommonTestManager(app);
   });

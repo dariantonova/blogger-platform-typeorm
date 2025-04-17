@@ -53,9 +53,10 @@ export class PostsCommonTestManager {
     return result;
   }
 
-  async getPost(id: string): Promise<PostViewDto> {
+  async getPost(id: string, auth: string = ''): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + id)
+      .set('Authorization', auth)
       .expect(HttpStatus.OK);
     return response.body as PostViewDto;
   }

@@ -275,8 +275,200 @@ describe('post likes', () => {
     });
   });
 
-  // describe('single user interactions', () => {});
-  //
+  describe('single user interactions', () => {
+    let post: PostViewDto;
+    let user1Auth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+
+      user1Auth = await authTestManager.getValidAuth();
+    });
+
+    it('should like post', async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`shouldn't like post multiple times by one user`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`should replace like with dislike`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`shouldn't dislike post multiple times by one user`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`should undislike post`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+    });
+
+    it(`should not change anything when removing non-existing like or dislike`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+    });
+
+    it(`should dislike post`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`should replace dislike with like`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(1);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`should unlike post`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        dto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedPost = await postsCommonTestManager.getPost(
+        post.id,
+        user1Auth,
+      );
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+    });
+  });
+
   // describe('multiple users interactions', () => {});
   //
   // describe('newestLikes behavior', () => {});

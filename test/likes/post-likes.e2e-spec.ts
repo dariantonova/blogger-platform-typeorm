@@ -17,6 +17,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
+import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -138,6 +139,73 @@ describe('post likes', () => {
         'Bearer ' + accessToken,
         HttpStatus.UNAUTHORIZED,
       );
+    });
+  });
+
+  describe('validation', () => {
+    let post: PostViewDto;
+    let validAuth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+
+      const userData: CreateUserInputDto = {
+        login: 'user1',
+        email: 'user1@example.com',
+        password: 'qwerty',
+      };
+      await usersCommonTestManager.createUser(userData);
+      const accessToken = await authTestManager.getNewAccessToken(
+        userData.login,
+        userData.password,
+      );
+      validAuth = 'Bearer ' + accessToken;
+    });
+
+    it('should return 400 if like status is invalid', async () => {
+      const invalidDataCases: any[] = [];
+
+      // missing
+      const data1 = {};
+      invalidDataCases.push(data1);
+
+      // empty
+      const data2 = {
+        likeStatus: '',
+      };
+      invalidDataCases.push(data2);
+
+      // empty with spaces
+      const data3 = {
+        likeStatus: '  ',
+      };
+      invalidDataCases.push(data3);
+
+      // not valid enum value
+      const data4 = {
+        likeStatus: '-100',
+      };
+      invalidDataCases.push(data4);
+
+      for (const data of invalidDataCases) {
+        const response = await postLikesTestManager.updatePostLikeStatus(
+          post.id,
+          data,
+          validAuth,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'likeStatus',
+              message: expect.any(String),
+            },
+          ],
+        });
+      }
     });
   });
 });

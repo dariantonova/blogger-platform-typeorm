@@ -1,5 +1,10 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  delay,
+  deleteAllData,
+  generateNonExistingId,
+  initApp,
+} from '../helpers/helper';
 import { PostLikesTestManager } from './helpers/post-likes.test-manager';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
@@ -17,7 +22,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
-import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -152,17 +157,11 @@ describe('post likes', () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
 
-      const userData: CreateUserInputDto = {
-        login: 'user1',
-        email: 'user1@example.com',
-        password: 'qwerty',
-      };
-      await usersCommonTestManager.createUser(userData);
-      const accessToken = await authTestManager.getNewAccessToken(
-        userData.login,
-        userData.password,
-      );
-      validAuth = 'Bearer ' + accessToken;
+      validAuth = await authTestManager.getValidAuth();
+    });
+
+    afterEach(async () => {
+      await postLikesTestManager.checkPostLikesCount(post.id, 0);
     });
 
     it('should return 400 if like status is invalid', async () => {
@@ -206,6 +205,57 @@ describe('post likes', () => {
           ],
         });
       }
+    });
+  });
+
+  describe('not found', () => {
+    let blog: BlogViewDto;
+    let validAuth: string;
+    const inputDto: LikeInputDto = {
+      likeStatus: LikeStatus.Like,
+    };
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+      validAuth = await authTestManager.getValidAuth();
+    });
+
+    it('should return 404 when trying to update like status of non-existing post', async () => {
+      const nonExistingPost = generateNonExistingId();
+
+      await postLikesTestManager.updatePostLikeStatus(
+        nonExistingPost,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when post id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+
+      await postLikesTestManager.updatePostLikeStatus(
+        invalidId,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update like status of deleted post', async () => {
+      const postToDelete =
+        await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      await postsCommonTestManager.deletePost(postToDelete.id);
+
+      await postLikesTestManager.updatePostLikeStatus(
+        postToDelete.id,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
     });
   });
 });

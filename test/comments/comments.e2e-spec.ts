@@ -52,11 +52,7 @@ describe('comments', () => {
     const UserModel = app.get<UserModelType>(getModelToken('User'));
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
 
-    commentsTestManager = new CommentsTestManager(
-      app,
-      usersCommonTestManager,
-      authTestManager,
-    );
+    commentsTestManager = new CommentsTestManager(app);
   });
 
   afterAll(async () => {
@@ -73,7 +69,7 @@ describe('comments', () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
 
-      validAuth = await commentsTestManager.getValidAuth();
+      validAuth = await authTestManager.getValidAuth();
     });
 
     it('should return comment', async () => {
@@ -151,7 +147,7 @@ describe('comments', () => {
           blog.id,
         );
 
-        validAuth = await commentsTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuth();
         comment = await commentsTestManager.createCommentWithGeneratedData(
           post.id,
           validAuth,
@@ -176,7 +172,7 @@ describe('comments', () => {
       beforeAll(async () => {
         await deleteAllData(app);
 
-        validAuth = await commentsTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuth();
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         post = await postsCommonTestManager.createPostWithGeneratedData(
@@ -393,7 +389,7 @@ describe('comments', () => {
           blog.id,
         );
 
-        validAuth = await commentsTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuth();
       });
 
       it('should successfully update comment', async () => {
@@ -442,7 +438,7 @@ describe('comments', () => {
       beforeAll(async () => {
         await deleteAllData(app);
 
-        validAuth = await commentsTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuth();
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         post = await postsCommonTestManager.createPostWithGeneratedData(
@@ -505,7 +501,7 @@ describe('comments', () => {
           blog.id,
         );
 
-        validAuth = await commentsTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuth();
 
         comment = await commentsTestManager.createCommentWithGeneratedData(
           post.id,

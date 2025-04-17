@@ -8,17 +8,11 @@ import {
 import request, { Response } from 'supertest';
 import { CommentViewDto } from '../../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreatePostCommentInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
-import { UsersCommonTestManager } from '../../helpers/users.common.test-manager';
-import { AuthTestManager } from '../../auth/helpers/auth.test-manager';
 
 export const DEFAULT_COMMENTS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export class CommentsTestManager {
-  constructor(
-    private app: INestApplication,
-    private usersCommonTestManager: UsersCommonTestManager,
-    private authTestManager: AuthTestManager,
-  ) {}
+  constructor(private app: INestApplication) {}
 
   async getComment(
     id: string,
@@ -108,20 +102,6 @@ export class CommentsTestManager {
       .delete(COMMENTS_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
-  }
-
-  async getValidAuth(): Promise<string> {
-    const userData = {
-      login: 'user1',
-      email: 'user1@example.com',
-      password: 'qwerty',
-    };
-    await this.usersCommonTestManager.createUser(userData);
-    const userAccessToken = await this.authTestManager.getNewAccessToken(
-      userData.login,
-      userData.password,
-    );
-    return 'Bearer ' + userAccessToken;
   }
 
   async updateComment(

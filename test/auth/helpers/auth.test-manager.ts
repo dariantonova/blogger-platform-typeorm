@@ -27,6 +27,20 @@ export class AuthTestManager {
     return loginResponse.body.accessToken;
   }
 
+  async getValidAuth(): Promise<string> {
+    const userData = {
+      login: 'user1',
+      email: 'user1@example.com',
+      password: 'qwerty',
+    };
+    await this.register(userData, HttpStatus.NO_CONTENT);
+    const userAccessToken = await this.getNewAccessToken(
+      userData.login,
+      userData.password,
+    );
+    return 'Bearer ' + userAccessToken;
+  }
+
   async me(auth: string, expectedStatusCode: HttpStatus): Promise<Response> {
     return request(this.app.getHttpServer())
       .get(AUTH_PATH + '/me')

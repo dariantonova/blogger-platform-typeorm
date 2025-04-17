@@ -19,13 +19,12 @@ import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
-import {
-  Like,
-  LikeModelType,
-} from '../../src/features/blogger-platform/likes/domain/like.entity';
+import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { LikeDetailsViewDto } from '../../src/features/blogger-platform/common/dto/like-details.view-dto';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -273,8 +272,8 @@ describe('post likes', () => {
     });
 
     it('should return myStatus as None for unauthorized user', async () => {
-      const receivedPost = await postsCommonTestManager.getPost(post.id);
-      expect(receivedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
     });
   });
 
@@ -578,5 +577,335 @@ describe('post likes', () => {
     });
   });
 
-  // describe('newestLikes behavior', () => {});
+  describe('newestLikes behavior', () => {
+    let post: PostViewDto;
+    let usersData: CreateUserInputDto[];
+    let users: UserViewDto[];
+    let usersAuthStrings: string[];
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+
+      usersData = [];
+      users = [];
+      usersAuthStrings = [];
+      for (let i = 1; i <= 4; i++) {
+        const userData = {
+          login: 'user' + i,
+          email: 'user' + i + '@example.com',
+          password: 'qwerty',
+        };
+        const user = await usersCommonTestManager.createUser(userData);
+        const accessToken = await authTestManager.getNewAccessToken(
+          userData.login,
+          userData.password,
+        );
+        const authString = 'Bearer ' + accessToken;
+
+        usersData.push(userData);
+        users.push(user);
+        usersAuthStrings.push(authString);
+      }
+    });
+
+    it('should include user in newestLikes after liking', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[0],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[0].id,
+          login: usersData[0].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should include multiple users in newestLikes in correct order', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[1],
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[2],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[2].id,
+          login: usersData[2].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[0].id,
+          login: usersData[0].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should not include user in newestLikes after disliking', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[3],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[2].id,
+          login: usersData[2].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[0].id,
+          login: usersData[0].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should keep only the 3 most recent likes', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[3],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[3].id,
+          login: usersData[3].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[2].id,
+          login: usersData[2].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should not re-add an old like if it is liked again after being pushed out', async () => {
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.None,
+        },
+        usersAuthStrings[0],
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        usersAuthStrings[0],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[3].id,
+          login: usersData[3].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[2].id,
+          login: usersData[2].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should bring back a like to newestLikes if a more recent one is removed', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[2],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[3].id,
+          login: usersData[3].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[0].id,
+          login: usersData[0].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should preserve like position in newestLikes when reliking one of newest likes', async () => {
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.None,
+        },
+        usersAuthStrings[1],
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        usersAuthStrings[1],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[3].id,
+          login: usersData[3].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[0].id,
+          login: usersData[0].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should shorten newestLikes when a recent like is removed and no older likes exist', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[0],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const expected: LikeDetailsViewDto[] = [
+        {
+          userId: users[3].id,
+          login: usersData[3].login,
+          addedAt: expect.any(String),
+        },
+        {
+          userId: users[1].id,
+          login: usersData[1].login,
+          addedAt: expect.any(String),
+        },
+      ];
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
+    });
+
+    it('should return empty array if all likes are removed', async () => {
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[1],
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        usersAuthStrings[3],
+        HttpStatus.NO_CONTENT,
+      );
+
+      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      expect(returnedPost.extendedLikesInfo.newestLikes).toEqual([]);
+    });
+  });
 });

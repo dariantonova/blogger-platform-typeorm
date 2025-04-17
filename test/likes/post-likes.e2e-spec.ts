@@ -19,7 +19,10 @@ import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
-import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
+import {
+  Like,
+  LikeModelType,
+} from '../../src/features/blogger-platform/likes/domain/like.entity';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
@@ -469,7 +472,111 @@ describe('post likes', () => {
     });
   });
 
-  // describe('multiple users interactions', () => {});
-  //
+  describe('multiple users interactions', () => {
+    let blog: BlogViewDto;
+    let user1Auth: string;
+    let user2Auth: string;
+    let user3Auth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+      user1Auth = await authTestManager.getValidAuth(1);
+      user2Auth = await authTestManager.getValidAuth(2);
+      user3Auth = await authTestManager.getValidAuth(3);
+    });
+
+    it('should correctly count multiple likes from different users', async () => {
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(2);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
+    });
+
+    it('should correctly count multiple dislikes from different users', async () => {
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        inputDto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(2);
+    });
+
+    it('should correctly count mixed likes and dislikes from different users', async () => {
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await postLikesTestManager.updatePostLikeStatus(
+        post.id,
+        {
+          likeStatus: LikeStatus.Dislike,
+        },
+        user3Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      expect(updatedPost.extendedLikesInfo.likesCount).toBe(2);
+      expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(1);
+    });
+  });
+
   // describe('newestLikes behavior', () => {});
 });

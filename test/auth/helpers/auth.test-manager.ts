@@ -27,10 +27,10 @@ export class AuthTestManager {
     return loginResponse.body.accessToken;
   }
 
-  async getValidAuth(): Promise<string> {
+  async getValidAuth(userNumber: number = 1): Promise<string> {
     const userData = {
-      login: 'user1',
-      email: 'user1@example.com',
+      login: 'user' + userNumber,
+      email: 'user' + userNumber + '@example.com',
       password: 'qwerty',
     };
     await this.register(userData, HttpStatus.NO_CONTENT);

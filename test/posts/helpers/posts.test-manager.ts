@@ -19,7 +19,7 @@ export class PostsTestManager {
     expectedStatusCode: HttpStatus,
     query: QueryType = {},
   ): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .get(POSTS_PATH)
       .query(query)
       .expect(expectedStatusCode);
@@ -79,14 +79,14 @@ export class PostsTestManager {
     expectedStatusCode: HttpStatus,
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .delete(POSTS_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
   }
 
   async getPost(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
-    return await request(this.app.getHttpServer())
+    return request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + id)
       .expect(expectedStatusCode);
   }

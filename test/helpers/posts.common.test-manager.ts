@@ -52,4 +52,11 @@ export class PostsCommonTestManager {
 
     return result;
   }
+
+  async getPost(id: string): Promise<PostViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .get(POSTS_PATH + '/' + id)
+      .expect(HttpStatus.OK);
+    return response.body as PostViewDto;
+  }
 }

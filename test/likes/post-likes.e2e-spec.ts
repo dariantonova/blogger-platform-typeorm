@@ -258,4 +258,26 @@ describe('post likes', () => {
       );
     });
   });
+
+  describe('unauthorized user view', () => {
+    let post: PostViewDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+    });
+
+    it('should return myStatus as None for unauthorized user', async () => {
+      const receivedPost = await postsCommonTestManager.getPost(post.id);
+      expect(receivedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+    });
+  });
+
+  // describe('single user interactions', () => {});
+  //
+  // describe('multiple users interactions', () => {});
+  //
+  // describe('newestLikes behavior', () => {});
 });

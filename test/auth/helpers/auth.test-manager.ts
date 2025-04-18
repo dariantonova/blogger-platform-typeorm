@@ -27,6 +27,16 @@ export class AuthTestManager {
     return loginResponse.body.accessToken;
   }
 
+  /**
+   * Registers a new user and returns a valid authorization header string.
+   *
+   * The user is created with a unique login and email based on the provided number.
+   * After registration, the user is logged in and the method returns a string
+   * in the format `"Bearer <accessToken>"` that can be used in the `Authorization` header.
+   *
+   * @param {number} [userNumber=1] - A number used to generate a unique login and email (e.g., "user2", "user2@example.com").
+   * @returns {Promise<string>} - The authorization header string in the format "Bearer <accessToken>".
+   */
   async getValidAuth(userNumber: number = 1): Promise<string> {
     const userData = {
       login: 'user' + userNumber,

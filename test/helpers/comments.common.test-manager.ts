@@ -43,4 +43,12 @@ export class CommentsCommonTestManager {
       .set('Authorization', auth)
       .expect(HttpStatus.NO_CONTENT);
   }
+
+  async getComment(id: string): Promise<CommentViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .get(COMMENTS_PATH + '/' + id)
+      .expect(HttpStatus.OK);
+
+    return response.body as CommentViewDto;
+  }
 }

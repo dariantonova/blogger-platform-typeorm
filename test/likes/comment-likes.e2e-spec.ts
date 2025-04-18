@@ -24,6 +24,7 @@ import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/inpu
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -337,6 +338,31 @@ describe('comment likes', () => {
         validAuth,
         HttpStatus.NOT_FOUND,
       );
+    });
+  });
+
+  describe('unauthorized user view', () => {
+    let comment: CommentViewDto;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+      const commentAuthorAuth = await authTestManager.getValidAuth();
+      comment = await commentsCommonTestManager.createCommentWithGeneratedData(
+        post.id,
+        commentAuthorAuth,
+      );
+    });
+
+    it('should return myStatus as None for unauthorized user', async () => {
+      const returnedPost = await commentsCommonTestManager.getComment(
+        comment.id,
+      );
+      expect(returnedPost.likesInfo.myStatus).toBe(LikeStatus.None);
     });
   });
 });

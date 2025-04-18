@@ -23,7 +23,7 @@ import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
-import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
+import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -176,38 +176,19 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const usersData: CreateUserInputDto[] = [
-        {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        },
-        {
-          login: 'user2',
-          email: 'user2@example.com',
-          password: 'qwerty',
-        },
-      ];
-      await usersCommonTestManager.createUsers(usersData);
+      const user1Auth = await authTestManager.getValidAuth(1);
+      const user2Auth = await authTestManager.getValidAuth(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createPostWithGeneratedData(
         blog.id,
       );
-      const user1AccessToken = await authTestManager.getNewAccessToken(
-        usersData[0].login,
-        usersData[0].password,
-      );
       comment = await commentsCommonTestManager.createCommentWithGeneratedData(
         post.id,
-        'Bearer ' + user1AccessToken,
+        user1Auth,
       );
 
-      const user2AccessToken = await authTestManager.getNewAccessToken(
-        usersData[1].login,
-        usersData[1].password,
-      );
-      validAuth = 'Bearer ' + user2AccessToken;
+      validAuth = user2Auth;
     });
 
     afterEach(async () => {
@@ -268,29 +249,13 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const usersData: CreateUserInputDto[] = [
-        {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        },
-        {
-          login: 'user2',
-          email: 'user2@example.com',
-          password: 'qwerty',
-        },
-      ];
-      await usersCommonTestManager.createUsers(usersData);
+      const user1Auth = await authTestManager.getValidAuth(1);
+      const user2Auth = await authTestManager.getValidAuth(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createPostWithGeneratedData(
         blog.id,
       );
-      const user1AccessToken = await authTestManager.getNewAccessToken(
-        usersData[0].login,
-        usersData[0].password,
-      );
-      const user1Auth = 'Bearer ' + user1AccessToken;
       deletedComment =
         await commentsCommonTestManager.createCommentWithGeneratedData(
           post.id,
@@ -301,11 +266,7 @@ describe('comment likes', () => {
         user1Auth,
       );
 
-      const user2AccessToken = await authTestManager.getNewAccessToken(
-        usersData[1].login,
-        usersData[1].password,
-      );
-      validAuth = 'Bearer ' + user2AccessToken;
+      validAuth = user2Auth;
     });
 
     it('should return 404 when trying to update like status of non-existing comment', async () => {
@@ -372,39 +333,17 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const usersData: CreateUserInputDto[] = [
-        {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        },
-        {
-          login: 'user2',
-          email: 'user2@example.com',
-          password: 'qwerty',
-        },
-      ];
-      await usersCommonTestManager.createUsers(usersData);
+      const user1Auth = await authTestManager.getValidAuth(1);
+      user2Auth = await authTestManager.getValidAuth(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createPostWithGeneratedData(
         blog.id,
       );
-      const user1AccessToken = await authTestManager.getNewAccessToken(
-        usersData[0].login,
-        usersData[0].password,
-      );
-      const user1Auth = 'Bearer ' + user1AccessToken;
       comment = await commentsCommonTestManager.createCommentWithGeneratedData(
         post.id,
         user1Auth,
       );
-
-      const user2AccessToken = await authTestManager.getNewAccessToken(
-        usersData[1].login,
-        usersData[1].password,
-      );
-      user2Auth = 'Bearer ' + user2AccessToken;
     });
 
     it('should like comment', async () => {
@@ -585,6 +524,127 @@ describe('comment likes', () => {
       expect(updatedComment.likesInfo.likesCount).toBe(0);
       expect(updatedComment.likesInfo.dislikesCount).toBe(0);
       expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.None);
+    });
+  });
+
+  describe('multiple users interactions', () => {
+    let post: PostViewDto;
+    let user1Auth: string;
+    let user2Auth: string;
+    let user3Auth: string;
+    let user4Auth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      user1Auth = await authTestManager.getValidAuth(1);
+      user2Auth = await authTestManager.getValidAuth(2);
+      user3Auth = await authTestManager.getValidAuth(3);
+      user4Auth = await authTestManager.getValidAuth(4);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+    });
+
+    it('should correctly count multiple likes from different users', async () => {
+      const comment =
+        await commentsCommonTestManager.createCommentWithGeneratedData(
+          post.id,
+          user4Auth,
+        );
+
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        inputDto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        inputDto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(2);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+    });
+
+    it('should correctly count multiple dislikes from different users', async () => {
+      const comment =
+        await commentsCommonTestManager.createCommentWithGeneratedData(
+          post.id,
+          user4Auth,
+        );
+
+      const inputDto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        inputDto,
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        inputDto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(2);
+    });
+
+    it('should correctly count mixed likes and dislikes from different users', async () => {
+      const comment =
+        await commentsCommonTestManager.createCommentWithGeneratedData(
+          post.id,
+          user4Auth,
+        );
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        user1Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        {
+          likeStatus: LikeStatus.Like,
+        },
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        {
+          likeStatus: LikeStatus.Dislike,
+        },
+        user3Auth,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(2);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(1);
     });
   });
 });

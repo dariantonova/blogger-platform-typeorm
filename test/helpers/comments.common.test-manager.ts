@@ -1,8 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreatePostCommentInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
-import request from 'supertest';
-import { POSTS_PATH } from './helper';
+import request, { Response } from 'supertest';
+import { COMMENTS_PATH, POSTS_PATH } from './helper';
 
 export class CommentsCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -35,5 +35,12 @@ export class CommentsCommonTestManager {
   ): Promise<CommentViewDto> {
     const inputData = this.generateCommentData();
     return this.createPostComment(postId, inputData, auth);
+  }
+
+  async deleteComment(id: string, auth: string): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(COMMENTS_PATH + '/' + id)
+      .set('Authorization', auth)
+      .expect(HttpStatus.NO_CONTENT);
   }
 }

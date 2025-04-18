@@ -3,7 +3,12 @@ import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  delay,
+  deleteAllData,
+  generateNonExistingId,
+  initApp,
+} from '../helpers/helper';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import { CoreConfig } from '../../src/core/core.config';
@@ -250,6 +255,88 @@ describe('comment likes', () => {
           ],
         });
       }
+    });
+  });
+
+  describe('not found', () => {
+    let deletedComment: CommentViewDto;
+    let validAuth: string;
+    const inputDto: LikeInputDto = {
+      likeStatus: LikeStatus.Like,
+    };
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const usersData: CreateUserInputDto[] = [
+        {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        },
+        {
+          login: 'user2',
+          email: 'user2@example.com',
+          password: 'qwerty',
+        },
+      ];
+      await usersCommonTestManager.createUsers(usersData);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+      const user1AccessToken = await authTestManager.getNewAccessToken(
+        usersData[0].login,
+        usersData[0].password,
+      );
+      const user1Auth = 'Bearer ' + user1AccessToken;
+      deletedComment =
+        await commentsCommonTestManager.createCommentWithGeneratedData(
+          post.id,
+          user1Auth,
+        );
+      await commentsCommonTestManager.deleteComment(
+        deletedComment.id,
+        user1Auth,
+      );
+
+      const user2AccessToken = await authTestManager.getNewAccessToken(
+        usersData[1].login,
+        usersData[1].password,
+      );
+      validAuth = 'Bearer ' + user2AccessToken;
+    });
+
+    it('should return 404 when trying to update like status of non-existing comment', async () => {
+      const nonExistingPost = generateNonExistingId();
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        nonExistingPost,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when comment id is not valid ObjectId', async () => {
+      const invalidId = 'not ObjectId';
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        invalidId,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update like status of deleted comment', async () => {
+      await commentLikesTestManager.makeCommentLikeOperation(
+        deletedComment.id,
+        inputDto,
+        validAuth,
+        HttpStatus.NOT_FOUND,
+      );
     });
   });
 });

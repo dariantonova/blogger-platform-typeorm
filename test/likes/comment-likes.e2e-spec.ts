@@ -18,6 +18,7 @@ import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
+import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -61,8 +62,8 @@ describe('comment likes', () => {
 
   describe('authentication', () => {
     let comment: CommentViewDto;
-    let commentator: UserViewDto;
-    let commentatorData: CreateUserDto;
+    let user: UserViewDto;
+    let userData: CreateUserDto;
     const inputDto: LikeInputDto = {
       likeStatus: LikeStatus.Like,
     };
@@ -92,12 +93,12 @@ describe('comment likes', () => {
         commentAuthorAuth,
       );
 
-      commentatorData = {
+      userData = {
         login: 'user1',
         email: 'user1@example.com',
         password: 'qwerty',
       };
-      commentator = await usersCommonTestManager.createUser(commentatorData);
+      user = await usersCommonTestManager.createUser(userData);
     });
 
     afterEach(async () => {
@@ -118,8 +119,8 @@ describe('comment likes', () => {
     // wrong format auth header
     it('should return 401 if auth header format is invalid', async () => {
       const accessToken = await authTestManager.getNewAccessToken(
-        commentatorData.login,
-        commentatorData.password,
+        userData.login,
+        userData.password,
       );
       await commentLikesTestManager.makeCommentLikeOperation(
         comment.id,
@@ -132,8 +133,8 @@ describe('comment likes', () => {
     // expired token
     it('should return 401 if access token is expired', async () => {
       const accessToken = await authTestManager.getNewAccessToken(
-        commentatorData.login,
-        commentatorData.password,
+        userData.login,
+        userData.password,
       );
 
       await delay(2000);
@@ -149,10 +150,10 @@ describe('comment likes', () => {
     // user was deleted
     it('should return 401 if user was deleted', async () => {
       const accessToken = await authTestManager.getNewAccessToken(
-        commentatorData.login,
-        commentatorData.password,
+        userData.login,
+        userData.password,
       );
-      await usersCommonTestManager.deleteUser(commentator.id);
+      await usersCommonTestManager.deleteUser(user.id);
 
       await commentLikesTestManager.makeCommentLikeOperation(
         comment.id,
@@ -160,6 +161,95 @@ describe('comment likes', () => {
         'Bearer ' + accessToken,
         HttpStatus.UNAUTHORIZED,
       );
+    });
+  });
+
+  describe('validation', () => {
+    let comment: CommentViewDto;
+    let validAuth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const usersData: CreateUserInputDto[] = [
+        {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        },
+        {
+          login: 'user2',
+          email: 'user2@example.com',
+          password: 'qwerty',
+        },
+      ];
+      await usersCommonTestManager.createUsers(usersData);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+      const user1AccessToken = await authTestManager.getNewAccessToken(
+        usersData[0].login,
+        usersData[0].password,
+      );
+      comment = await commentsCommonTestManager.createCommentWithGeneratedData(
+        post.id,
+        'Bearer ' + user1AccessToken,
+      );
+
+      const user2AccessToken = await authTestManager.getNewAccessToken(
+        usersData[1].login,
+        usersData[1].password,
+      );
+      validAuth = 'Bearer ' + user2AccessToken;
+    });
+
+    afterEach(async () => {
+      await commentLikesTestManager.checkCommentLikesCount(comment.id, 0);
+    });
+
+    it('should return 400 if like status is invalid', async () => {
+      const invalidDataCases: any[] = [];
+
+      // missing
+      const data1 = {};
+      invalidDataCases.push(data1);
+
+      // empty
+      const data2 = {
+        likeStatus: '',
+      };
+      invalidDataCases.push(data2);
+
+      // empty with spaces
+      const data3 = {
+        likeStatus: '  ',
+      };
+      invalidDataCases.push(data3);
+
+      // not valid enum value
+      const data4 = {
+        likeStatus: '-100',
+      };
+      invalidDataCases.push(data4);
+
+      for (const data of invalidDataCases) {
+        const response = await commentLikesTestManager.makeCommentLikeOperation(
+          comment.id,
+          data,
+          validAuth,
+          HttpStatus.BAD_REQUEST,
+        );
+        expect(response.body).toEqual({
+          errorsMessages: [
+            {
+              field: 'likeStatus',
+              message: expect.any(String),
+            },
+          ],
+        });
+      }
     });
   });
 });

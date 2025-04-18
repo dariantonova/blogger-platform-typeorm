@@ -42,7 +42,7 @@ describe('post likes', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '2s',
+              expiresIn: '3s',
             },
           });
         },
@@ -93,7 +93,7 @@ describe('post likes', () => {
     // non-existing token
     it('should return 401 if access token is invalid', async () => {
       const accessToken = 'random';
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         'Bearer ' + accessToken,
@@ -107,7 +107,7 @@ describe('post likes', () => {
         userData.login,
         userData.password,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         accessToken,
@@ -122,9 +122,9 @@ describe('post likes', () => {
         userData.password,
       );
 
-      await delay(2000);
+      await delay(3000);
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         'Bearer ' + accessToken,
@@ -140,7 +140,7 @@ describe('post likes', () => {
       );
       await usersCommonTestManager.deleteUser(user.id);
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         'Bearer ' + accessToken,
@@ -192,7 +192,7 @@ describe('post likes', () => {
       invalidDataCases.push(data4);
 
       for (const data of invalidDataCases) {
-        const response = await postLikesTestManager.updatePostLikeStatus(
+        const response = await postLikesTestManager.makePostLikeOperation(
           post.id,
           data,
           validAuth,
@@ -228,7 +228,7 @@ describe('post likes', () => {
     it('should return 404 when trying to update like status of non-existing post', async () => {
       const nonExistingPost = generateNonExistingId();
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         nonExistingPost,
         inputDto,
         validAuth,
@@ -239,7 +239,7 @@ describe('post likes', () => {
     it('should return 404 when post id is not valid ObjectId', async () => {
       const invalidId = 'not ObjectId';
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         invalidId,
         inputDto,
         validAuth,
@@ -252,7 +252,7 @@ describe('post likes', () => {
         await postsCommonTestManager.createPostWithGeneratedData(blog.id);
       await postsCommonTestManager.deletePost(postToDelete.id);
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         postToDelete.id,
         inputDto,
         validAuth,
@@ -295,7 +295,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -315,7 +315,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -335,7 +335,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Dislike,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -355,7 +355,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Dislike,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -375,7 +375,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -395,7 +395,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -415,7 +415,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Dislike,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -435,7 +435,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -455,7 +455,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         dto,
         user1Auth,
@@ -496,13 +496,13 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         user2Auth,
@@ -523,13 +523,13 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Dislike,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         user2Auth,
@@ -546,7 +546,7 @@ describe('post likes', () => {
         blog.id,
       );
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.Like,
@@ -554,7 +554,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.Like,
@@ -562,7 +562,7 @@ describe('post likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.Dislike,
@@ -616,7 +616,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[0],
@@ -640,13 +640,13 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[1],
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[2],
@@ -680,7 +680,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Dislike,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[3],
@@ -714,7 +714,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.Like,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[3],
@@ -744,7 +744,7 @@ describe('post likes', () => {
     });
 
     it('should not re-add an old like if it is liked again after being pushed out', async () => {
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.None,
@@ -752,7 +752,7 @@ describe('post likes', () => {
         usersAuthStrings[0],
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.Like,
@@ -788,7 +788,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[2],
@@ -818,7 +818,7 @@ describe('post likes', () => {
     });
 
     it('should preserve like position in newestLikes when reliking one of newest likes', async () => {
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.None,
@@ -826,7 +826,7 @@ describe('post likes', () => {
         usersAuthStrings[1],
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         {
           likeStatus: LikeStatus.Like,
@@ -862,7 +862,7 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[0],
@@ -891,13 +891,13 @@ describe('post likes', () => {
         likeStatus: LikeStatus.None,
       };
 
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[1],
         HttpStatus.NO_CONTENT,
       );
-      await postLikesTestManager.updatePostLikeStatus(
+      await postLikesTestManager.makePostLikeOperation(
         post.id,
         inputDto,
         usersAuthStrings[3],

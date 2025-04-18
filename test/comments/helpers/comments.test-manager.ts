@@ -47,10 +47,7 @@ export class CommentsTestManager {
       .expect(expectedStatusCode);
   }
 
-  generateCommentData(
-    postId: string,
-    commentNumber: number = 1,
-  ): CreatePostCommentInputDto {
+  generateCommentData(commentNumber: number = 1): CreatePostCommentInputDto {
     return {
       content: `comment ${commentNumber}`.repeat(10),
     };
@@ -60,7 +57,7 @@ export class CommentsTestManager {
     postId: string,
     auth: string,
   ): Promise<CommentViewDto> {
-    const inputData = this.generateCommentData(postId);
+    const inputData = this.generateCommentData();
     const createCommentResponse = await this.createPostComment(
       postId,
       inputData,
@@ -78,7 +75,7 @@ export class CommentsTestManager {
     const result: CommentViewDto[] = [];
 
     for (let i = 1; i <= numberOfComments; i++) {
-      const inputDto = this.generateCommentData(postId, i);
+      const inputDto = this.generateCommentData(i);
 
       const createCommentResponse = await this.createPostComment(
         postId,

@@ -24,7 +24,6 @@ import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/inpu
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
-import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -363,6 +362,229 @@ describe('comment likes', () => {
         comment.id,
       );
       expect(returnedPost.likesInfo.myStatus).toBe(LikeStatus.None);
+    });
+  });
+
+  describe('single user interactions', () => {
+    let comment: CommentViewDto;
+    let user2Auth: string;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      const usersData: CreateUserInputDto[] = [
+        {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        },
+        {
+          login: 'user2',
+          email: 'user2@example.com',
+          password: 'qwerty',
+        },
+      ];
+      await usersCommonTestManager.createUsers(usersData);
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const post = await postsCommonTestManager.createPostWithGeneratedData(
+        blog.id,
+      );
+      const user1AccessToken = await authTestManager.getNewAccessToken(
+        usersData[0].login,
+        usersData[0].password,
+      );
+      const user1Auth = 'Bearer ' + user1AccessToken;
+      comment = await commentsCommonTestManager.createCommentWithGeneratedData(
+        post.id,
+        user1Auth,
+      );
+
+      const user2AccessToken = await authTestManager.getNewAccessToken(
+        usersData[1].login,
+        usersData[1].password,
+      );
+      user2Auth = 'Bearer ' + user2AccessToken;
+    });
+
+    it('should like comment', async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(1);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`shouldn't like comment multiple times by one user`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(1);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`should replace like with dislike`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(1);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`shouldn't dislike comment multiple times by one user`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(1);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`should undislike comment`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.None);
+    });
+
+    it(`should not change anything when removing non-existing like or dislike`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.None);
+    });
+
+    it(`should dislike comment`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Dislike,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(1);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Dislike);
+    });
+
+    it(`should replace dislike with like`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.Like,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(1);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.Like);
+    });
+
+    it(`should unlike comment`, async () => {
+      const dto: LikeInputDto = {
+        likeStatus: LikeStatus.None,
+      };
+
+      await commentLikesTestManager.makeCommentLikeOperation(
+        comment.id,
+        dto,
+        user2Auth,
+        HttpStatus.NO_CONTENT,
+      );
+      const updatedComment = await commentsCommonTestManager.getComment(
+        comment.id,
+        user2Auth,
+      );
+      expect(updatedComment.likesInfo.likesCount).toBe(0);
+      expect(updatedComment.likesInfo.dislikesCount).toBe(0);
+      expect(updatedComment.likesInfo.myStatus).toBe(LikeStatus.None);
     });
   });
 });

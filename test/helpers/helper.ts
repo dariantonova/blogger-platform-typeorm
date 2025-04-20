@@ -10,6 +10,9 @@ import { ObjectId } from 'mongodb';
 import * as process from 'node:process';
 import { EmailService } from '../../src/features/notifications/email.service';
 import { EmailServiceMock } from '../mock/email-service.mock';
+import { NestFactory } from '@nestjs/core';
+import { CoreConfig } from '../../src/core/core.config';
+import { setRootModule } from '../../src/app-root';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
@@ -37,8 +40,14 @@ export const DEFAULT_PAGE_SIZE = 10;
 export const initApp = async (
   customBuilderSetup = (builder: TestingModuleBuilder) => {},
 ): Promise<INestApplication> => {
+  const appContext = await NestFactory.createApplicationContext(AppModule);
+  const coreConfig = appContext.get<CoreConfig>(CoreConfig);
+  const DynamicAppModule = await AppModule.forRoot(coreConfig);
+  setRootModule(DynamicAppModule);
+  await appContext.close();
+
   const testingModuleBuilder = Test.createTestingModule({
-    imports: [AppModule],
+    imports: [DynamicAppModule],
   })
     .overrideProvider(EmailService)
     .useClass(EmailServiceMock);

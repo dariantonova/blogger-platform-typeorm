@@ -1,7 +1,7 @@
 import { INestApplication } from '@nestjs/common';
 import { useContainer } from 'class-validator';
-import { AppModule } from '../app.module';
+import { getRootModule } from '../app-root';
 
 export const validationConstraintSetup = (app: INestApplication) => {
-  useContainer(app.select(AppModule), { fallbackOnErrors: true });
+  useContainer(app.select(getRootModule()), { fallbackOnErrors: true });
 };

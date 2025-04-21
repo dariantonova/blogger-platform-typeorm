@@ -32,6 +32,11 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from './constants/auth-tokens.inject-constants';
 import { UsersExternalQueryRepository } from './infrastructure/external-query/users.external-query-repository';
+import {
+  DeviceAuthSession,
+  DeviceAuthSessionSchema,
+} from './domain/device-auth-session.entity';
+import { DeviceAuthSessionsRepository } from './infrastructure/device-auth-sessions.repository';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -54,6 +59,9 @@ const queryHandlers = [
   imports: [
     JwtModule,
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: DeviceAuthSession.name, schema: DeviceAuthSessionSchema },
+    ]),
     CqrsModule.forRoot(),
   ],
   controllers: [UsersController, AuthController],
@@ -95,6 +103,7 @@ const queryHandlers = [
     ...commandHandlers,
     ...queryHandlers,
     UsersExternalQueryRepository,
+    DeviceAuthSessionsRepository,
   ],
   exports: [UsersExternalQueryRepository],
 })

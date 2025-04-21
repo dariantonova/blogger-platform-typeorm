@@ -4,9 +4,11 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Ip,
   Post,
   Res,
   UseGuards,
+  Headers,
 } from '@nestjs/common';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
 import { UserContextDto } from '../guards/dto/user-context.dto';
@@ -44,17 +46,26 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
-    @Res({ passthrough: true }) response: Response,
+    @Ip() ip: string | undefined,
+    @Headers('user-agent') userAgent: string | undefined,
+    @Res({ passthrough: true })
+    response: Response,
   ): Promise<LoginSuccessViewDto> {
     const loginResult = await this.commandBus.execute<
       LoginUserCommand,
       LoginResultDto
-    >(new LoginUserCommand({ userId: user.id }));
+    >(
+      new LoginUserCommand({
+        userId: user.id,
+        deviceName: userAgent || 'unknown',
+        ip: ip || 'unknown',
+      }),
+    );
 
     response.cookie('refreshToken', loginResult.refreshToken, {
       httpOnly: true,
       secure: true,
-      expires: new Date(loginResult.refreshTokenExpiresAt * 1000),
+      expires: loginResult.refreshTokenExpiresAt,
       path: '/auth',
     });
 

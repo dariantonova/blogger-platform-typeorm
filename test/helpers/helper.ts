@@ -13,6 +13,7 @@ import { EmailServiceMock } from '../mock/email-service.mock';
 import { NestFactory } from '@nestjs/core';
 import { CoreConfig } from '../../src/core/core.config';
 import { setRootModule } from '../../src/app-root';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
@@ -39,7 +40,7 @@ export const DEFAULT_PAGE_SIZE = 10;
 
 export const initApp = async (
   customBuilderSetup = (builder: TestingModuleBuilder) => {},
-): Promise<INestApplication> => {
+): Promise<NestExpressApplication> => {
   const appContext = await NestFactory.createApplicationContext(AppModule);
   const coreConfig = appContext.get<CoreConfig>(CoreConfig);
   const DynamicAppModule = await AppModule.forRoot(coreConfig);
@@ -56,7 +57,7 @@ export const initApp = async (
 
   const moduleFixture: TestingModule = await testingModuleBuilder.compile();
 
-  const app: INestApplication = moduleFixture.createNestApplication();
+  const app: NestExpressApplication = moduleFixture.createNestApplication();
 
   appSetup(app);
 

@@ -2,18 +2,18 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
   HttpStatus,
   Ip,
   Post,
   Res,
   UseGuards,
-  Headers,
 } from '@nestjs/common';
 import { LocalAuthGuard } from '../guards/local/local-auth.guard';
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request';
-import { JwtAuthGuard } from '../guards/bearer/jwt-auth.guard';
+import { JwtAccessAuthGuard } from '../guards/bearer/jwt-access-auth.guard';
 import { MeViewDto } from './view-dto/users.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
@@ -22,10 +22,7 @@ import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dt
 import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.input-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { RegisterUserCommand } from '../application/usecases/users/register-user.usecase';
-import {
-  LoginResultDto,
-  LoginUserCommand,
-} from '../application/usecases/login-user.usecase';
+import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 import { ResendRegistrationEmailCommand } from '../application/usecases/resend-registration-email.usecase';
 import { ConfirmRegistrationCommand } from '../application/usecases/confirm-registration.usecase';
 import { RecoverPasswordCommand } from '../application/usecases/recover-password.usecase';
@@ -33,6 +30,10 @@ import { SetNewPasswordCommand } from '../application/usecases/set-new-password.
 import { MeQuery } from '../application/queries/me.query';
 import { Response } from 'express';
 import { LoginSuccessViewDto } from './view-dto/login-success.view-dto';
+import { JwtRefreshAuthGuard } from '../guards/refresh-token/jwt-refresh-auth.guard';
+import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
+import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase';
+import { AuthTokensDto } from '../dto/auth-tokens.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -51,9 +52,9 @@ export class AuthController {
     @Res({ passthrough: true })
     response: Response,
   ): Promise<LoginSuccessViewDto> {
-    const loginResult = await this.commandBus.execute<
+    const result = await this.commandBus.execute<
       LoginUserCommand,
-      LoginResultDto
+      AuthTokensDto
     >(
       new LoginUserCommand({
         userId: user.id,
@@ -62,18 +63,17 @@ export class AuthController {
       }),
     );
 
-    response.cookie('refreshToken', loginResult.refreshToken, {
-      httpOnly: true,
-      secure: true,
-      expires: loginResult.refreshTokenExpiresAt,
-      path: '/auth',
-    });
+    this.setRefreshTokenCookie(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
 
-    return { accessToken: loginResult.accessToken };
+    return { accessToken: result.accessToken };
   }
 
   @Get('me')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQuery(user.id));
   }
@@ -116,5 +116,47 @@ export class AuthController {
     await this.commandBus.execute(
       new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
     );
+  }
+
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshAuthGuard)
+  async refreshToken(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @Ip() ip: string | undefined,
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<LoginSuccessViewDto> {
+    const result = await this.commandBus.execute<
+      RefreshTokenCommand,
+      AuthTokensDto
+    >(
+      new RefreshTokenCommand({
+        userId: user.userId,
+        deviceId: user.deviceId,
+        ip: ip || 'unknown',
+      }),
+    );
+
+    this.setRefreshTokenCookie(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+
+    return { accessToken: result.accessToken };
+  }
+
+  private setRefreshTokenCookie(
+    response: Response,
+    refreshToken: string,
+    expires: Date,
+  ): void {
+    response.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      expires,
+      path: '/',
+    });
   }
 }

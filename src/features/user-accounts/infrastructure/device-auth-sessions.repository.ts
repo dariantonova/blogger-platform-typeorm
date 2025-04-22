@@ -1,11 +1,43 @@
 import { Injectable } from '@nestjs/common';
-import { DeviceAuthSessionDocument } from '../domain/device-auth-session.entity';
+import {
+  DeviceAuthSession,
+  DeviceAuthSessionDocument,
+  DeviceAuthSessionModelType,
+} from '../domain/device-auth-session.entity';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class DeviceAuthSessionsRepository {
-  constructor() {}
+  constructor(
+    @InjectModel(DeviceAuthSession.name)
+    private DeviceAuthSessionModel: DeviceAuthSessionModelType,
+  ) {}
 
   async save(deviceAuthSession: DeviceAuthSessionDocument): Promise<void> {
     await deviceAuthSession.save();
+  }
+
+  async findByDeviceIdAndIat(
+    deviceId: string,
+    iat: Date,
+  ): Promise<DeviceAuthSessionDocument | null> {
+    return this.DeviceAuthSessionModel.findOne({
+      deviceId,
+      iat,
+    });
+  }
+
+  async findByDeviceIdOrInternalFail(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDocument> {
+    const deviceAuthSession = await this.DeviceAuthSessionModel.findOne({
+      deviceId,
+    });
+
+    if (!deviceAuthSession) {
+      throw new Error('Device auth session not found');
+    }
+
+    return deviceAuthSession;
   }
 }

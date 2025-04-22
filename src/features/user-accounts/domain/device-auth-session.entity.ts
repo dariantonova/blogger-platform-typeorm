@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument, Model } from 'mongoose';
 import { CreateDeviceAuthSessionDomainDto } from './dto/create-device-auth-session.domain.dto';
+import { UpdateDeviceAuthSessionDomainDto } from './dto/update-device-auth-session.domain.dto';
 
 @Schema()
 export class DeviceAuthSession {
@@ -53,6 +54,12 @@ export class DeviceAuthSession {
     session.deviceName = dto.deviceName;
 
     return session as DeviceAuthSessionDocument;
+  }
+
+  update(dto: UpdateDeviceAuthSessionDomainDto) {
+    this.exp = dto.exp;
+    this.iat = dto.iat;
+    this.ip = dto.ip;
   }
 }
 

@@ -28,7 +28,7 @@ import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-
 import { GetPostsQuery } from '../application/queries/get-posts.query';
 import { GetPostCommentsQuery } from '../application/queries/get-post-comments.query';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
-import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
+import { JwtAccessAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-auth.guard';
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { CreatePostCommentInputDto } from './input-dto/create-post-comment.input-dto';
@@ -37,7 +37,7 @@ import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/qu
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakePostLikeOperationCommand } from '../application/usecases/make-post-like-operation.usecase';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
 
 @Controller('posts')
 export class PostsController {
@@ -47,7 +47,7 @@ export class PostsController {
   ) {}
 
   @Get()
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getPosts(
     @Query() query: GetPostsQueryParams,
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
@@ -56,7 +56,7 @@ export class PostsController {
   }
 
   @Get(':id')
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getPost(
     @Param('id', ObjectIdValidationPipe) id: string,
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
@@ -99,7 +99,7 @@ export class PostsController {
   }
 
   @Get(':postId/comments')
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getPostComments(
     @Param('postId', ObjectIdValidationPipe) postId: string,
     @Query() query: GetCommentsQueryParams,
@@ -111,7 +111,7 @@ export class PostsController {
   }
 
   @Post(':postId/comments')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async createPostComment(
     @ExtractUserFromRequest() user: UserContextDto,
     @Param('postId', ObjectIdValidationPipe) postId: string,
@@ -135,7 +135,7 @@ export class PostsController {
 
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async makePostLikeOperation(
     @ExtractUserFromRequest() user: UserContextDto,
     @Param('postId', ObjectIdValidationPipe) postId: string,

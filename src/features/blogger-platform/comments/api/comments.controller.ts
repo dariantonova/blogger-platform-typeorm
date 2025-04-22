@@ -13,7 +13,7 @@ import { CommentViewDto } from './view-dto/comments.view-dto';
 import { ObjectIdValidationPipe } from '../../../../core/pipes/object-id-validation-pipe';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetCommentByIdOrNotFoundFailQuery } from '../application/queries/get-comment-by-id-or-not-found-fail.query';
-import { JwtAuthGuard } from '../../../user-accounts/guards/bearer/jwt-auth.guard';
+import { JwtAccessAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-auth.guard';
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { UpdateCommentInputDto } from './input-dto/update-comment.input-dto';
@@ -22,7 +22,7 @@ import { DeleteCommentCommand } from '../application/usecases/delete-comment.use
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommand } from '../application/usecases/make-comment-like-operation.usecase';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
 
 @Controller('comments')
 export class CommentsController {
@@ -32,7 +32,7 @@ export class CommentsController {
   ) {}
 
   @Get(':id')
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getComment(
     @Param('id', ObjectIdValidationPipe) id: string,
     @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
@@ -44,7 +44,7 @@ export class CommentsController {
 
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async updateComment(
     @ExtractUserFromRequest() user: UserContextDto,
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -55,7 +55,7 @@ export class CommentsController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async deleteComment(
     @ExtractUserFromRequest() user: UserContextDto,
     @Param('id', ObjectIdValidationPipe) id: string,
@@ -65,7 +65,7 @@ export class CommentsController {
 
   @Put(':commentId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAccessAuthGuard)
   async makeCommentLikeOperation(
     @ExtractUserFromRequest() user: UserContextDto,
     @Param('commentId', ObjectIdValidationPipe) commentId: string,

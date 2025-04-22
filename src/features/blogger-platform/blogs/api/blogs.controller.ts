@@ -33,7 +33,7 @@ import { GetPostByIdOrInternalFailQuery } from '../../posts/application/queries/
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
-import { JwtOptionalAuthGuard } from '../../../user-accounts/guards/bearer/optional-jwt-guard';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
 
 @Controller('blogs')
 export class BlogsController {
@@ -89,7 +89,7 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
-  @UseGuards(JwtOptionalAuthGuard)
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getBlogPosts(
     @Param('blogId', ObjectIdValidationPipe) blogId: string,
     @Query() query: GetPostsQueryParams,

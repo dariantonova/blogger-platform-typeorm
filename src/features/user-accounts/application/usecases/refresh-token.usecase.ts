@@ -1,57 +1,45 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { JwtService } from '@nestjs/jwt';
 import { Inject } from '@nestjs/common';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../constants/auth-tokens.inject-constants';
-import { RefreshJWTPayload } from '../../dto/refresh-jwt-payload';
-import { randomUUID } from 'node:crypto';
-import {
-  DeviceAuthSession,
-  DeviceAuthSessionModelType,
-} from '../../domain/device-auth-session.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { unixToDate } from '../../../../common/utils/date.util';
+import { JwtService } from '@nestjs/jwt';
 import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
 import { AuthTokensDto } from '../../dto/auth-tokens.dto';
+import { RefreshJWTPayload } from '../../dto/refresh-jwt-payload';
+import { unixToDate } from '../../../../common/utils/date.util';
 
-export class LoginUserCommand {
-  constructor(public dto: { userId: string; deviceName: string; ip: string }) {}
+export class RefreshTokenCommand {
+  constructor(public dto: { userId: string; deviceId: string; ip: string }) {}
 }
 
-@CommandHandler(LoginUserCommand)
-export class LoginUserUseCase
-  implements ICommandHandler<LoginUserCommand, AuthTokensDto>
+@CommandHandler(RefreshTokenCommand)
+export class RefreshTokenUseCase
+  implements ICommandHandler<RefreshTokenCommand, AuthTokensDto>
 {
   constructor(
     @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
     private accessTokenContext: JwtService,
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private refreshTokenContext: JwtService,
-    @InjectModel(DeviceAuthSession.name)
-    private DeviceAuthSessionModel: DeviceAuthSessionModelType,
     private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
   ) {}
 
-  async execute({ dto }: LoginUserCommand): Promise<AuthTokensDto> {
+  async execute({ dto }: RefreshTokenCommand): Promise<AuthTokensDto> {
     const accessToken = this.accessTokenContext.sign({ userId: dto.userId });
-
-    const deviceId = this.generateDeviceId();
     const refreshToken = this.refreshTokenContext.sign({
       userId: dto.userId,
-      deviceId,
+      deviceId: dto.deviceId,
     });
 
     const refreshTokenPayload: RefreshJWTPayload =
       this.refreshTokenContext.decode(refreshToken);
 
-    await this.createDeviceAuthSession(
-      deviceId,
-      dto.userId,
+    await this.updateDeviceAuthSession(
+      dto.deviceId,
       refreshTokenPayload.exp,
       refreshTokenPayload.iat,
-      dto.deviceName,
       dto.ip,
     );
 
@@ -62,24 +50,20 @@ export class LoginUserUseCase
     };
   }
 
-  private generateDeviceId(): string {
-    return randomUUID();
-  }
-
-  private async createDeviceAuthSession(
+  private async updateDeviceAuthSession(
     deviceId: string,
-    userId: string,
     expUnix: number,
     iatUnix: number,
-    deviceName: string,
     ip: string,
   ): Promise<void> {
-    const deviceAuthSession = this.DeviceAuthSessionModel.createInstance({
-      deviceId,
-      userId,
+    const deviceAuthSession =
+      await this.deviceAuthSessionsRepository.findByDeviceIdOrInternalFail(
+        deviceId,
+      );
+
+    deviceAuthSession.update({
       exp: unixToDate(expUnix),
       iat: unixToDate(iatUnix),
-      deviceName,
       ip,
     });
 

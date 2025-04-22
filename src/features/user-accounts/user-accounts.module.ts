@@ -11,7 +11,7 @@ import { LocalStrategy } from './guards/local/local.strategy';
 import { CryptoService } from './application/crypto.service';
 import { AuthController } from './api/auth.controller';
 import { JwtModule, JwtService } from '@nestjs/jwt';
-import { JwtStrategy } from './guards/bearer/jwt.strategy';
+import { JwtAccessStrategy } from './guards/bearer/jwt-access.strategy';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
 import { UserAccountsConfig } from './user-accounts.config';
 import { CoreConfig } from '../../core/core.config';
@@ -37,6 +37,7 @@ import {
   DeviceAuthSessionSchema,
 } from './domain/device-auth-session.entity';
 import { DeviceAuthSessionsRepository } from './infrastructure/device-auth-sessions.repository';
+import { JwtRefreshStrategy } from './guards/refresh-token/jwt-refresh.strategy';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -97,13 +98,14 @@ const queryHandlers = [
     AuthService,
     LocalStrategy,
     CryptoService,
-    JwtStrategy,
+    JwtAccessStrategy,
     AuthQueryRepository,
     UserAccountsConfig,
     ...commandHandlers,
     ...queryHandlers,
     UsersExternalQueryRepository,
     DeviceAuthSessionsRepository,
+    JwtRefreshStrategy,
   ],
   exports: [UsersExternalQueryRepository],
 })

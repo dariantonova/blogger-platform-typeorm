@@ -258,7 +258,7 @@ describe('auth', () => {
       };
 
       const response = await authTestManager.login(data, HttpStatus.OK);
-      authTestManager.checkLoginResponse(response);
+      await authTestManager.validateAuthTokensResponse(response);
     });
 
     // log in by email
@@ -269,7 +269,7 @@ describe('auth', () => {
       };
 
       const response = await authTestManager.login(data, HttpStatus.OK);
-      authTestManager.checkLoginResponse(response);
+      await authTestManager.validateAuthTokensResponse(response);
     });
 
     it('should return 401 when trying to log in deleted user', async () => {
@@ -1556,6 +1556,34 @@ describe('auth', () => {
           refreshToken,
           HttpStatus.UNAUTHORIZED,
         );
+      });
+    });
+
+    describe('success', () => {
+      let userData: CreateUserDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        await usersCommonTestManager.createUser(userData);
+      });
+
+      it('should refresh token', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          userData.login,
+          userData.password,
+        );
+
+        const response = await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.OK,
+        );
+        await authTestManager.validateAuthTokensResponse(response);
       });
     });
   });

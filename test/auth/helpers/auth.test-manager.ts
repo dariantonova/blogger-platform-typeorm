@@ -121,23 +121,6 @@ export class AuthTestManager {
   }
 
   /**
-   * Validates the structure of a login response.
-   * Checks that the access token is present in the body
-   * and that the `refreshToken` cookie exists and is non-empty.
-   *
-   * @param response - The HTTP response object from the login request.
-   */
-  checkLoginResponse(response: Response) {
-    expect(response.body).toEqual({ accessToken: expect.any(String) });
-
-    const refreshCookie = this.extractRefreshCookieFromResponse(response);
-
-    const parsed = parse(refreshCookie);
-    expect(parsed.refreshToken).toBeDefined();
-    expect(parsed.refreshToken?.length).not.toBe(0);
-  }
-
-  /**
    * Extracts the value of the `refreshToken` from the response cookies.
    * Asserts that the token is present and correctly parsed.
    *
@@ -151,6 +134,48 @@ export class AuthTestManager {
     expect(parsed.refreshToken).toBeDefined();
 
     return parsed.refreshToken as string;
+  }
+
+  /**
+   * Checks that the access token is present in the response body.
+   */
+  private assertAccessTokenPresent(response: Response): void {
+    expect(response.body).toEqual({ accessToken: expect.any(String) });
+  }
+
+  /**
+   * Extracts and asserts that the refresh token cookie exists and is not empty.
+   * @returns The extracted refresh token.
+   */
+  private assertRefreshTokenPresent(response: Response): string {
+    const refreshToken = this.extractRefreshTokenFromResponse(response);
+    expect(refreshToken.length).not.toBe(0);
+    return refreshToken;
+  }
+
+  /**
+   * Validates that the access token is usable by calling a protected endpoint.
+   */
+  private async assertAccessTokenIsValid(accessToken: string): Promise<void> {
+    await this.me('Bearer ' + accessToken, HttpStatus.OK);
+  }
+
+  /**
+   * Validates that the refresh token is usable by calling the refresh endpoint.
+   */
+  private async assertRefreshTokenIsValid(refreshToken: string): Promise<void> {
+    await this.refreshToken(refreshToken, HttpStatus.OK);
+  }
+
+  /**
+   * Asserts that the login/refresh response contains valid tokens.
+   * @param response - The HTTP response from login or token refresh.
+   */
+  async validateAuthTokensResponse(response: Response): Promise<void> {
+    this.assertAccessTokenPresent(response);
+    const refreshToken = this.assertRefreshTokenPresent(response);
+    await this.assertAccessTokenIsValid(response.body.accessToken);
+    await this.assertRefreshTokenIsValid(refreshToken);
   }
 
   async refreshToken(

@@ -39,6 +39,7 @@ import {
 import { DeviceAuthSessionsRepository } from './infrastructure/device-auth-sessions.repository';
 import { JwtRefreshStrategy } from './guards/refresh-token/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase';
+import { LogoutUserUseCase } from './application/usecases/logout-user.usecase';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -50,6 +51,7 @@ const commandHandlers = [
   RecoverPasswordUseCase,
   SetNewPasswordUseCase,
   RefreshTokenUseCase,
+  LogoutUserUseCase,
 ];
 
 const queryHandlers = [

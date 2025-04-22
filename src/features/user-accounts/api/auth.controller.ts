@@ -34,6 +34,7 @@ import { JwtRefreshAuthGuard } from '../guards/refresh-token/jwt-refresh-auth.gu
 import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
 import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
+import { LogoutUserCommand } from '../application/usecases/logout-user.usecase';
 
 @Controller('auth')
 export class AuthController {
@@ -145,6 +146,17 @@ export class AuthController {
     );
 
     return { accessToken: result.accessToken };
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuard)
+  async logout(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new LogoutUserCommand({ userId: user.userId, deviceId: user.deviceId }),
+    );
   }
 
   private setRefreshTokenCookie(

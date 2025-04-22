@@ -44,4 +44,11 @@ export class DeviceAuthSessionsRepository {
   async deleteUserDeviceAuthSessions(userId: string): Promise<void> {
     await this.DeviceAuthSessionModel.deleteMany({ userId });
   }
+
+  async deleteByDeviceIdAndUserId(
+    deviceId: string,
+    userId: string,
+  ): Promise<void> {
+    await this.DeviceAuthSessionModel.deleteOne({ deviceId, userId });
+  }
 }

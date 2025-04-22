@@ -1,5 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepository } from '../../../infrastructure/users.repository';
+import { DeviceAuthSessionsRepository } from '../../../infrastructure/device-auth-sessions.repository';
 
 export class DeleteUserCommand {
   constructor(public userId: string) {}
@@ -7,7 +8,10 @@ export class DeleteUserCommand {
 
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(
+    private usersRepository: UsersRepository,
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+  ) {}
 
   async execute({ userId }: DeleteUserCommand): Promise<void> {
     const user = await this.usersRepository.findByIdOrNotFoundFail(userId);
@@ -15,5 +19,9 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
     user.makeDeleted();
 
     await this.usersRepository.save(user);
+
+    await this.deviceAuthSessionsRepository.deleteUserDeviceAuthSessions(
+      userId,
+    );
   }
 }

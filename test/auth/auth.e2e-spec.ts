@@ -1450,4 +1450,16 @@ describe('auth', () => {
       });
     });
   });
+
+  describe('refresh token', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    describe('authentication', () => {
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+    });
+  });
 });

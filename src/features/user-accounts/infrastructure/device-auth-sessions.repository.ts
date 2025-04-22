@@ -40,4 +40,8 @@ export class DeviceAuthSessionsRepository {
 
     return deviceAuthSession;
   }
+
+  async deleteUserDeviceAuthSessions(userId: string): Promise<void> {
+    await this.DeviceAuthSessionModel.deleteMany({ userId });
+  }
 }

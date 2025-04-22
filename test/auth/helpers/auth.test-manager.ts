@@ -105,14 +105,75 @@ export class AuthTestManager {
       .expect(expectedStatusCode);
   }
 
-  checkLoginResponse(response: Response) {
-    expect(response.body).toEqual({ accessToken: expect.any(String) });
-
+  /**
+   * Extracts the raw `refreshToken` cookie string from the response headers.
+   * Asserts that the cookie is present.
+   *
+   * @param response - The HTTP response object.
+   * @returns The full `refreshToken` cookie string.
+   */
+  extractRefreshCookieFromResponse(response: Response): string {
     const cookies = response.headers['set-cookie'] as unknown as string[];
     const refreshCookie = cookies.find((c) => c.startsWith('refreshToken='));
     expect(refreshCookie).toBeDefined();
 
-    const parsed = parse(refreshCookie as string);
+    return refreshCookie as string;
+  }
+
+  /**
+   * Validates the structure of a login response.
+   * Checks that the access token is present in the body
+   * and that the `refreshToken` cookie exists and is non-empty.
+   *
+   * @param response - The HTTP response object from the login request.
+   */
+  checkLoginResponse(response: Response) {
+    expect(response.body).toEqual({ accessToken: expect.any(String) });
+
+    const refreshCookie = this.extractRefreshCookieFromResponse(response);
+
+    const parsed = parse(refreshCookie);
+    expect(parsed.refreshToken).toBeDefined();
     expect(parsed.refreshToken?.length).not.toBe(0);
+  }
+
+  /**
+   * Extracts the value of the `refreshToken` from the response cookies.
+   * Asserts that the token is present and correctly parsed.
+   *
+   * @param response - The HTTP response object.
+   * @returns The `refreshToken` string extracted from cookies.
+   */
+  extractRefreshTokenFromResponse(response: Response): string {
+    const refreshCookie = this.extractRefreshCookieFromResponse(response);
+
+    const parsed = parse(refreshCookie);
+    expect(parsed.refreshToken).toBeDefined();
+
+    return parsed.refreshToken as string;
+  }
+
+  async refreshToken(
+    refToken: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/refresh-token')
+      .set('Cookie', 'refreshToken=' + refToken)
+      .expect(expectedStatusCode);
+  }
+
+  async getNewRefreshToken(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<string> {
+    const loginResponse = await this.login(
+      {
+        loginOrEmail,
+        password,
+      },
+      HttpStatus.OK,
+    );
+    return this.extractRefreshTokenFromResponse(loginResponse);
   }
 }

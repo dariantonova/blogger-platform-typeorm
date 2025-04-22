@@ -1,5 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import { AUTH_PATH, delay, deleteAllData, initApp } from '../helpers/helper';
 import { AuthTestManager } from './helpers/auth.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
@@ -24,7 +24,11 @@ import { NewPasswordRecoveryInputDto } from '../../src/features/user-accounts/ap
 import { CoreConfig } from '../../src/core/core.config';
 import { ConfigService } from '@nestjs/config';
 import { UserAccountsConfig } from '../../src/features/user-accounts/user-accounts.config';
-import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
+import {
+  ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
+  REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+} from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
+import request from 'supertest';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -42,6 +46,18 @@ describe('auth', () => {
           factory: (coreConfig: CoreConfig) => {
             return new JwtService({
               secret: coreConfig.accessJwtSecret,
+              signOptions: {
+                expiresIn: '2s',
+              },
+            });
+          },
+        })
+        .overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
+        .useFactory({
+          inject: [CoreConfig],
+          factory: (coreConfig: CoreConfig) => {
+            return new JwtService({
+              secret: coreConfig.refreshJwtSecret,
               signOptions: {
                 expiresIn: '2s',
               },
@@ -1457,8 +1473,89 @@ describe('auth', () => {
     });
 
     describe('authentication', () => {
+      let usersData: CreateUserDto[];
+      let users: UserViewDto[];
+
       beforeAll(async () => {
         await deleteAllData(app);
+
+        usersData = [
+          {
+            login: 'user1',
+            email: 'user1@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user2',
+            email: 'user2@example.com',
+            password: 'qwerty',
+          },
+          {
+            login: 'user3',
+            email: 'user3@example.com',
+            password: 'qwerty',
+          },
+        ];
+        users = await usersCommonTestManager.createUsers(usersData);
+      });
+
+      // missing
+      it('should return 401 if refresh token cookie is missing', async () => {
+        await request(app.getHttpServer())
+          .post(AUTH_PATH + '/refresh-token')
+          .expect(HttpStatus.UNAUTHORIZED);
+      });
+
+      // non-existing token
+      it('should return 401 if refresh token is invalid', async () => {
+        await authTestManager.refreshToken('random', HttpStatus.UNAUTHORIZED);
+      });
+
+      // expired token
+      it('should return 401 if refresh token is expired', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+
+        await delay(2000);
+
+        await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // revoked token
+      it('should return 401 if refresh token has already been used', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[1].login,
+          usersData[1].password,
+        );
+
+        await delay(1000);
+
+        await authTestManager.refreshToken(refreshToken, HttpStatus.OK);
+
+        await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // user was deleted
+      it('should return 401 if user was deleted', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[2].login,
+          usersData[2].password,
+        );
+
+        await usersCommonTestManager.deleteUser(users[2].id);
+
+        await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
       });
     });
   });

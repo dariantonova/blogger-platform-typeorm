@@ -90,6 +90,16 @@ describe('post likes', () => {
       await postLikesTestManager.checkPostLikesCount(post.id, 0);
     });
 
+    // missing
+    it('should return 401 if authorization is missing', async () => {
+      await postLikesTestManager.makePostLikeOperation(
+        post.id,
+        inputDto,
+        '',
+        HttpStatus.UNAUTHORIZED,
+      );
+    });
+
     // non-existing token
     it('should return 401 if access token is invalid', async () => {
       const accessToken = 'random';

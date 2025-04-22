@@ -255,6 +255,15 @@ describe('comments', () => {
         await commentsTestManager.checkPostCommentsCount(post.id, 1);
       });
 
+      // missing
+      it('should return 401 if authorization is missing', async () => {
+        await commentsTestManager.deleteComment(
+          comment.id,
+          '',
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
       // non-existing token
       it('should return 401 if access token is invalid', async () => {
         const accessToken = 'random';
@@ -593,6 +602,16 @@ describe('comments', () => {
         comment = await commentsTestManager.createCommentWithGeneratedData(
           post.id,
           validAuth,
+        );
+      });
+
+      // missing
+      it('should return 401 if authorization is missing', async () => {
+        await commentsTestManager.updateComment(
+          comment.id,
+          validInputDto,
+          '',
+          HttpStatus.UNAUTHORIZED,
         );
       });
 

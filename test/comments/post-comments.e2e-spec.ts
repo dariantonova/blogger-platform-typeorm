@@ -643,6 +643,16 @@ describe('post comments', () => {
         await commentsTestManager.checkPostCommentsCount(post.id, 0);
       });
 
+      // missing
+      it('should return 401 if authorization is missing', async () => {
+        await commentsTestManager.createPostComment(
+          post.id,
+          validInputDto,
+          '',
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
       // non-existing token
       it('should return 401 if access token is invalid', async () => {
         const accessToken = 'random';

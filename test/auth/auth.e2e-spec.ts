@@ -327,6 +327,11 @@ describe('auth', () => {
         user = await usersCommonTestManager.createUser(userData);
       });
 
+      // missing
+      it('should return 401 if authorization is missing', async () => {
+        await authTestManager.me('', HttpStatus.UNAUTHORIZED);
+      });
+
       // non-existing token
       it('should return 401 if access token is invalid', async () => {
         const accessToken = 'random';

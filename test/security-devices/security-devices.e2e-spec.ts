@@ -16,6 +16,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { SecurityDevicesTestManager } from './helpers/security-devices.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import request from 'supertest';
+import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
+import { JwtTestManager } from '../helpers/jwt.test-manager';
 
 describe('security devices', () => {
   let app: INestApplication;
@@ -23,6 +25,7 @@ describe('security devices', () => {
   let authTestManager: AuthTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let securityDevicesTestManager: SecurityDevicesTestManager;
+  let jwtTestManager: JwtTestManager;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
@@ -44,6 +47,11 @@ describe('security devices', () => {
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     securityDevicesTestManager = new SecurityDevicesTestManager(app);
+
+    const refreshJwtService = app.get<JwtService>(
+      REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+    );
+    jwtTestManager = new JwtTestManager(refreshJwtService);
   });
 
   afterAll(async () => {
@@ -100,6 +108,100 @@ describe('security devices', () => {
           refreshToken,
           HttpStatus.UNAUTHORIZED,
         );
+      });
+    });
+
+    describe('success', () => {
+      let usersData: CreateUserDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersData = [];
+        for (let i = 1; i <= 4; i++) {
+          usersData.push({
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
+            password: 'qwerty',
+          });
+        }
+        await usersCommonTestManager.createUsers(usersData);
+      });
+
+      it('should return device sessions with correct structure', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+
+        const response = await securityDevicesTestManager.getUserDeviceSessions(
+          refreshToken,
+          HttpStatus.OK,
+        );
+        const deviceSessions = response.body as DeviceViewDto[];
+        expect(deviceSessions).toEqual([
+          {
+            ip: expect.any(String),
+            title: expect.any(String),
+            lastActiveDate: expect.any(String),
+            deviceId: expect.any(String),
+          },
+        ]);
+      });
+
+      it('should return all active sessions of user', async () => {
+        const refreshTokens: string[] = [];
+        for (let i = 0; i < 3; i++) {
+          const refreshToken = await authTestManager.getNewRefreshToken(
+            usersData[1].login,
+            usersData[1].password,
+          );
+          refreshTokens.push(refreshToken);
+        }
+        const deviceIdsFromTokens = refreshTokens.map((refToken) =>
+          jwtTestManager.extractDeviceIdFromRefreshToken(refToken),
+        );
+
+        const response = await securityDevicesTestManager.getUserDeviceSessions(
+          refreshTokens[0],
+          HttpStatus.OK,
+        );
+        const deviceSessions = response.body as DeviceViewDto[];
+        const returnedDeviceIds = deviceSessions.map((s) => s.deviceId);
+        expect(returnedDeviceIds).toEqual(
+          expect.arrayContaining(deviceIdsFromTokens),
+        );
+        expect(returnedDeviceIds.length).toBe(deviceIdsFromTokens.length);
+      });
+
+      it('should not return sessions of other users', async () => {
+        const currentUserRefreshToken =
+          await authTestManager.getNewRefreshToken(
+            usersData[2].login,
+            usersData[2].password,
+          );
+
+        const foreignRefreshTokens: string[] = [];
+        for (let i = 0; i < 2; i++) {
+          const foreignRefreshToken = await authTestManager.getNewRefreshToken(
+            usersData[3].login,
+            usersData[3].password,
+          );
+          foreignRefreshTokens.push(foreignRefreshToken);
+        }
+        const foreignDeviceIds = foreignRefreshTokens.map((refToken) =>
+          jwtTestManager.extractDeviceIdFromRefreshToken(refToken),
+        );
+
+        const response = await securityDevicesTestManager.getUserDeviceSessions(
+          currentUserRefreshToken,
+          HttpStatus.OK,
+        );
+        const deviceSessions = response.body as DeviceViewDto[];
+        const returnedDeviceIds = deviceSessions.map((s) => s.deviceId);
+        for (const foreignDeviceId of foreignDeviceIds) {
+          expect(returnedDeviceIds).not.toContain(foreignDeviceId);
+        }
       });
     });
   });

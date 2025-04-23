@@ -40,6 +40,8 @@ import { DeviceAuthSessionsRepository } from './infrastructure/device-auth-sessi
 import { JwtRefreshStrategy } from './guards/refresh-token/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecase';
 import { LogoutUserUseCase } from './application/usecases/logout-user.usecase';
+import { DeviceAuthSessionsQueryRepository } from './infrastructure/query/device-auth-sessions.query-repository';
+import { GetUserDeviceSessionsQueryHandler } from './application/queries/get-user-device-sessions.query';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -58,6 +60,7 @@ const queryHandlers = [
   GetUsersQueryHandler,
   GetUserByIdOrInternalFailQueryHandler,
   MeQueryHandler,
+  GetUserDeviceSessionsQueryHandler,
 ];
 
 @Module({
@@ -110,6 +113,7 @@ const queryHandlers = [
     UsersExternalQueryRepository,
     DeviceAuthSessionsRepository,
     JwtRefreshStrategy,
+    DeviceAuthSessionsQueryRepository,
   ],
   exports: [UsersExternalQueryRepository],
 })

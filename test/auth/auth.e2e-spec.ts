@@ -1645,5 +1645,34 @@ describe('auth', () => {
         await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
       });
     });
+
+    describe('success', () => {
+      let userData: CreateUserDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        userData = {
+          login: 'user1',
+          email: 'user1@example.com',
+          password: 'qwerty',
+        };
+        await usersCommonTestManager.createUser(userData);
+      });
+
+      it('should successfully logout user', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          userData.login,
+          userData.password,
+        );
+
+        await authTestManager.logout(refreshToken, HttpStatus.NO_CONTENT);
+
+        await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+    });
   });
 });

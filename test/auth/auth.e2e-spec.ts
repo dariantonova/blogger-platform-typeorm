@@ -28,6 +28,8 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import request from 'supertest';
+import { SecurityDevicesTestManager } from '../security-devices/helpers/security-devices.test-manager';
+import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -35,6 +37,7 @@ describe('auth', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let usersTestManager: UsersTestManager;
   let UserModel: UserModelType;
+  let securityDevicesTestManager: SecurityDevicesTestManager;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
@@ -80,6 +83,7 @@ describe('auth', () => {
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     usersTestManager = new UsersTestManager(app, UserModel);
+    securityDevicesTestManager = new SecurityDevicesTestManager(app);
   });
 
   afterAll(async () => {
@@ -280,8 +284,40 @@ describe('auth', () => {
       await authTestManager.login(loginData, HttpStatus.UNAUTHORIZED);
     });
 
-    // todo: should add new device auth session, after first login 1 session, after second one more
-    // each session with new deviceId
+    it('should add new device session after successful login', async () => {
+      const userData: CreateUserDto = {
+        login: 'session',
+        email: 'session@example.com',
+        password: 'qwerty',
+      };
+      await usersCommonTestManager.createUser(userData);
+
+      const loginInput: LoginInputDto = {
+        loginOrEmail: userData.login,
+        password: userData.password,
+      };
+      const userAgent = 'TestBrowser/1.0';
+      const firstLoginResponse = await request(app.getHttpServer())
+        .post(AUTH_PATH + '/login')
+        .set('User-Agent', userAgent)
+        .send(loginInput)
+        .expect(HttpStatus.OK);
+      await authTestManager.login(loginInput, HttpStatus.OK);
+
+      const firstRefreshToken =
+        authTestManager.extractRefreshTokenFromResponse(firstLoginResponse);
+
+      const deviceSessionsResponse =
+        await securityDevicesTestManager.getUserDeviceSessions(
+          firstRefreshToken,
+          HttpStatus.OK,
+        );
+      const deviceSessions = deviceSessionsResponse.body as DeviceViewDto[];
+      authTestManager.validateDeviceSession(deviceSessions[0], userAgent);
+
+      // check deviceId is unique
+      expect(deviceSessions[1].deviceId).not.toBe(deviceSessions[0].deviceId);
+    });
   });
 
   describe('me', () => {

@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
 import { parse } from 'cookie';
+import { DeviceViewDto } from '../../../src/features/user-accounts/api/view-dto/device.view-dto';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}
@@ -210,5 +211,16 @@ export class AuthTestManager {
       .post(AUTH_PATH + '/logout')
       .set('Cookie', 'refreshToken=' + refToken)
       .expect(expectedStatusCode);
+  }
+
+  validateDeviceSession(
+    deviceSession: DeviceViewDto,
+    expectedTitle: string,
+  ): void {
+    expect(deviceSession.ip).toEqual(expect.any(String));
+    expect(deviceSession.lastActiveDate).toEqual(expect.any(String));
+    expect(Date.parse(deviceSession.lastActiveDate)).not.toBeNaN();
+    expect(deviceSession.deviceId).toEqual(expect.any(String));
+    expect(deviceSession.title).toBe(expectedTitle);
   }
 }

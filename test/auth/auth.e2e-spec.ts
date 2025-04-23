@@ -30,6 +30,7 @@ import {
 import request from 'supertest';
 import { SecurityDevicesTestManager } from '../security-devices/helpers/security-devices.test-manager';
 import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
+import { JwtTestManager } from '../helpers/jwt.test-manager';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -38,6 +39,7 @@ describe('auth', () => {
   let usersTestManager: UsersTestManager;
   let UserModel: UserModelType;
   let securityDevicesTestManager: SecurityDevicesTestManager;
+  let jwtTestManager: JwtTestManager;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
@@ -84,6 +86,11 @@ describe('auth', () => {
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     usersTestManager = new UsersTestManager(app, UserModel);
     securityDevicesTestManager = new SecurityDevicesTestManager(app);
+
+    const refreshJwtService = app.get<JwtService>(
+      REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
+    );
+    jwtTestManager = new JwtTestManager(refreshJwtService);
   });
 
   afterAll(async () => {
@@ -1724,23 +1731,26 @@ describe('auth', () => {
     });
 
     describe('success', () => {
-      let userData: CreateUserDto;
+      let usersData: CreateUserDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
+        usersData = [];
+        for (let i = 1; i <= 2; i++) {
+          usersData.push({
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
+            password: 'qwerty',
+          });
+        }
+        await usersCommonTestManager.createUsers(usersData);
       });
 
       it('should make refresh token unusable after successful logout', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          userData.login,
-          userData.password,
+          usersData[0].login,
+          usersData[0].password,
         );
 
         await authTestManager.logout(refreshToken, HttpStatus.NO_CONTENT);
@@ -1751,7 +1761,41 @@ describe('auth', () => {
         );
       });
 
-      // todo: should remove device session from active sessions
+      it('should remove device session from active sessions after successful logout', async () => {
+        const refreshToken1 = await authTestManager.getNewRefreshToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+        const refreshToken2 = await authTestManager.getNewRefreshToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+
+        const deviceSessionsResponse1 =
+          await securityDevicesTestManager.getUserDeviceSessions(
+            refreshToken1,
+            HttpStatus.OK,
+          );
+        const deviceSessionsBeforeLogout =
+          deviceSessionsResponse1.body as DeviceViewDto[];
+
+        await authTestManager.logout(refreshToken2, HttpStatus.NO_CONTENT);
+
+        const deviceSessionsResponse2 =
+          await securityDevicesTestManager.getUserDeviceSessions(
+            refreshToken1,
+            HttpStatus.OK,
+          );
+        const deviceSessionsAfterLogout =
+          deviceSessionsResponse2.body as DeviceViewDto[];
+
+        expect(deviceSessionsAfterLogout.length).toBe(
+          deviceSessionsBeforeLogout.length - 1,
+        );
+        expect(deviceSessionsAfterLogout[0].deviceId).toBe(
+          jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken1),
+        );
+      });
     });
   });
 });

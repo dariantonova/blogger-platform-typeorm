@@ -11,7 +11,6 @@ import {
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../src/features/notifications/email.service';
-import { EmailServiceMock } from '../mock/email-service.mock';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersTestManager } from '../users/helpers/users.test-manager';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
@@ -64,8 +63,6 @@ describe('auth', () => {
             });
           },
         })
-        .overrideProvider(EmailService)
-        .useClass(EmailServiceMock)
         .overrideProvider(UserAccountsConfig)
         .useFactory({
           inject: [ConfigService],
@@ -282,6 +279,9 @@ describe('auth', () => {
       };
       await authTestManager.login(loginData, HttpStatus.UNAUTHORIZED);
     });
+
+    // todo: should add new device auth session, after first login 1 session, after second one more
+    // each session with new deviceId
   });
 
   describe('me', () => {
@@ -1555,7 +1555,7 @@ describe('auth', () => {
         await usersCommonTestManager.createUsers(usersData);
       });
 
-      it('should refresh token', async () => {
+      it('should return valid auth tokens after successful token refresh', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersData[0].login,
           usersData[0].password,
@@ -1583,6 +1583,8 @@ describe('auth', () => {
           HttpStatus.UNAUTHORIZED,
         );
       });
+
+      // todo: should update device session's lastActiveDate
     });
   });
 
@@ -1660,7 +1662,7 @@ describe('auth', () => {
         await usersCommonTestManager.createUser(userData);
       });
 
-      it('should successfully logout user', async () => {
+      it('should make refresh token unusable after successful logout', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           userData.login,
           userData.password,
@@ -1673,6 +1675,8 @@ describe('auth', () => {
           HttpStatus.UNAUTHORIZED,
         );
       });
+
+      // todo: should remove device session from active sessions
     });
   });
 });

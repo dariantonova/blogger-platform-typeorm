@@ -20,6 +20,7 @@ export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
 export const COMMENTS_PATH = `/${GLOBAL_PREFIX}/comments`;
 export const USERS_PATH = `/${GLOBAL_PREFIX}/users`;
 export const AUTH_PATH = `/${GLOBAL_PREFIX}/auth`;
+export const SECURITY_DEVICES_PATH = `/${GLOBAL_PREFIX}/security/devices`;
 
 const basicAuthCredentials = `${process.env.HTTP_BASIC_USER}:${process.env.HTTP_BASIC_PASS}`;
 const encodedBasicAuthCredentials =

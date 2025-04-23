@@ -42,6 +42,7 @@ import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecas
 import { LogoutUserUseCase } from './application/usecases/logout-user.usecase';
 import { DeviceAuthSessionsQueryRepository } from './infrastructure/query/device-auth-sessions.query-repository';
 import { GetUserDeviceSessionsQueryHandler } from './application/queries/get-user-device-sessions.query';
+import { SecurityDevicesController } from './api/security-devices.controller';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -72,7 +73,7 @@ const queryHandlers = [
     ]),
     CqrsModule.forRoot(),
   ],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,

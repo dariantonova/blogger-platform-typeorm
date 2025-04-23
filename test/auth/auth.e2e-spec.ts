@@ -1484,23 +1484,14 @@ describe('auth', () => {
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [
-          {
-            login: 'user1',
-            email: 'user1@example.com',
+        usersData = [];
+        for (let i = 1; i <= 2; i++) {
+          usersData.push({
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
             password: 'qwerty',
-          },
-          {
-            login: 'user2',
-            email: 'user2@example.com',
-            password: 'qwerty',
-          },
-          {
-            login: 'user3',
-            email: 'user3@example.com',
-            password: 'qwerty',
-          },
-        ];
+          });
+        }
         users = await usersCommonTestManager.createUsers(usersData);
       });
 
@@ -1531,8 +1522,53 @@ describe('auth', () => {
         );
       });
 
-      // revoked token
-      it('should return 401 if refresh token has already been used', async () => {
+      // user was deleted
+      it('should return 401 if user was deleted', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[1].login,
+          usersData[1].password,
+        );
+
+        await usersCommonTestManager.deleteUser(users[1].id);
+
+        await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+    });
+
+    describe('success', () => {
+      let usersData: CreateUserDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersData = [];
+        for (let i = 1; i <= 2; i++) {
+          usersData.push({
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
+            password: 'qwerty',
+          });
+        }
+        await usersCommonTestManager.createUsers(usersData);
+      });
+
+      it('should refresh token', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[0].login,
+          usersData[0].password,
+        );
+
+        const response = await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.OK,
+        );
+        await authTestManager.validateAuthTokensResponse(response);
+      });
+
+      it('refresh token cannot be reused after successful token refresh', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersData[1].login,
           usersData[1].password,
@@ -1547,48 +1583,66 @@ describe('auth', () => {
           HttpStatus.UNAUTHORIZED,
         );
       });
+    });
+  });
 
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[2].login,
-          usersData[2].password,
-        );
-
-        await usersCommonTestManager.deleteUser(users[2].id);
-
-        await authTestManager.refreshToken(
-          refreshToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
+  describe('logout', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
     });
 
-    describe('success', () => {
-      let userData: CreateUserDto;
+    describe('authentication', () => {
+      let usersData: CreateUserDto[];
+      let users: UserViewDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        userData = {
-          login: 'user1',
-          email: 'user1@example.com',
-          password: 'qwerty',
-        };
-        await usersCommonTestManager.createUser(userData);
+        usersData = [];
+        for (let i = 1; i <= 2; i++) {
+          usersData.push({
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
+            password: 'qwerty',
+          });
+        }
+        users = await usersCommonTestManager.createUsers(usersData);
       });
 
-      it('should refresh token', async () => {
+      // missing
+      it('should return 401 if refresh token cookie is missing', async () => {
+        await request(app.getHttpServer())
+          .post(AUTH_PATH + '/logout')
+          .expect(HttpStatus.UNAUTHORIZED);
+      });
+
+      // non-existing token
+      it('should return 401 if refresh token is invalid', async () => {
+        await authTestManager.logout('random', HttpStatus.UNAUTHORIZED);
+      });
+
+      // expired token
+      it('should return 401 if refresh token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          userData.login,
-          userData.password,
+          usersData[0].login,
+          usersData[0].password,
         );
 
-        const response = await authTestManager.refreshToken(
-          refreshToken,
-          HttpStatus.OK,
+        await delay(2000);
+
+        await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
+      });
+
+      // user was deleted
+      it('should return 401 if user was deleted', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[1].login,
+          usersData[1].password,
         );
-        await authTestManager.validateAuthTokensResponse(response);
+
+        await usersCommonTestManager.deleteUser(users[1].id);
+
+        await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
       });
     });
   });

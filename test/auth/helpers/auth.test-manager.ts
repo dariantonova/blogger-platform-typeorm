@@ -201,4 +201,14 @@ export class AuthTestManager {
     );
     return this.extractRefreshTokenFromResponse(loginResponse);
   }
+
+  async logout(
+    refToken: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .post(AUTH_PATH + '/logout')
+      .set('Cookie', 'refreshToken=' + refToken)
+      .expect(expectedStatusCode);
+  }
 }

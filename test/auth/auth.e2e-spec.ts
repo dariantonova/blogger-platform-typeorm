@@ -1581,7 +1581,7 @@ describe('auth', () => {
         await deleteAllData(app);
 
         usersData = [];
-        for (let i = 1; i <= 2; i++) {
+        for (let i = 1; i <= 3; i++) {
           usersData.push({
             login: 'user' + i,
             email: 'user' + i + '@example.com',
@@ -1620,7 +1620,46 @@ describe('auth', () => {
         );
       });
 
-      // todo: should update device session's lastActiveDate
+      it('should update device session after successful token refresh', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersData[2].login,
+          usersData[2].password,
+        );
+
+        const deviceSessionsResponse1 =
+          await securityDevicesTestManager.getUserDeviceSessions(
+            refreshToken,
+            HttpStatus.OK,
+          );
+        const deviceSessionBeforeRefresh = (
+          deviceSessionsResponse1.body as DeviceViewDto[]
+        )[0];
+
+        await delay(1000);
+
+        const refreshResponse = await authTestManager.refreshToken(
+          refreshToken,
+          HttpStatus.OK,
+        );
+        const newRefreshToken =
+          authTestManager.extractRefreshTokenFromResponse(refreshResponse);
+
+        const deviceSessionsResponse2 =
+          await securityDevicesTestManager.getUserDeviceSessions(
+            newRefreshToken,
+            HttpStatus.OK,
+          );
+        const deviceSessionAfterRefresh = (
+          deviceSessionsResponse2.body as DeviceViewDto[]
+        )[0];
+
+        expect(deviceSessionAfterRefresh.deviceId).toBe(
+          deviceSessionBeforeRefresh.deviceId,
+        );
+        expect(
+          +new Date(deviceSessionAfterRefresh.lastActiveDate),
+        ).toBeGreaterThan(+new Date(deviceSessionBeforeRefresh.lastActiveDate));
+      });
     });
   });
 

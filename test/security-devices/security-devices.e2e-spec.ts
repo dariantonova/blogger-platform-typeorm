@@ -184,4 +184,84 @@ describe('security devices', () => {
       });
     });
   });
+
+  describe('terminate device session', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    describe('authentication', () => {
+      let usersLoginInput: LoginInputDto[];
+      let deviceIdToTerminateRefreshToken: string;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(1);
+      });
+
+      afterEach(async () => {
+        await authTestManager.assertRefreshTokenIsValid(
+          deviceIdToTerminateRefreshToken,
+        );
+      });
+
+      // missing
+      it('should return 401 if refresh token cookie is missing', async () => {
+        deviceIdToTerminateRefreshToken =
+          await authTestManager.getNewRefreshToken(usersLoginInput[0]);
+        const deviceIdToTerminate =
+          jwtTestManager.extractDeviceIdFromRefreshToken(
+            deviceIdToTerminateRefreshToken,
+          );
+
+        await request(app.getHttpServer())
+          .delete(SECURITY_DEVICES_PATH + '/' + deviceIdToTerminate)
+          .expect(HttpStatus.UNAUTHORIZED);
+      });
+
+      // non-existing token
+      it('should return 401 if refresh token is invalid', async () => {
+        deviceIdToTerminateRefreshToken =
+          await authTestManager.getNewRefreshToken(usersLoginInput[0]);
+        const deviceIdToTerminate =
+          jwtTestManager.extractDeviceIdFromRefreshToken(
+            deviceIdToTerminateRefreshToken,
+          );
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceIdToTerminate,
+          'random',
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // expired token
+      it('should return 401 if refresh token is expired', async () => {
+        const expiredRefreshToken = await authTestManager.getNewRefreshToken(
+          usersLoginInput[0],
+        );
+
+        await delay(2000);
+
+        deviceIdToTerminateRefreshToken =
+          await authTestManager.getNewRefreshToken(usersLoginInput[0]);
+        const deviceIdToTerminate =
+          jwtTestManager.extractDeviceIdFromRefreshToken(
+            deviceIdToTerminateRefreshToken,
+          );
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceIdToTerminate,
+          expiredRefreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+    });
+
+    // describe('authorization', () => {});
+    //
+    // describe('success', () => {});
+  });
 });

@@ -14,4 +14,15 @@ export class SecurityDevicesTestManager {
       .set('Cookie', 'refreshToken=' + refreshToken)
       .expect(expectedStatusCode);
   }
+
+  async terminateDeviceSession(
+    deviceId: string,
+    refreshToken: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(SECURITY_DEVICES_PATH + '/' + deviceId)
+      .set('Cookie', 'refreshToken=' + refreshToken)
+      .expect(expectedStatusCode);
+  }
 }

@@ -158,14 +158,14 @@ export class AuthTestManager {
   /**
    * Validates that the access token is usable by calling a protected endpoint.
    */
-  private async assertAccessTokenIsValid(accessToken: string): Promise<void> {
+  async assertAccessTokenIsValid(accessToken: string): Promise<void> {
     await this.me('Bearer ' + accessToken, HttpStatus.OK);
   }
 
   /**
    * Validates that the refresh token is usable by calling the refresh endpoint.
    */
-  private async assertRefreshTokenIsValid(refreshToken: string): Promise<void> {
+  async assertRefreshTokenIsValid(refreshToken: string): Promise<void> {
     await this.refreshToken(refreshToken, HttpStatus.OK);
   }
 

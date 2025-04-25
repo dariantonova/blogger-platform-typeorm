@@ -367,6 +367,56 @@ describe('security devices', () => {
       await deleteAllData(app);
     });
 
+    describe('authentication', () => {
+      let usersLoginInput: LoginInputDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(1);
+      });
+
+      // missing
+      it('should return 401 if refresh token cookie is missing', async () => {
+        await request(app.getHttpServer())
+          .delete(SECURITY_DEVICES_PATH)
+          .expect(HttpStatus.UNAUTHORIZED);
+      });
+
+      // non-existing token
+      it('should return 401 if refresh token is invalid', async () => {
+        await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
+          'random',
+          HttpStatus.UNAUTHORIZED,
+        );
+      });
+
+      // expired token
+      it('should return 401 if refresh token is expired', async () => {
+        const expiredRefreshToken = await authTestManager.getNewRefreshToken(
+          usersLoginInput[0],
+        );
+
+        await delay(2000);
+
+        const otherRefreshTokens =
+          await authTestManager.getNewRefreshTokensOfUser(
+            usersLoginInput[0],
+            2,
+          );
+
+        await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
+          expiredRefreshToken,
+          HttpStatus.UNAUTHORIZED,
+        );
+
+        for (const refreshToken of otherRefreshTokens) {
+          await authTestManager.assertRefreshTokenIsValid(refreshToken);
+        }
+      });
+    });
+
     describe('success', () => {
       let usersLoginInput: LoginInputDto[];
 

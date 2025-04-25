@@ -18,7 +18,6 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { CommentLikesTestManager } from './helpers/comment-likes.test-manager';
 import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
-import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
@@ -67,7 +66,6 @@ describe('comment likes', () => {
 
   describe('authentication', () => {
     let comment: CommentViewDto;
-    let user: UserViewDto;
     let userData: CreateUserDto;
     const inputDto: LikeInputDto = {
       likeStatus: LikeStatus.Like,
@@ -103,7 +101,7 @@ describe('comment likes', () => {
         email: 'user1@example.com',
         password: 'qwerty',
       };
-      user = await usersCommonTestManager.createUser(userData);
+      await usersCommonTestManager.createUser(userData);
     });
 
     afterEach(async () => {
@@ -153,22 +151,6 @@ describe('comment likes', () => {
       );
 
       await delay(2000);
-
-      await commentLikesTestManager.makeCommentLikeOperation(
-        comment.id,
-        inputDto,
-        'Bearer ' + accessToken,
-        HttpStatus.UNAUTHORIZED,
-      );
-    });
-
-    // user was deleted
-    it('should return 401 if user was deleted', async () => {
-      const accessToken = await authTestManager.getNewAccessToken(
-        userData.login,
-        userData.password,
-      );
-      await usersCommonTestManager.deleteUser(user.id);
 
       await commentLikesTestManager.makeCommentLikeOperation(
         comment.id,

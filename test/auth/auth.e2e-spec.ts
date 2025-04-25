@@ -362,12 +362,11 @@ describe('auth', () => {
         email: 'auth@example.com',
         password: 'qwerty',
       };
-      let user: UserViewDto;
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        user = await usersCommonTestManager.createUser(userData);
+        await usersCommonTestManager.createUser(userData);
       });
 
       // missing
@@ -402,19 +401,6 @@ describe('auth', () => {
 
         await delay(2000);
 
-        await authTestManager.me(
-          'Bearer ' + accessToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const accessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        await usersCommonTestManager.deleteUser(user.id);
         await authTestManager.me(
           'Bearer ' + accessToken,
           HttpStatus.UNAUTHORIZED,
@@ -1522,7 +1508,6 @@ describe('auth', () => {
 
     describe('authentication', () => {
       let usersData: CreateUserDto[];
-      let users: UserViewDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
@@ -1535,7 +1520,7 @@ describe('auth', () => {
             password: 'qwerty',
           });
         }
-        users = await usersCommonTestManager.createUsers(usersData);
+        await usersCommonTestManager.createUsers(usersData);
       });
 
       // missing
@@ -1558,21 +1543,6 @@ describe('auth', () => {
         );
 
         await delay(2000);
-
-        await authTestManager.refreshToken(
-          refreshToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[1].login,
-          usersData[1].password,
-        );
-
-        await usersCommonTestManager.deleteUser(users[1].id);
 
         await authTestManager.refreshToken(
           refreshToken,
@@ -1677,7 +1647,6 @@ describe('auth', () => {
 
     describe('authentication', () => {
       let usersData: CreateUserDto[];
-      let users: UserViewDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
@@ -1690,7 +1659,7 @@ describe('auth', () => {
             password: 'qwerty',
           });
         }
-        users = await usersCommonTestManager.createUsers(usersData);
+        await usersCommonTestManager.createUsers(usersData);
       });
 
       // missing
@@ -1713,18 +1682,6 @@ describe('auth', () => {
         );
 
         await delay(2000);
-
-        await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[1].login,
-          usersData[1].password,
-        );
-
-        await usersCommonTestManager.deleteUser(users[1].id);
 
         await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
       });

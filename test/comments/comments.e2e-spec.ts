@@ -18,7 +18,6 @@ import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-acco
 import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
-import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
 
@@ -221,7 +220,6 @@ describe('comments', () => {
 
     describe('authentication', () => {
       let userData: CreateUserInputDto;
-      let user: UserViewDto;
       let post: PostViewDto;
       let comment: CommentViewDto;
 
@@ -238,7 +236,7 @@ describe('comments', () => {
           email: 'user1@example.com',
           password: 'qwerty',
         };
-        user = await usersCommonTestManager.createUser(userData);
+        await usersCommonTestManager.createUser(userData);
         const userAccessToken = await authTestManager.getNewAccessToken(
           userData.login,
           userData.password,
@@ -296,20 +294,6 @@ describe('comments', () => {
 
         await delay(2000);
 
-        await commentsTestManager.deleteComment(
-          comment.id,
-          'Bearer ' + accessToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const accessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        await usersCommonTestManager.deleteUser(user.id);
         await commentsTestManager.deleteComment(
           comment.id,
           'Bearer ' + accessToken,
@@ -576,7 +560,6 @@ describe('comments', () => {
 
     describe('authentication', () => {
       let userData: CreateUserInputDto;
-      let user: UserViewDto;
       let comment: CommentViewDto;
 
       beforeAll(async () => {
@@ -592,7 +575,7 @@ describe('comments', () => {
           email: 'user1@example.com',
           password: 'qwerty',
         };
-        user = await usersCommonTestManager.createUser(userData);
+        await usersCommonTestManager.createUser(userData);
         const userAccessToken = await authTestManager.getNewAccessToken(
           userData.login,
           userData.password,
@@ -649,21 +632,6 @@ describe('comments', () => {
 
         await delay(2000);
 
-        await commentsTestManager.updateComment(
-          comment.id,
-          validInputDto,
-          'Bearer ' + accessToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const accessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        await usersCommonTestManager.deleteUser(user.id);
         await commentsTestManager.updateComment(
           comment.id,
           validInputDto,

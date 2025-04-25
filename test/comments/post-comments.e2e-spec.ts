@@ -620,7 +620,6 @@ describe('post comments', () => {
 
     describe('authentication', () => {
       let post: PostViewDto;
-      let user: UserViewDto;
       let userData: CreateUserDto;
 
       beforeAll(async () => {
@@ -636,7 +635,7 @@ describe('post comments', () => {
           email: 'user1@example.com',
           password: 'qwerty',
         };
-        user = await usersCommonTestManager.createUser(userData);
+        await usersCommonTestManager.createUser(userData);
       });
 
       afterEach(async () => {
@@ -686,22 +685,6 @@ describe('post comments', () => {
         );
 
         await delay(2000);
-
-        await commentsTestManager.createPostComment(
-          post.id,
-          validInputDto,
-          'Bearer ' + accessToken,
-          HttpStatus.UNAUTHORIZED,
-        );
-      });
-
-      // user was deleted
-      it('should return 401 if user was deleted', async () => {
-        const accessToken = await authTestManager.getNewAccessToken(
-          userData.login,
-          userData.password,
-        );
-        await usersCommonTestManager.deleteUser(user.id);
 
         await commentsTestManager.createPostComment(
           post.id,

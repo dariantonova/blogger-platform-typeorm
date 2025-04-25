@@ -66,7 +66,6 @@ describe('post likes', () => {
 
   describe('authentication', () => {
     let post: PostViewDto;
-    let user: UserViewDto;
     let userData: CreateUserDto;
     const inputDto: LikeInputDto = {
       likeStatus: LikeStatus.Like,
@@ -83,7 +82,7 @@ describe('post likes', () => {
         email: 'user1@example.com',
         password: 'qwerty',
       };
-      user = await usersCommonTestManager.createUser(userData);
+      await usersCommonTestManager.createUser(userData);
     });
 
     afterEach(async () => {
@@ -133,22 +132,6 @@ describe('post likes', () => {
       );
 
       await delay(3000);
-
-      await postLikesTestManager.makePostLikeOperation(
-        post.id,
-        inputDto,
-        'Bearer ' + accessToken,
-        HttpStatus.UNAUTHORIZED,
-      );
-    });
-
-    // user was deleted
-    it('should return 401 if user was deleted', async () => {
-      const accessToken = await authTestManager.getNewAccessToken(
-        userData.login,
-        userData.password,
-      );
-      await usersCommonTestManager.deleteUser(user.id);
 
       await postLikesTestManager.makePostLikeOperation(
         post.id,

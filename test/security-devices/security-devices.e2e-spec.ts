@@ -18,6 +18,7 @@ import request from 'supertest';
 import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
 import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
+import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 
 describe('security devices', () => {
   let app: INestApplication;
@@ -26,6 +27,7 @@ describe('security devices', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let securityDevicesTestManager: SecurityDevicesTestManager;
   let jwtTestManager: JwtTestManager;
+  let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
 
   beforeAll(async () => {
     app = await initApp((builder: TestingModuleBuilder) => {
@@ -47,6 +49,9 @@ describe('security devices', () => {
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     securityDevicesTestManager = new SecurityDevicesTestManager(app);
+    securityDevicesCommonTestManager = new SecurityDevicesCommonTestManager(
+      app,
+    );
 
     const refreshJwtService = app.get<JwtService>(
       REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -291,6 +296,89 @@ describe('security devices', () => {
       });
     });
 
-    // describe('success', () => {});
+    describe('success', () => {
+      let usersLoginInput: LoginInputDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
+      });
+
+      it('should make refresh token of device session invalid', async () => {
+        const refreshToken1 = await authTestManager.getNewRefreshToken(
+          usersLoginInput[0],
+        );
+
+        const refreshToken2 = await authTestManager.getNewRefreshToken(
+          usersLoginInput[0],
+        );
+        const deviceId2 =
+          jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken2);
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceId2,
+          refreshToken1,
+          HttpStatus.NO_CONTENT,
+        );
+
+        await authTestManager.assertRefreshTokenIsInvalid(refreshToken2);
+      });
+
+      it('should remove device session from active sessions after successful termination', async () => {
+        const refreshToken1 = await authTestManager.getNewRefreshToken(
+          usersLoginInput[1],
+        );
+        const refreshToken2 = await authTestManager.getNewRefreshToken(
+          usersLoginInput[1],
+        );
+        const deviceId1 =
+          jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken1);
+        const deviceId2 =
+          jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken2);
+
+        const deviceSessionsBeforeTermination =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
+            refreshToken1,
+            HttpStatus.OK,
+          );
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceId2,
+          refreshToken1,
+          HttpStatus.NO_CONTENT,
+        );
+
+        const deviceSessionsAfterLogout =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
+            refreshToken1,
+            HttpStatus.OK,
+          );
+
+        expect(deviceSessionsAfterLogout.length).toBe(
+          deviceSessionsBeforeTermination.length - 1,
+        );
+        expect(deviceSessionsAfterLogout[0].deviceId).toBe(deviceId1);
+      });
+    });
   });
+
+  // describe('terminate all other user device sessions', () => {
+  //   beforeAll(async () => {
+  //     await deleteAllData(app);
+  //   });
+  //
+  //   describe('success', () => {
+  //     beforeAll(async () => {
+  //       await deleteAllData(app);
+  //     });
+  //
+  //     // multiple other sessions, all tokens are invalid
+  //
+  //     // multiple other sessions, security devices are removed
+  //
+  //     // does not affect other users' sessions
+  //   });
+  // });
 });

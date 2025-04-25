@@ -1574,10 +1574,7 @@ describe('auth', () => {
 
         await authTestManager.refreshToken(refreshToken, HttpStatus.OK);
 
-        await authTestManager.refreshToken(
-          refreshToken,
-          HttpStatus.UNAUTHORIZED,
-        );
+        await authTestManager.assertRefreshTokenIsInvalid(refreshToken);
       });
 
       it('should update device session after successful token refresh', async () => {
@@ -1674,10 +1671,7 @@ describe('auth', () => {
 
         await authTestManager.logout(refreshToken, HttpStatus.NO_CONTENT);
 
-        await authTestManager.refreshToken(
-          refreshToken,
-          HttpStatus.UNAUTHORIZED,
-        );
+        await authTestManager.assertRefreshTokenIsInvalid(refreshToken);
       });
 
       it('should remove device session from active sessions after successful logout', async () => {

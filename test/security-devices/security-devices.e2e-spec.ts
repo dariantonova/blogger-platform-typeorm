@@ -138,7 +138,7 @@ describe('security devices', () => {
         ]);
       });
 
-      it('should return all active sessions of user', async () => {
+      it('should return all active device sessions of user', async () => {
         const refreshTokens: string[] = [];
         for (let i = 0; i < 3; i++) {
           const refreshToken = await authTestManager.getNewRefreshToken(
@@ -162,7 +162,7 @@ describe('security devices', () => {
         expect(returnedDeviceIds.length).toBe(deviceIdsFromTokens.length);
       });
 
-      it('should not return sessions of other users', async () => {
+      it('should not return device sessions of other users', async () => {
         const currentUserRefreshToken =
           await authTestManager.getNewRefreshToken(usersLoginInput[2]);
 
@@ -326,7 +326,7 @@ describe('security devices', () => {
         await authTestManager.assertRefreshTokenIsInvalid(refreshToken2);
       });
 
-      it('should remove device session from active sessions after successful termination', async () => {
+      it('should remove device session from active sessions', async () => {
         const refreshToken1 = await authTestManager.getNewRefreshToken(
           usersLoginInput[1],
         );
@@ -341,7 +341,6 @@ describe('security devices', () => {
         const deviceSessionsBeforeTermination =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
-            HttpStatus.OK,
           );
 
         await securityDevicesTestManager.terminateDeviceSession(
@@ -353,7 +352,6 @@ describe('security devices', () => {
         const deviceSessionsAfterLogout =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
-            HttpStatus.OK,
           );
 
         expect(deviceSessionsAfterLogout.length).toBe(
@@ -364,21 +362,88 @@ describe('security devices', () => {
     });
   });
 
-  // describe('terminate all other user device sessions', () => {
-  //   beforeAll(async () => {
-  //     await deleteAllData(app);
-  //   });
-  //
-  //   describe('success', () => {
-  //     beforeAll(async () => {
-  //       await deleteAllData(app);
-  //     });
-  //
-  //     // multiple other sessions, all tokens are invalid
-  //
-  //     // multiple other sessions, security devices are removed
-  //
-  //     // does not affect other users' sessions
-  //   });
-  // });
+  describe('terminate all other user device sessions', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    describe('success', () => {
+      let usersLoginInput: LoginInputDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(4);
+      });
+
+      it('should make refresh tokens of all other user device sessions invalid', async () => {
+        const refreshTokens = await authTestManager.getNewRefreshTokensOfUser(
+          usersLoginInput[0],
+          3,
+        );
+
+        await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
+          refreshTokens[0],
+          HttpStatus.NO_CONTENT,
+        );
+
+        for (const refreshToken of refreshTokens.slice(1)) {
+          await authTestManager.assertRefreshTokenIsInvalid(refreshToken);
+        }
+      });
+
+      it('should remove all other user device sessions from active sessions', async () => {
+        const refreshTokens = await authTestManager.getNewRefreshTokensOfUser(
+          usersLoginInput[1],
+          3,
+        );
+        const currentSessionToken = refreshTokens[0];
+
+        await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
+          currentSessionToken,
+          HttpStatus.NO_CONTENT,
+        );
+
+        const deviceSessions =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
+            currentSessionToken,
+          );
+        expect(deviceSessions.map((s) => s.deviceId)).toEqual([
+          jwtTestManager.extractDeviceIdFromRefreshToken(currentSessionToken),
+        ]);
+      });
+
+      it('should not terminate device sessions of other users', async () => {
+        const currentUserRefreshTokens =
+          await authTestManager.getNewRefreshTokensOfUser(
+            usersLoginInput[2],
+            2,
+          );
+        const foreignRefreshTokens =
+          await authTestManager.getNewRefreshTokensOfUser(
+            usersLoginInput[3],
+            2,
+          );
+
+        const foreignDeviceSessionsBefore =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
+            foreignRefreshTokens[0],
+          );
+
+        await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
+          currentUserRefreshTokens[0],
+          HttpStatus.NO_CONTENT,
+        );
+
+        const foreignDeviceSessionsAfter =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
+            foreignRefreshTokens[0],
+          );
+        expect(foreignDeviceSessionsAfter.length).toBe(
+          foreignDeviceSessionsBefore.length,
+        );
+      });
+    });
+  });
 });

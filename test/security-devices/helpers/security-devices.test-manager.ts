@@ -25,4 +25,14 @@ export class SecurityDevicesTestManager {
       .set('Cookie', 'refreshToken=' + refreshToken)
       .expect(expectedStatusCode);
   }
+
+  async terminateAllOtherUserDeviceSessions(
+    refreshToken: string,
+    expectedStatusCode: HttpStatus,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(SECURITY_DEVICES_PATH)
+      .set('Cookie', 'refreshToken=' + refreshToken)
+      .expect(expectedStatusCode);
+  }
 }

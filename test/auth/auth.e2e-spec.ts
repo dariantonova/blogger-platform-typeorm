@@ -318,7 +318,6 @@ describe('auth', () => {
       const deviceSessions =
         await securityDevicesCommonTestManager.getUserDeviceSessions(
           firstRefreshToken,
-          HttpStatus.OK,
         );
       authTestManager.validateDeviceSession(deviceSessions[0], userAgent);
 
@@ -1585,7 +1584,6 @@ describe('auth', () => {
         const deviceSessionsBeforeRefresh =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken,
-            HttpStatus.OK,
           );
         const deviceSessionBeforeRefresh = deviceSessionsBeforeRefresh[0];
 
@@ -1601,7 +1599,6 @@ describe('auth', () => {
         const deviceSessionsAfterRefresh =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             newRefreshToken,
-            HttpStatus.OK,
           );
         const deviceSessionAfterRefresh = deviceSessionsAfterRefresh[0];
 
@@ -1685,7 +1682,6 @@ describe('auth', () => {
         const deviceSessionsBeforeLogout =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
-            HttpStatus.OK,
           );
 
         await authTestManager.logout(refreshToken2, HttpStatus.NO_CONTENT);
@@ -1693,7 +1689,6 @@ describe('auth', () => {
         const deviceSessionsAfterLogout =
           await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
-            HttpStatus.OK,
           );
 
         expect(deviceSessionsAfterLogout.length).toBe(

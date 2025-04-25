@@ -209,6 +209,19 @@ export class AuthTestManager {
     return this.extractRefreshTokenFromResponse(loginResponse);
   }
 
+  async getNewRefreshTokensOfUser(
+    loginInput: LoginInputDto,
+    numberOfTokens: number,
+  ): Promise<string[]> {
+    const tokens: string[] = [];
+    for (let i = 0; i < numberOfTokens; i++) {
+      const loginResponse = await this.login(loginInput, HttpStatus.OK);
+      const token = this.extractRefreshTokenFromResponse(loginResponse);
+      tokens.push(token);
+    }
+    return tokens;
+  }
+
   async logout(
     refToken: string,
     expectedStatusCode: HttpStatus,

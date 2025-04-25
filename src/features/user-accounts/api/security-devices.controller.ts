@@ -15,6 +15,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetUserDeviceSessionsQuery } from '../application/queries/get-user-device-sessions.query';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 import { TerminateDeviceSessionCommand } from '../application/usecases/terminate-device-session.usecase';
+import { TerminateAllOtherUserDeviceSessionsCommand } from '../application/usecases/users/terminate-all-other-device-sessions.usecase';
 
 @Controller('security/devices')
 export class SecurityDevicesController {
@@ -42,6 +43,20 @@ export class SecurityDevicesController {
       new TerminateDeviceSessionCommand({
         deviceId,
         currentUserId: user.userId,
+      }),
+    );
+  }
+
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuard)
+  async terminateAllOtherUserDeviceSessions(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new TerminateAllOtherUserDeviceSessionsCommand({
+        userId: user.userId,
+        currentDeviceId: user.deviceId,
       }),
     );
   }

@@ -44,6 +44,7 @@ import { DeviceAuthSessionsQueryRepository } from './infrastructure/query/device
 import { GetUserDeviceSessionsQueryHandler } from './application/queries/get-user-device-sessions.query';
 import { SecurityDevicesController } from './api/security-devices.controller';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
+import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/users/terminate-all-other-device-sessions.usecase';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -57,6 +58,7 @@ const commandHandlers = [
   RefreshTokenUseCase,
   LogoutUserUseCase,
   TerminateDeviceSessionUseCase,
+  TerminateAllOtherUserDeviceSessionsUseCase,
 ];
 
 const queryHandlers = [

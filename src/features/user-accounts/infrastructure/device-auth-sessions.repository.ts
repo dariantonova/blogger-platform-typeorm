@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   DeviceAuthSession,
   DeviceAuthSessionDocument,
@@ -27,15 +27,33 @@ export class DeviceAuthSessionsRepository {
     });
   }
 
+  async findByDeviceId(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDocument | null> {
+    return this.DeviceAuthSessionModel.findOne({
+      deviceId,
+    });
+  }
+
   async findByDeviceIdOrInternalFail(
     deviceId: string,
   ): Promise<DeviceAuthSessionDocument> {
-    const deviceAuthSession = await this.DeviceAuthSessionModel.findOne({
-      deviceId,
-    });
+    const deviceAuthSession = await this.findByDeviceId(deviceId);
 
     if (!deviceAuthSession) {
       throw new Error('Device auth session not found');
+    }
+
+    return deviceAuthSession;
+  }
+
+  async findByDeviceIdOrNotFoundFail(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDocument> {
+    const deviceAuthSession = await this.findByDeviceId(deviceId);
+
+    if (!deviceAuthSession) {
+      throw new NotFoundException('Device auth session not found');
     }
 
     return deviceAuthSession;
@@ -45,10 +63,7 @@ export class DeviceAuthSessionsRepository {
     await this.DeviceAuthSessionModel.deleteMany({ userId });
   }
 
-  async deleteByDeviceIdAndUserId(
-    deviceId: string,
-    userId: string,
-  ): Promise<void> {
-    await this.DeviceAuthSessionModel.deleteOne({ deviceId, userId });
+  async deleteByDeviceId(deviceId: string): Promise<void> {
+    await this.DeviceAuthSessionModel.deleteOne({ deviceId });
   }
 }

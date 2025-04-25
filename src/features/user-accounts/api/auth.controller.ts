@@ -155,7 +155,7 @@ export class AuthController {
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
   ): Promise<void> {
     await this.commandBus.execute(
-      new LogoutUserCommand({ userId: user.userId, deviceId: user.deviceId }),
+      new LogoutUserCommand({ deviceId: user.deviceId }),
     );
   }
 

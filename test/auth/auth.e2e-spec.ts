@@ -28,9 +28,8 @@ import {
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import request from 'supertest';
-import { SecurityDevicesTestManager } from '../security-devices/helpers/security-devices.test-manager';
-import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
 import { JwtTestManager } from '../helpers/jwt.test-manager';
+import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -38,7 +37,7 @@ describe('auth', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let usersTestManager: UsersTestManager;
   let UserModel: UserModelType;
-  let securityDevicesTestManager: SecurityDevicesTestManager;
+  let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
 
   beforeAll(async () => {
@@ -85,7 +84,9 @@ describe('auth', () => {
     authTestManager = new AuthTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     usersTestManager = new UsersTestManager(app, UserModel);
-    securityDevicesTestManager = new SecurityDevicesTestManager(app);
+    securityDevicesCommonTestManager = new SecurityDevicesCommonTestManager(
+      app,
+    );
 
     const refreshJwtService = app.get<JwtService>(
       REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -314,12 +315,11 @@ describe('auth', () => {
       const firstRefreshToken =
         authTestManager.extractRefreshTokenFromResponse(firstLoginResponse);
 
-      const deviceSessionsResponse =
-        await securityDevicesTestManager.getUserDeviceSessions(
+      const deviceSessions =
+        await securityDevicesCommonTestManager.getUserDeviceSessions(
           firstRefreshToken,
           HttpStatus.OK,
         );
-      const deviceSessions = deviceSessionsResponse.body as DeviceViewDto[];
       authTestManager.validateDeviceSession(deviceSessions[0], userAgent);
 
       // check deviceId is unique
@@ -1603,14 +1603,12 @@ describe('auth', () => {
           usersData[2].password,
         );
 
-        const deviceSessionsResponse1 =
-          await securityDevicesTestManager.getUserDeviceSessions(
+        const deviceSessionsBeforeRefresh =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken,
             HttpStatus.OK,
           );
-        const deviceSessionBeforeRefresh = (
-          deviceSessionsResponse1.body as DeviceViewDto[]
-        )[0];
+        const deviceSessionBeforeRefresh = deviceSessionsBeforeRefresh[0];
 
         await delay(1000);
 
@@ -1621,14 +1619,12 @@ describe('auth', () => {
         const newRefreshToken =
           authTestManager.extractRefreshTokenFromResponse(refreshResponse);
 
-        const deviceSessionsResponse2 =
-          await securityDevicesTestManager.getUserDeviceSessions(
+        const deviceSessionsAfterRefresh =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
             newRefreshToken,
             HttpStatus.OK,
           );
-        const deviceSessionAfterRefresh = (
-          deviceSessionsResponse2.body as DeviceViewDto[]
-        )[0];
+        const deviceSessionAfterRefresh = deviceSessionsAfterRefresh[0];
 
         expect(deviceSessionAfterRefresh.deviceId).toBe(
           deviceSessionBeforeRefresh.deviceId,
@@ -1728,23 +1724,19 @@ describe('auth', () => {
           usersData[0].password,
         );
 
-        const deviceSessionsResponse1 =
-          await securityDevicesTestManager.getUserDeviceSessions(
+        const deviceSessionsBeforeLogout =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
             HttpStatus.OK,
           );
-        const deviceSessionsBeforeLogout =
-          deviceSessionsResponse1.body as DeviceViewDto[];
 
         await authTestManager.logout(refreshToken2, HttpStatus.NO_CONTENT);
 
-        const deviceSessionsResponse2 =
-          await securityDevicesTestManager.getUserDeviceSessions(
+        const deviceSessionsAfterLogout =
+          await securityDevicesCommonTestManager.getUserDeviceSessions(
             refreshToken1,
             HttpStatus.OK,
           );
-        const deviceSessionsAfterLogout =
-          deviceSessionsResponse2.body as DeviceViewDto[];
 
         expect(deviceSessionsAfterLogout.length).toBe(
           deviceSessionsBeforeLogout.length - 1,

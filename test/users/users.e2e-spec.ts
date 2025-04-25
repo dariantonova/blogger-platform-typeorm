@@ -22,12 +22,15 @@ import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { getModelToken } from '@nestjs/mongoose';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
+import { AuthTestManager } from '../auth/helpers/auth.test-manager';
+import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 
 describe('users', () => {
   let app: INestApplication;
   let usersTestManager: UsersTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let UserModel: UserModelType;
+  let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
     app = await initApp();
@@ -36,6 +39,7 @@ describe('users', () => {
 
     usersTestManager = new UsersTestManager(app, UserModel);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    authTestManager = new AuthTestManager(app);
   });
 
   afterAll(async () => {
@@ -369,38 +373,96 @@ describe('users', () => {
   });
 
   describe('delete user', () => {
-    let users: UserViewDto[];
-
     beforeAll(async () => {
       await deleteAllData(app);
-
-      users = await usersTestManager.createUsersWithGeneratedData(2);
     });
 
-    it('should delete user', async () => {
-      await usersTestManager.deleteUser(users[0].id, HttpStatus.NO_CONTENT);
+    describe('success', () => {
+      let usersData: CreateUserInputDto[];
+      let users: UserViewDto[];
 
-      const getUsersResponse = await usersTestManager.getUsers(HttpStatus.OK);
-      const paginatedUsers: PaginatedViewDto<UserViewDto[]> =
-        getUsersResponse.body;
-      const expectedItems = users.slice(1).toReversed();
-      expect(paginatedUsers.items).toEqual(expectedItems);
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersData = [];
+        for (let i = 1; i <= 2; i++) {
+          const userData: CreateUserInputDto = {
+            login: 'user' + i,
+            email: 'user' + i + '@example.com',
+            password: 'qwerty',
+          };
+          usersData.push(userData);
+        }
+        users = await usersCommonTestManager.createUsers(usersData);
+      });
+
+      it('should delete user', async () => {
+        await usersTestManager.deleteUser(users[0].id, HttpStatus.NO_CONTENT);
+
+        const getUsersResponse = await usersTestManager.getUsers(HttpStatus.OK);
+        const paginatedUsers: PaginatedViewDto<UserViewDto[]> =
+          getUsersResponse.body;
+        const expectedItems = users.slice(1).toReversed();
+        expect(paginatedUsers.items).toEqual(expectedItems);
+      });
+
+      it('should make all user auth tokens invalid after successful deletion', async () => {
+        const accessTokens: string[] = [];
+        const refreshTokens: string[] = [];
+
+        const loginData: LoginInputDto = {
+          loginOrEmail: usersData[1].login,
+          password: usersData[1].password,
+        };
+        for (let i = 0; i < 2; i++) {
+          const loginResponse = await authTestManager.login(
+            loginData,
+            HttpStatus.OK,
+          );
+          const accessToken = loginResponse.body.accessToken;
+          const refreshToken =
+            authTestManager.extractRefreshTokenFromResponse(loginResponse);
+
+          accessTokens.push(accessToken);
+          refreshTokens.push(refreshToken);
+        }
+
+        await usersTestManager.deleteUser(users[1].id, HttpStatus.NO_CONTENT);
+
+        for (const accessToken of accessTokens) {
+          await authTestManager.assertAccessTokenIsInvalid(accessToken);
+        }
+
+        for (const refreshToken of refreshTokens) {
+          await authTestManager.assertRefreshTokenIsInvalid(refreshToken);
+        }
+      });
     });
 
-    it('should return 404 when trying to delete non-existing user', async () => {
-      const nonExistingId = generateNonExistingId();
-      await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
-    });
+    describe('not found', () => {
+      let users: UserViewDto[];
 
-    it('should return 404 when user id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
-      await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
-    });
+      beforeAll(async () => {
+        await deleteAllData(app);
 
-    it('should return 404 when trying to delete already deleted user', async () => {
-      await usersTestManager.deleteUser(users[1].id, HttpStatus.NO_CONTENT);
+        users = await usersTestManager.createUsersWithGeneratedData(1);
+      });
 
-      await usersTestManager.deleteUser(users[1].id, HttpStatus.NOT_FOUND);
+      it('should return 404 when trying to delete non-existing user', async () => {
+        const nonExistingId = generateNonExistingId();
+        await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
+      });
+
+      it('should return 404 when user id is not valid ObjectId', async () => {
+        const invalidId = 'not ObjectId';
+        await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
+      });
+
+      it('should return 404 when trying to delete already deleted user', async () => {
+        await usersTestManager.deleteUser(users[0].id, HttpStatus.NO_CONTENT);
+
+        await usersTestManager.deleteUser(users[0].id, HttpStatus.NOT_FOUND);
+      });
     });
 
     describe('authentication', () => {
@@ -413,7 +475,7 @@ describe('users', () => {
         userToDelete = users[0];
       });
 
-      it('should forbid creating user for non-admin users', async () => {
+      it('should forbid deleting user for non-admin users', async () => {
         for (const invalidAuthValue of invalidBasicAuthTestValues) {
           await usersTestManager.deleteUser(
             userToDelete.id,

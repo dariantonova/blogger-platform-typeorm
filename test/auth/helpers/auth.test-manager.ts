@@ -169,6 +169,20 @@ export class AuthTestManager {
   }
 
   /**
+   * Validates that the access token is usable by calling a protected endpoint.
+   */
+  async assertAccessTokenIsInvalid(accessToken: string): Promise<void> {
+    await this.me('Bearer ' + accessToken, HttpStatus.UNAUTHORIZED);
+  }
+
+  /**
+   * Validates that the refresh token is usable by calling the refresh endpoint.
+   */
+  async assertRefreshTokenIsInvalid(refreshToken: string): Promise<void> {
+    await this.refreshToken(refreshToken, HttpStatus.UNAUTHORIZED);
+  }
+
+  /**
    * Asserts that the login/refresh response contains valid tokens.
    * @param response - The HTTP response from login or token refresh.
    */

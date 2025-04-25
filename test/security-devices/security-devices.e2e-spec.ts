@@ -14,10 +14,10 @@ import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
 import { getModelToken } from '@nestjs/mongoose';
 import { SecurityDevicesTestManager } from './helpers/security-devices.test-manager';
-import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import request from 'supertest';
 import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
 import { JwtTestManager } from '../helpers/jwt.test-manager';
+import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 
 describe('security devices', () => {
   let app: INestApplication;
@@ -64,20 +64,13 @@ describe('security devices', () => {
     });
 
     describe('authentication', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 1; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(1);
       });
 
       // missing
@@ -98,8 +91,7 @@ describe('security devices', () => {
       // expired token
       it('should return 401 if refresh token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         await delay(2000);
@@ -112,26 +104,18 @@ describe('security devices', () => {
     });
 
     describe('success', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 4; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(4);
       });
 
       it('should return device sessions with correct structure', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         const response = await securityDevicesTestManager.getUserDeviceSessions(
@@ -153,8 +137,7 @@ describe('security devices', () => {
         const refreshTokens: string[] = [];
         for (let i = 0; i < 3; i++) {
           const refreshToken = await authTestManager.getNewRefreshToken(
-            usersData[1].login,
-            usersData[1].password,
+            usersLoginInput[1],
           );
           refreshTokens.push(refreshToken);
         }
@@ -176,16 +159,12 @@ describe('security devices', () => {
 
       it('should not return sessions of other users', async () => {
         const currentUserRefreshToken =
-          await authTestManager.getNewRefreshToken(
-            usersData[2].login,
-            usersData[2].password,
-          );
+          await authTestManager.getNewRefreshToken(usersLoginInput[2]);
 
         const foreignRefreshTokens: string[] = [];
         for (let i = 0; i < 2; i++) {
           const foreignRefreshToken = await authTestManager.getNewRefreshToken(
-            usersData[3].login,
-            usersData[3].password,
+            usersLoginInput[3],
           );
           foreignRefreshTokens.push(foreignRefreshToken);
         }

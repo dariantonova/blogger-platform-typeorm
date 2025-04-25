@@ -9,6 +9,7 @@ import {
   UserModelType,
 } from '../../src/features/user-accounts/domain/user.entity';
 import { add } from 'date-fns';
+import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 
 export class UsersCommonTestManager {
   constructor(
@@ -113,5 +114,30 @@ export class UsersCommonTestManager {
         'passwordRecoveryInfo.expirationDate': expirationDate,
       },
     );
+  }
+
+  async getLoginInputOfGeneratedUsers(
+    numberOfUsers: number,
+  ): Promise<LoginInputDto[]> {
+    const usersData: CreateUserDto[] = [];
+    for (let i = 1; i <= 4; i++) {
+      usersData.push({
+        login: 'user' + i,
+        email: 'user' + i + '@example.com',
+        password: 'qwerty',
+      });
+    }
+    await this.createUsers(usersData);
+
+    const usersLoginInput: LoginInputDto[] = [];
+    for (const userData of usersData) {
+      const loginInput: LoginInputDto = {
+        loginOrEmail: userData.login,
+        password: userData.password,
+      };
+      usersLoginInput.push(loginInput);
+    }
+
+    return usersLoginInput;
   }
 }

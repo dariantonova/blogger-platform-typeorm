@@ -1507,20 +1507,13 @@ describe('auth', () => {
     });
 
     describe('authentication', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 2; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
       });
 
       // missing
@@ -1538,8 +1531,7 @@ describe('auth', () => {
       // expired token
       it('should return 401 if refresh token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         await delay(2000);
@@ -1552,26 +1544,18 @@ describe('auth', () => {
     });
 
     describe('success', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 3; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(3);
       });
 
       it('should return valid auth tokens after successful token refresh', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         const response = await authTestManager.refreshToken(
@@ -1583,8 +1567,7 @@ describe('auth', () => {
 
       it('refresh token cannot be reused after successful token refresh', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[1].login,
-          usersData[1].password,
+          usersLoginInput[1],
         );
 
         await delay(1000);
@@ -1599,8 +1582,7 @@ describe('auth', () => {
 
       it('should update device session after successful token refresh', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[2].login,
-          usersData[2].password,
+          usersLoginInput[2],
         );
 
         const deviceSessionsBeforeRefresh =
@@ -1642,20 +1624,13 @@ describe('auth', () => {
     });
 
     describe('authentication', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 2; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
       });
 
       // missing
@@ -1673,8 +1648,7 @@ describe('auth', () => {
       // expired token
       it('should return 401 if refresh token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         await delay(2000);
@@ -1684,26 +1658,18 @@ describe('auth', () => {
     });
 
     describe('success', () => {
-      let usersData: CreateUserDto[];
+      let usersLoginInput: LoginInputDto[];
 
       beforeAll(async () => {
         await deleteAllData(app);
 
-        usersData = [];
-        for (let i = 1; i <= 2; i++) {
-          usersData.push({
-            login: 'user' + i,
-            email: 'user' + i + '@example.com',
-            password: 'qwerty',
-          });
-        }
-        await usersCommonTestManager.createUsers(usersData);
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
       });
 
       it('should make refresh token unusable after successful logout', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[0],
         );
 
         await authTestManager.logout(refreshToken, HttpStatus.NO_CONTENT);
@@ -1716,12 +1682,10 @@ describe('auth', () => {
 
       it('should remove device session from active sessions after successful logout', async () => {
         const refreshToken1 = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[1],
         );
         const refreshToken2 = await authTestManager.getNewRefreshToken(
-          usersData[0].login,
-          usersData[0].password,
+          usersLoginInput[1],
         );
 
         const deviceSessionsBeforeLogout =

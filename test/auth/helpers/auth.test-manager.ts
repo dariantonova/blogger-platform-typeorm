@@ -3,6 +3,7 @@ import request, { Response } from 'supertest';
 import { AUTH_PATH } from '../../helpers/helper';
 import { parse } from 'cookie';
 import { DeviceViewDto } from '../../../src/features/user-accounts/api/view-dto/device.view-dto';
+import { LoginInputDto } from '../../../src/features/user-accounts/api/input-dto/login.input-dto';
 
 export class AuthTestManager {
   constructor(private app: INestApplication) {}
@@ -203,17 +204,8 @@ export class AuthTestManager {
       .expect(expectedStatusCode);
   }
 
-  async getNewRefreshToken(
-    loginOrEmail: string,
-    password: string,
-  ): Promise<string> {
-    const loginResponse = await this.login(
-      {
-        loginOrEmail,
-        password,
-      },
-      HttpStatus.OK,
-    );
+  async getNewRefreshToken(loginInput: LoginInputDto): Promise<string> {
+    const loginResponse = await this.login(loginInput, HttpStatus.OK);
     return this.extractRefreshTokenFromResponse(loginResponse);
   }
 

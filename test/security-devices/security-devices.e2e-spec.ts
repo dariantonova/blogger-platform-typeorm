@@ -260,8 +260,37 @@ describe('security devices', () => {
       });
     });
 
-    // describe('authorization', () => {});
-    //
+    describe('authorization', () => {
+      let usersLoginInput: LoginInputDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
+      });
+
+      it('should return 403 when user tries to terminate session of another user', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersLoginInput[0],
+        );
+
+        const foreignRefreshToken = await authTestManager.getNewRefreshToken(
+          usersLoginInput[1],
+        );
+        const foreignDeviceId =
+          jwtTestManager.extractDeviceIdFromRefreshToken(foreignRefreshToken);
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          foreignDeviceId,
+          refreshToken,
+          HttpStatus.FORBIDDEN,
+        );
+
+        await authTestManager.assertRefreshTokenIsValid(foreignRefreshToken);
+      });
+    });
+
     // describe('success', () => {});
   });
 });

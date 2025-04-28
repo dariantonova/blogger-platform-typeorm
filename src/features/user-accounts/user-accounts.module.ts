@@ -45,6 +45,7 @@ import { GetUserDeviceSessionsQueryHandler } from './application/queries/get-use
 import { SecurityDevicesController } from './api/security-devices.controller';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
 import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/users/terminate-all-other-device-sessions.usecase';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -76,6 +77,15 @@ const queryHandlers = [
       { name: DeviceAuthSession.name, schema: DeviceAuthSessionSchema },
     ]),
     CqrsModule.forRoot(),
+    ThrottlerModule.forRootAsync({
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => [
+        {
+          ttl: coreConfig.authThrottleTtlInMilliseconds,
+          limit: coreConfig.authThrottleLimit,
+        },
+      ],
+    }),
   ],
   controllers: [UsersController, AuthController, SecurityDevicesController],
   providers: [

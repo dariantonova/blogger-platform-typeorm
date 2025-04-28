@@ -35,7 +35,9 @@ import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-c
 import { RefreshTokenCommand } from '../application/usecases/refresh-token.usecase';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
 import { LogoutUserCommand } from '../application/usecases/logout-user.usecase';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -75,6 +77,7 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAccessAuthGuard)
+  @SkipThrottle()
   async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQuery(user.id));
   }
@@ -122,6 +125,7 @@ export class AuthController {
   @Post('refresh-token')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtRefreshAuthGuard)
+  @SkipThrottle()
   async refreshToken(
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
     @Ip() ip: string | undefined,
@@ -151,6 +155,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
+  @SkipThrottle()
   async logout(
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
   ): Promise<void> {

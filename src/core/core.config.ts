@@ -88,6 +88,23 @@ export class CoreConfig {
   )
   accessTokenLifetimeInSeconds: number;
 
+  @IsNumber(
+    {},
+    {
+      message:
+        'Set Env variable AUTH_THROTTLE_TTL_IN_MILLISECONDS, example: 10000',
+    },
+  )
+  authThrottleTtlInMilliseconds: number;
+
+  @IsNumber(
+    {},
+    {
+      message: 'Set Env variable AUTH_THROTTLE_LIMIT, example: 5',
+    },
+  )
+  authThrottleLimit: number;
+
   private initializeConfigValues() {
     this.env = this.configService.get('NODE_ENV') as Environment;
 
@@ -127,6 +144,15 @@ export class CoreConfig {
       configValidationUtility.convertToNumber(
         this.configService.get('REFRESH_TOKEN_LIFETIME_IN_SECONDS'),
       ) as number;
+
+    this.authThrottleTtlInMilliseconds =
+      configValidationUtility.convertToNumber(
+        this.configService.get('AUTH_THROTTLE_TTL_IN_MILLISECONDS'),
+      ) as number;
+
+    this.authThrottleLimit = configValidationUtility.convertToNumber(
+      this.configService.get('AUTH_THROTTLE_LIMIT'),
+    ) as number;
   }
 
   constructor(private configService: ConfigService) {

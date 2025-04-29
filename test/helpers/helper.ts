@@ -14,6 +14,8 @@ import { NestFactory } from '@nestjs/core';
 import { CoreConfig } from '../../src/core/core.config';
 import { setRootModule } from '../../src/app-root';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerGuardMock } from '../mock/throttler-guard.mock';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
@@ -39,9 +41,19 @@ export const invalidBasicAuthTestValues: string[] = [
 export type QueryType = Record<string, any>;
 export const DEFAULT_PAGE_SIZE = 10;
 
+export class InitAppOptions {
+  customBuilderSetup?: (builder: TestingModuleBuilder) => void;
+  overrideThrottlerGuard?: boolean;
+}
+
 export const initApp = async (
-  customBuilderSetup = (builder: TestingModuleBuilder) => {},
+  options: InitAppOptions = {},
 ): Promise<NestExpressApplication> => {
+  const {
+    customBuilderSetup = (builder: TestingModuleBuilder) => {},
+    overrideThrottlerGuard = true,
+  } = options;
+
   const appContext = await NestFactory.createApplicationContext(AppModule);
   const coreConfig = appContext.get<CoreConfig>(CoreConfig);
   const DynamicAppModule = await AppModule.forRoot(coreConfig);
@@ -53,6 +65,12 @@ export const initApp = async (
   })
     .overrideProvider(EmailService)
     .useClass(EmailServiceMock);
+
+  if (overrideThrottlerGuard) {
+    testingModuleBuilder
+      .overrideGuard(ThrottlerGuard)
+      .useClass(ThrottlerGuardMock);
+  }
 
   customBuilderSetup(testingModuleBuilder);
 

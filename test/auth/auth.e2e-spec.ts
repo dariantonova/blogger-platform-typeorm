@@ -41,7 +41,7 @@ describe('auth', () => {
   let jwtTestManager: JwtTestManager;
 
   beforeAll(async () => {
-    app = await initApp((builder: TestingModuleBuilder) => {
+    const customBuilderSetup = (builder: TestingModuleBuilder) => {
       builder
         .overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
         .useFactory({
@@ -77,7 +77,8 @@ describe('auth', () => {
             };
           },
         });
-    });
+    };
+    app = await initApp({ customBuilderSetup });
 
     UserModel = app.get<UserModelType>(getModelToken('User'));
 

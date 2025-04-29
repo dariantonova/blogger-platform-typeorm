@@ -30,7 +30,7 @@ describe('comments', () => {
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
-    app = await initApp((builder: TestingModuleBuilder) => {
+    const customBuilderSetup = (builder: TestingModuleBuilder) => {
       builder.overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
         inject: [CoreConfig],
         factory: (coreConfig: CoreConfig) => {
@@ -42,7 +42,8 @@ describe('comments', () => {
           });
         },
       });
-    });
+    };
+    app = await initApp({ customBuilderSetup });
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);

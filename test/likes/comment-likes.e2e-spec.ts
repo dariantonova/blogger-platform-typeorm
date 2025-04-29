@@ -34,7 +34,7 @@ describe('comment likes', () => {
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
-    app = await initApp((builder: TestingModuleBuilder) => {
+    const customBuilderSetup = (builder: TestingModuleBuilder) => {
       builder.overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
         inject: [CoreConfig],
         factory: (coreConfig: CoreConfig) => {
@@ -46,7 +46,8 @@ describe('comment likes', () => {
           });
         },
       });
-    });
+    };
+    app = await initApp({ customBuilderSetup });
 
     const LikeModel = app.get<LikeModelType>(getModelToken('Like'));
     commentLikesTestManager = new CommentLikesTestManager(app, LikeModel);

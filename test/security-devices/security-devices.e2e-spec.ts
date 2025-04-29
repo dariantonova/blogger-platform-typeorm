@@ -30,7 +30,7 @@ describe('security devices', () => {
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
 
   beforeAll(async () => {
-    app = await initApp((builder: TestingModuleBuilder) => {
+    const customBuilderSetup = (builder: TestingModuleBuilder) => {
       builder.overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
         inject: [CoreConfig],
         factory: (coreConfig: CoreConfig) => {
@@ -42,7 +42,8 @@ describe('security devices', () => {
           });
         },
       });
-    });
+    };
+    app = await initApp({ customBuilderSetup });
 
     UserModel = app.get<UserModelType>(getModelToken('User'));
 

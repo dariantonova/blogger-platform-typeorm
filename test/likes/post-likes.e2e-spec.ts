@@ -35,19 +35,20 @@ describe('post likes', () => {
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
-    app = await initApp((builder: TestingModuleBuilder) => {
+    const customBuilderSetup = (builder: TestingModuleBuilder) => {
       builder.overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
         inject: [CoreConfig],
         factory: (coreConfig: CoreConfig) => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '3s',
+              expiresIn: '4s',
             },
           });
         },
       });
-    });
+    };
+    app = await initApp({ customBuilderSetup });
 
     const LikeModel = app.get<LikeModelType>(getModelToken('Like'));
     postLikesTestManager = new PostLikesTestManager(app, LikeModel);
@@ -131,7 +132,7 @@ describe('post likes', () => {
         userData.password,
       );
 
-      await delay(3000);
+      await delay(4000);
 
       await postLikesTestManager.makePostLikeOperation(
         post.id,

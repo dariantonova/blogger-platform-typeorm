@@ -6,10 +6,12 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserAccountsModule } from './features/user-accounts/user-accounts.module';
 import { BloggerPlatformModule } from './features/blogger-platform/blogger-platform.module';
 import { TestingModule } from './features/testing/testing.module';
-import { CoreConfig } from './core/core.config';
+import { CoreConfig, Environment } from './core/core.config';
 import { CoreModule } from './core/core.module';
 import { ErrorExceptionFilter } from './core/exceptions/filters/error-exceptions.filter';
 import { NotificationsModule } from './features/notifications/notifications.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [CoreModule, configModule],
@@ -26,6 +28,18 @@ export class AppModule {
             uri: coreConfig.mongoUri,
             dbName: coreConfig.dbName,
           };
+        },
+      }),
+      ServeStaticModule.forRootAsync({
+        inject: [CoreConfig],
+        useFactory: (coreConfig: CoreConfig) => {
+          return [
+            {
+              rootPath: join(__dirname, '..', 'swagger-static'),
+              serveRoot:
+                coreConfig.env === Environment.DEVELOPMENT ? '/' : '/swagger',
+            },
+          ];
         },
       }),
       UserAccountsModule,

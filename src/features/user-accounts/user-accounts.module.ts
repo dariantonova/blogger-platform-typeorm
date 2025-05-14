@@ -49,6 +49,9 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { GetUsersQueryHandlerSql } from '../user-accounts-sql/application/queries/get-users.query.sql';
 import { UsersQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/users.query-repository.sql';
 import { UsersControllerSql } from '../user-accounts-sql/api/users.controller.sql';
+import { GetUserByIdOrInternalFailQueryHandlerSql } from '../user-accounts-sql/application/queries/get-user-by-id-or-internal-fail.query.sql';
+import { UsersRepositorySql } from '../user-accounts-sql/infrastructure/users.repository.sql';
+import { CreateUserUseCaseSql } from '../user-accounts-sql/application/usecases/create-user.usecase.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -72,8 +75,12 @@ const queryHandlers = [
   GetUserDeviceSessionsQueryHandler,
 ];
 
-const queryHandlersSql = [GetUsersQueryHandlerSql];
-const repositoriesSql = [UsersQueryRepositorySql];
+const commandHandlersSql = [CreateUserUseCaseSql];
+const queryHandlersSql = [
+  GetUsersQueryHandlerSql,
+  GetUserByIdOrInternalFailQueryHandlerSql,
+];
+const repositoriesSql = [UsersQueryRepositorySql, UsersRepositorySql];
 const controllersSql = [UsersControllerSql];
 
 @Module({
@@ -143,6 +150,7 @@ const controllersSql = [UsersControllerSql];
     DeviceAuthSessionsQueryRepository,
     ...queryHandlersSql,
     ...repositoriesSql,
+    ...commandHandlersSql,
   ],
   exports: [UsersExternalQueryRepository],
 })

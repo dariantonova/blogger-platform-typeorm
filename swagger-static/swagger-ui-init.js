@@ -321,6 +321,28 @@ window.onload = function() {
           "tags": [
             "UsersControllerSql"
           ]
+        },
+        "post": {
+          "operationId": "UsersControllerSql_createUser",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "UsersControllerSql"
+          ]
         }
       },
       "/api/blogs": {

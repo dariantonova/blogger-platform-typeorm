@@ -46,6 +46,9 @@ import { SecurityDevicesController } from './api/security-devices.controller';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
 import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/users/terminate-all-other-device-sessions.usecase';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { GetUsersQueryHandlerSql } from '../user-accounts-sql/application/queries/get-users.query.sql';
+import { UsersQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/users.query-repository.sql';
+import { UsersControllerSql } from '../user-accounts-sql/api/users.controller.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -69,6 +72,10 @@ const queryHandlers = [
   GetUserDeviceSessionsQueryHandler,
 ];
 
+const queryHandlersSql = [GetUsersQueryHandlerSql];
+const repositoriesSql = [UsersQueryRepositorySql];
+const controllersSql = [UsersControllerSql];
+
 @Module({
   imports: [
     JwtModule,
@@ -87,7 +94,12 @@ const queryHandlers = [
       ],
     }),
   ],
-  controllers: [UsersController, AuthController, SecurityDevicesController],
+  controllers: [
+    UsersController,
+    AuthController,
+    SecurityDevicesController,
+    ...controllersSql,
+  ],
   providers: [
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
@@ -129,6 +141,8 @@ const queryHandlers = [
     DeviceAuthSessionsRepository,
     JwtRefreshStrategy,
     DeviceAuthSessionsQueryRepository,
+    ...queryHandlersSql,
+    ...repositoriesSql,
   ],
   exports: [UsersExternalQueryRepository],
 })

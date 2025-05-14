@@ -309,6 +309,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/users": {
+        "get": {
+          "operationId": "UsersControllerSql_getUsers",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "UsersControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

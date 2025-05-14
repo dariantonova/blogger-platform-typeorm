@@ -12,6 +12,7 @@ import { ErrorExceptionFilter } from './core/exceptions/filters/error-exceptions
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [CoreModule, configModule],
@@ -21,6 +22,16 @@ import { join } from 'path';
 export class AppModule {
   static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
     const modules: any[] = [
+      TypeOrmModule.forRoot({
+        type: 'postgres',
+        host: 'localhost',
+        port: 5432,
+        username: 'postgres',
+        password: 'sa',
+        database: 'nest_blogger_platform_dev',
+        autoLoadEntities: false,
+        synchronize: false,
+      }),
       MongooseModule.forRootAsync({
         inject: [CoreConfig],
         useFactory: (coreConfig: CoreConfig) => {

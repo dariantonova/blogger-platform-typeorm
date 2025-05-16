@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { CreateUserRepoDto } from './dto/create-user.repo-dto';
 import { UserDtoSql } from '../dto/user.dto.sql';
 import { mapUserRowToDto } from './mappers/user.mapper';
+import { NotFoundException } from '@nestjs/common';
 
 export class UsersRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -44,6 +45,7 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.login = $1
+    AND u.deleted_at IS NULL
     `;
     const findResult = await this.dataSource.query(findQuery, [login]);
 
@@ -56,9 +58,51 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.email = $1
+    AND u.deleted_at IS NULL
     `;
     const findResult = await this.dataSource.query(findQuery, [email]);
 
     return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
+  }
+
+  async findById(id: number): Promise<UserDtoSql | null> {
+    const findQuery = `
+    SELECT
+    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
+    FROM users u
+    WHERE u.id = $1
+    AND u.deleted_at IS NULL
+    `;
+    const findResult = await this.dataSource.query(findQuery, [id]);
+
+    return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<UserDtoSql> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async softDeleteUserAggregateById(id: number): Promise<void> {
+    await this.dataSource.transaction(async (manager) => {
+      const deleteUserQuery = `
+      UPDATE users
+      SET deleted_at = now()
+      WHERE id = $1
+      AND u.deleted_at IS NULL
+      `;
+      await manager.query(deleteUserQuery, [id]);
+
+      const deletePasswordRecoveriesQuery = `
+      DELETE FROM password_recoveries p
+      WHERE p.user_id = $1
+      `;
+      await manager.query(deletePasswordRecoveriesQuery, [id]);
+    });
   }
 }

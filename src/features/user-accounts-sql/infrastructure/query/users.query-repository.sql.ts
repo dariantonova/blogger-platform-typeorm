@@ -90,6 +90,7 @@ export class UsersQueryRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.id = $1
+    AND u.deleted_at IS NULL
     `;
     const findResult = await this.dataSource.query(findQuery, [id]);
 

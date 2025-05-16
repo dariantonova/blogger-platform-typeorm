@@ -52,6 +52,8 @@ import { UsersControllerSql } from '../user-accounts-sql/api/users.controller.sq
 import { GetUserByIdOrInternalFailQueryHandlerSql } from '../user-accounts-sql/application/queries/get-user-by-id-or-internal-fail.query.sql';
 import { UsersRepositorySql } from '../user-accounts-sql/infrastructure/users.repository.sql';
 import { CreateUserUseCaseSql } from '../user-accounts-sql/application/usecases/create-user.usecase.sql';
+import { DeleteUserUseCaseSql } from '../user-accounts-sql/application/usecases/delete-user.usecase.sql';
+import { DeviceAuthSessionsRepositorySql } from '../user-accounts-sql/infrastructure/device-auth-sessions.repository.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -75,12 +77,16 @@ const queryHandlers = [
   GetUserDeviceSessionsQueryHandler,
 ];
 
-const commandHandlersSql = [CreateUserUseCaseSql];
+const commandHandlersSql = [CreateUserUseCaseSql, DeleteUserUseCaseSql];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,
   GetUserByIdOrInternalFailQueryHandlerSql,
 ];
-const repositoriesSql = [UsersQueryRepositorySql, UsersRepositorySql];
+const repositoriesSql = [
+  UsersQueryRepositorySql,
+  UsersRepositorySql,
+  DeviceAuthSessionsRepositorySql,
+];
 const controllersSql = [UsersControllerSql];
 
 @Module({

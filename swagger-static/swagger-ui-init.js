@@ -345,6 +345,29 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/users/{id}": {
+        "delete": {
+          "operationId": "UsersControllerSql_deleteUser",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "UsersControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

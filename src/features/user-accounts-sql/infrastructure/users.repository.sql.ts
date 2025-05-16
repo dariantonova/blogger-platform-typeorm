@@ -105,4 +105,17 @@ export class UsersRepositorySql {
       await manager.query(deletePasswordRecoveriesQuery, [id]);
     });
   }
+
+  async findByLoginOrEmail(loginOrEmail: string): Promise<UserDtoSql | null> {
+    const findQuery = `
+    SELECT
+    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
+    FROM users u
+    WHERE u.deleted_at IS NULL
+    AND (u.login = $1 OR u.email = $1)
+    `;
+    const findResult = await this.dataSource.query(findQuery, [loginOrEmail]);
+
+    return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
+  }
 }

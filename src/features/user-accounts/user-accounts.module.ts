@@ -54,6 +54,10 @@ import { UsersRepositorySql } from '../user-accounts-sql/infrastructure/users.re
 import { CreateUserUseCaseSql } from '../user-accounts-sql/application/usecases/create-user.usecase.sql';
 import { DeleteUserUseCaseSql } from '../user-accounts-sql/application/usecases/delete-user.usecase.sql';
 import { DeviceAuthSessionsRepositorySql } from '../user-accounts-sql/infrastructure/device-auth-sessions.repository.sql';
+import { LocalStrategySql } from '../user-accounts-sql/guards/local/local.strategy.sql';
+import { AuthServiceSql } from '../user-accounts-sql/application/auth.service.sql';
+import { LoginUserUseCaseSql } from '../user-accounts-sql/application/usecases/login-user.usecase.sql';
+import { AuthControllerSql } from '../user-accounts-sql/api/auth.controller.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -77,17 +81,23 @@ const queryHandlers = [
   GetUserDeviceSessionsQueryHandler,
 ];
 
-const commandHandlersSql = [CreateUserUseCaseSql, DeleteUserUseCaseSql];
+const commandHandlersSql = [
+  CreateUserUseCaseSql,
+  DeleteUserUseCaseSql,
+  LoginUserUseCaseSql,
+];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,
   GetUserByIdOrInternalFailQueryHandlerSql,
 ];
-const repositoriesSql = [
+const providersSql = [
   UsersQueryRepositorySql,
   UsersRepositorySql,
   DeviceAuthSessionsRepositorySql,
+  LocalStrategySql,
+  AuthServiceSql,
 ];
-const controllersSql = [UsersControllerSql];
+const controllersSql = [UsersControllerSql, AuthControllerSql];
 
 @Module({
   imports: [
@@ -155,7 +165,7 @@ const controllersSql = [UsersControllerSql];
     JwtRefreshStrategy,
     DeviceAuthSessionsQueryRepository,
     ...queryHandlersSql,
-    ...repositoriesSql,
+    ...providersSql,
     ...commandHandlersSql,
   ],
   exports: [UsersExternalQueryRepository],

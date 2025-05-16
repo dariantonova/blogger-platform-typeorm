@@ -368,6 +368,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/login": {
+        "post": {
+          "operationId": "AuthControllerSql_login",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

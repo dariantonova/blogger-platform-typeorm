@@ -3,7 +3,10 @@ import { DataSource } from 'typeorm';
 import { CreateUserRepoDto } from './dto/create-user.repo-dto';
 import { UserDtoSql } from '../dto/user.dto.sql';
 import { mapUserRowToDto } from './mappers/user.mapper';
-import { NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 
 export class UsersRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -88,19 +91,29 @@ export class UsersRepositorySql {
     return user;
   }
 
+  async findByIdOrInternalFail(id: number): Promise<UserDtoSql> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
+    }
+
+    return user;
+  }
+
   async softDeleteUserAggregateById(id: number): Promise<void> {
     await this.dataSource.transaction(async (manager) => {
       const deleteUserQuery = `
       UPDATE users
       SET deleted_at = now()
       WHERE id = $1
-      AND u.deleted_at IS NULL
+      AND deleted_at IS NULL
       `;
       await manager.query(deleteUserQuery, [id]);
 
       const deletePasswordRecoveriesQuery = `
-      DELETE FROM password_recoveries p
-      WHERE p.user_id = $1
+      DELETE FROM password_recoveries
+      WHERE user_id = $1
       `;
       await manager.query(deletePasswordRecoveriesQuery, [id]);
     });

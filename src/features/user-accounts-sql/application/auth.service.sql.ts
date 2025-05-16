@@ -3,6 +3,7 @@ import { CryptoService } from '../../user-accounts/application/crypto.service';
 import { UsersRepositorySql } from '../infrastructure/users.repository.sql';
 import { DeviceAuthSessionsRepositorySql } from '../infrastructure/device-auth-sessions.repository.sql';
 import { UserContextDtoSql } from '../guards/dto/user-context.dto.sql';
+import { AccessJwtPayloadSql } from '../dto/access-jwt-payload.sql';
 
 @Injectable()
 export class AuthServiceSql {
@@ -32,17 +33,17 @@ export class AuthServiceSql {
     return { id: user.id };
   }
 
-  // async validateUserFromAccessToken(
-  //   payload: AccessJwtPayload,
-  // ): Promise<UserContextDto | null> {
-  //   const user = await this.usersRepository.findById(payload.userId);
-  //   if (!user) {
-  //     return null;
-  //   }
-  //
-  //   return { id: payload.userId };
-  // }
-  //
+  async validateUserFromAccessToken(
+    payload: AccessJwtPayloadSql,
+  ): Promise<UserContextDtoSql | null> {
+    const user = await this.usersRepository.findById(payload.userId);
+    if (!user) {
+      return null;
+    }
+
+    return { id: payload.userId };
+  }
+
   // async validateSessionFromRefreshToken(
   //   payload: RefreshJWTPayload,
   // ): Promise<DeviceAuthSessionContextDto | null> {

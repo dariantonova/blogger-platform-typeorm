@@ -1,5 +1,6 @@
 import {
   Controller,
+  Get,
   Headers,
   HttpCode,
   HttpStatus,
@@ -8,7 +9,7 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ExtractUserFromRequest } from '../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { Response } from 'express';
@@ -17,6 +18,9 @@ import { AuthTokensDto } from '../../user-accounts/dto/auth-tokens.dto';
 import { LocalAuthGuardSql } from '../guards/local/local-auth.guard.sql';
 import { UserContextDtoSql } from '../guards/dto/user-context.dto.sql';
 import { LoginUserCommandSql } from '../application/usecases/login-user.usecase.sql';
+import { MeViewDtoSql } from './view-dto/users.view-dto.sql';
+import { JwtAccessAuthGuardSql } from '../guards/bearer/jwt-access-auth.guard.sql';
+import { MeQuerySql } from '../application/queries/me.query.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -56,13 +60,15 @@ export class AuthControllerSql {
     return { accessToken: result.accessToken };
   }
 
-  // @Get('me')
-  // @UseGuards(JwtAccessAuthGuard)
-  // @SkipThrottle()
-  // async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
-  //   return this.queryBus.execute(new MeQuery(user.id));
-  // }
-  //
+  @Get('me')
+  @UseGuards(JwtAccessAuthGuardSql)
+  @SkipThrottle()
+  async me(
+    @ExtractUserFromRequest() user: UserContextDtoSql,
+  ): Promise<MeViewDtoSql> {
+    return this.queryBus.execute(new MeQuerySql(user.id));
+  }
+
   // @Post('registration')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async register(@Body() body: CreateUserInputDto): Promise<void> {

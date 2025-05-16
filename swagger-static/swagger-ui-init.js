@@ -382,6 +382,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/me": {
+        "get": {
+          "operationId": "AuthControllerSql_me",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

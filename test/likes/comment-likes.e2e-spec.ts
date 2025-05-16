@@ -41,7 +41,7 @@ describe('comment likes', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '2s',
+              expiresIn: '3s',
             },
           });
         },
@@ -151,7 +151,7 @@ describe('comment likes', () => {
         userData.password,
       );
 
-      await delay(2000);
+      await delay(3000);
 
       await commentLikesTestManager.makeCommentLikeOperation(
         comment.id,

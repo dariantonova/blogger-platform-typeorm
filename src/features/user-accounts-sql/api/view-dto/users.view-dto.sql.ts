@@ -1,4 +1,3 @@
-import { UserDocument } from '../../../user-accounts/domain/user.entity';
 import { OmitType } from '@nestjs/swagger';
 import { UserDtoSql } from '../../dto/user.dto.sql';
 
@@ -26,12 +25,12 @@ export class MeViewDtoSql extends OmitType(UserViewDtoSql, [
 ] as const) {
   userId: string;
 
-  static mapToView(user: UserDocument): MeViewDtoSql {
+  static mapToView(user: UserDtoSql): MeViewDtoSql {
     const dto = new MeViewDtoSql();
 
     dto.login = user.login;
     dto.email = user.email;
-    dto.userId = user._id.toString();
+    dto.userId = user.id.toString();
 
     return dto;
   }

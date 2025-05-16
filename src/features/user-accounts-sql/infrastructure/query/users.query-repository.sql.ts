@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -8,10 +8,14 @@ import { camelCaseToSnakeCase } from '../../utils/camel-case-to-snake-case';
 import { UserDtoSql } from '../../dto/user.dto.sql';
 import { UsersSortBy } from '../../../user-accounts/api/input-dto/users-sort-by';
 import { mapUserRowToDto } from '../mappers/user.mapper';
+import { UsersRepositorySql } from '../users.repository.sql';
 
 @Injectable()
 export class UsersQueryRepositorySql {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private usersRepository: UsersRepositorySql,
+  ) {}
 
   async findUsers(
     queryParams: GetUsersQueryParams,
@@ -84,24 +88,11 @@ export class UsersQueryRepositorySql {
     });
   }
 
-  async findById(id: number): Promise<UserDtoSql | null> {
-    const findQuery = `
-    SELECT
-    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
-    FROM users u
-    WHERE u.id = $1
-    AND u.deleted_at IS NULL
-    `;
-    const findResult = await this.dataSource.query(findQuery, [id]);
-
-    return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
-  }
-
   async findByIdOrInternalFail(id: number): Promise<UserViewDtoSql> {
-    const user = await this.findById(id);
+    const user = await this.usersRepository.findById(id);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new InternalServerErrorException('User not found');
     }
 
     return UserViewDtoSql.mapToView(user);

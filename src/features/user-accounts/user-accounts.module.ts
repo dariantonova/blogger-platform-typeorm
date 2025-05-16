@@ -58,6 +58,9 @@ import { LocalStrategySql } from '../user-accounts-sql/guards/local/local.strate
 import { AuthServiceSql } from '../user-accounts-sql/application/auth.service.sql';
 import { LoginUserUseCaseSql } from '../user-accounts-sql/application/usecases/login-user.usecase.sql';
 import { AuthControllerSql } from '../user-accounts-sql/api/auth.controller.sql';
+import { JwtAccessStrategySql } from '../user-accounts-sql/guards/bearer/jwt-access.strategy.sql';
+import { AuthQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/auth.query-repository.sql';
+import { MeQueryHandlerSql } from '../user-accounts-sql/application/queries/me.query.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -89,6 +92,7 @@ const commandHandlersSql = [
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,
   GetUserByIdOrInternalFailQueryHandlerSql,
+  MeQueryHandlerSql,
 ];
 const providersSql = [
   UsersQueryRepositorySql,
@@ -96,6 +100,8 @@ const providersSql = [
   DeviceAuthSessionsRepositorySql,
   LocalStrategySql,
   AuthServiceSql,
+  JwtAccessStrategySql,
+  AuthQueryRepositorySql,
 ];
 const controllersSql = [UsersControllerSql, AuthControllerSql];
 

@@ -9,9 +9,8 @@ export class DeviceAuthSessionsRepositorySql {
 
   async hardDeleteByUserId(userId: number): Promise<void> {
     const deleteQuery = `
-    DELETE FROM device_auth_sessions d
-    WHERE d.user_id = $1
-    AND d.deleted_at IS NULL
+    DELETE FROM device_auth_sessions
+    WHERE user_id = $1
     `;
     await this.dataSource.query(deleteQuery, [userId]);
   }

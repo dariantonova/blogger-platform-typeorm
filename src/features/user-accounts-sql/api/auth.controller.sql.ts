@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   Headers,
@@ -21,6 +22,8 @@ import { LoginUserCommandSql } from '../application/usecases/login-user.usecase.
 import { MeViewDtoSql } from './view-dto/users.view-dto.sql';
 import { JwtAccessAuthGuardSql } from '../guards/bearer/jwt-access-auth.guard.sql';
 import { MeQuerySql } from '../application/queries/me.query.sql';
+import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-user.input-dto';
+import { RegisterUserCommandSql } from '../application/usecases/register-user.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -69,12 +72,12 @@ export class AuthControllerSql {
     return this.queryBus.execute(new MeQuerySql(user.id));
   }
 
-  // @Post('registration')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async register(@Body() body: CreateUserInputDto): Promise<void> {
-  //   await this.commandBus.execute(new RegisterUserCommand(body));
-  // }
-  //
+  @Post('registration')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async register(@Body() body: CreateUserInputDto): Promise<void> {
+    await this.commandBus.execute(new RegisterUserCommandSql(body));
+  }
+
   // @Post('registration-email-resending')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async resendRegistrationEmail(

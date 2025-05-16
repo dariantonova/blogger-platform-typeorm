@@ -396,6 +396,30 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/registration": {
+        "post": {
+          "operationId": "AuthControllerSql_register",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

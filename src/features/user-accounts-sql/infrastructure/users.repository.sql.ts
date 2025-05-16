@@ -131,4 +131,21 @@ export class UsersRepositorySql {
 
     return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
   }
+
+  async updateUserConfirmationCode(
+    userId: number,
+    confirmationCode: string,
+    expirationDate: Date,
+  ): Promise<void> {
+    const updateQuery = `
+    UPDATE user_confirmations
+    SET confirmation_code = $1, expiration_date = $2
+    WHERE user_id = $3
+    `;
+    await this.dataSource.query(updateQuery, [
+      confirmationCode,
+      expirationDate,
+      userId,
+    ]);
+  }
 }

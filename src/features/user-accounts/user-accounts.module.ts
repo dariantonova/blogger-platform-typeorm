@@ -61,6 +61,8 @@ import { AuthControllerSql } from '../user-accounts-sql/api/auth.controller.sql'
 import { JwtAccessStrategySql } from '../user-accounts-sql/guards/bearer/jwt-access.strategy.sql';
 import { AuthQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/auth.query-repository.sql';
 import { MeQueryHandlerSql } from '../user-accounts-sql/application/queries/me.query.sql';
+import { RegisterUserUseCaseSql } from '../user-accounts-sql/application/usecases/register-user.usecase.sql';
+import { UsersServiceSql } from '../user-accounts-sql/application/users.service.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -88,6 +90,7 @@ const commandHandlersSql = [
   CreateUserUseCaseSql,
   DeleteUserUseCaseSql,
   LoginUserUseCaseSql,
+  RegisterUserUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,
@@ -102,6 +105,7 @@ const providersSql = [
   AuthServiceSql,
   JwtAccessStrategySql,
   AuthQueryRepositorySql,
+  UsersServiceSql,
 ];
 const controllersSql = [UsersControllerSql, AuthControllerSql];
 

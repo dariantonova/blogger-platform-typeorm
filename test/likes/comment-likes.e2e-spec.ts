@@ -23,6 +23,7 @@ import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/inpu
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -32,6 +33,7 @@ describe('comment likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -41,7 +43,7 @@ describe('comment likes', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '3s',
+              expiresIn: millisecondsToSeconds(accessTokenExpInMs) + 's',
             },
           });
         },
@@ -151,7 +153,7 @@ describe('comment likes', () => {
         userData.password,
       );
 
-      await delay(3000);
+      await delay(accessTokenExpInMs);
 
       await commentLikesTestManager.makeCommentLikeOperation(
         comment.id,

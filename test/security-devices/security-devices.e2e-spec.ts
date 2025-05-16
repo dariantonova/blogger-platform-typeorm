@@ -19,6 +19,7 @@ import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/dev
 import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('security devices', () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe('security devices', () => {
   let securityDevicesTestManager: SecurityDevicesTestManager;
   let jwtTestManager: JwtTestManager;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
+  const refreshTokenExpInMs = 2000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -37,7 +39,7 @@ describe('security devices', () => {
           return new JwtService({
             secret: coreConfig.refreshJwtSecret,
             signOptions: {
-              expiresIn: '2s',
+              expiresIn: millisecondsToSeconds(refreshTokenExpInMs) + 's',
             },
           });
         },
@@ -100,7 +102,7 @@ describe('security devices', () => {
           usersLoginInput[0],
         );
 
-        await delay(2000);
+        await delay(refreshTokenExpInMs);
 
         await securityDevicesTestManager.getUserDeviceSessions(
           refreshToken,
@@ -249,7 +251,7 @@ describe('security devices', () => {
           usersLoginInput[0],
         );
 
-        await delay(2000);
+        await delay(refreshTokenExpInMs);
 
         deviceIdToTerminateRefreshToken =
           await authTestManager.getNewRefreshToken(usersLoginInput[0]);
@@ -399,7 +401,7 @@ describe('security devices', () => {
           usersLoginInput[0],
         );
 
-        await delay(2000);
+        await delay(refreshTokenExpInMs);
 
         const otherRefreshTokens =
           await authTestManager.getNewRefreshTokensOfUser(

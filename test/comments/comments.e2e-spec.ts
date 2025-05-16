@@ -20,6 +20,7 @@ import { JwtService } from '@nestjs/jwt';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('comments', () => {
   let app: INestApplication;
@@ -28,6 +29,7 @@ describe('comments', () => {
   let postsCommonTestManager: PostsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  const accessTokenExpInMs = 2000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -37,7 +39,7 @@ describe('comments', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '2s',
+              expiresIn: millisecondsToSeconds(accessTokenExpInMs) + 's',
             },
           });
         },
@@ -293,7 +295,7 @@ describe('comments', () => {
           userData.password,
         );
 
-        await delay(2000);
+        await delay(accessTokenExpInMs);
 
         await commentsTestManager.deleteComment(
           comment.id,
@@ -631,7 +633,7 @@ describe('comments', () => {
           userData.password,
         );
 
-        await delay(2000);
+        await delay(accessTokenExpInMs);
 
         await commentsTestManager.updateComment(
           comment.id,

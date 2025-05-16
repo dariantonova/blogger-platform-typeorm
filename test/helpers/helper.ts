@@ -148,3 +148,9 @@ export const getPageOfArray = <T>(
 };
 
 export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+export const ENSURE_TOKEN_ROTATION_DELAY_MS = 1000;
+
+export async function waitForTokenRotation() {
+  await delay(ENSURE_TOKEN_ROTATION_DELAY_MS);
+}

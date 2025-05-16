@@ -1,5 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { AUTH_PATH, delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  AUTH_PATH,
+  delay,
+  deleteAllData,
+  initApp,
+  waitForTokenRotation,
+} from '../helpers/helper';
 import { AuthTestManager } from './helpers/auth.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
@@ -30,6 +36,7 @@ import {
 import request from 'supertest';
 import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -39,6 +46,9 @@ describe('auth', () => {
   let UserModel: UserModelType;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
+  const accessTokenExpInMs = 2000;
+  const refreshTokenExpInMs = 2000;
+  const emailConfirmationCodeExpInMs = 2000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -50,7 +60,7 @@ describe('auth', () => {
             return new JwtService({
               secret: coreConfig.accessJwtSecret,
               signOptions: {
-                expiresIn: '2s',
+                expiresIn: millisecondsToSeconds(accessTokenExpInMs) + 's',
               },
             });
           },
@@ -62,7 +72,7 @@ describe('auth', () => {
             return new JwtService({
               secret: coreConfig.refreshJwtSecret,
               signOptions: {
-                expiresIn: '2s',
+                expiresIn: millisecondsToSeconds(refreshTokenExpInMs) + 's',
               },
             });
           },
@@ -73,7 +83,9 @@ describe('auth', () => {
           factory: (configService: ConfigService) => {
             return {
               ...new UserAccountsConfig(configService),
-              emailConfirmationCodeLifetimeInSeconds: 2,
+              emailConfirmationCodeLifetimeInSeconds: millisecondsToSeconds(
+                emailConfirmationCodeExpInMs,
+              ),
             };
           },
         });
@@ -399,7 +411,7 @@ describe('auth', () => {
           userData.password,
         );
 
-        await delay(2000);
+        await delay(accessTokenExpInMs);
 
         await authTestManager.me(
           'Bearer ' + accessToken,
@@ -897,7 +909,7 @@ describe('auth', () => {
           code: confirmationCode,
         };
 
-        await delay(2000);
+        await delay(emailConfirmationCodeExpInMs);
 
         const response = await authTestManager.confirmRegistration(
           inputDto,
@@ -1534,7 +1546,7 @@ describe('auth', () => {
           usersLoginInput[0],
         );
 
-        await delay(2000);
+        await delay(refreshTokenExpInMs);
 
         await authTestManager.refreshToken(
           refreshToken,
@@ -1570,7 +1582,7 @@ describe('auth', () => {
           usersLoginInput[1],
         );
 
-        await delay(1000);
+        await waitForTokenRotation();
 
         await authTestManager.refreshToken(refreshToken, HttpStatus.OK);
 
@@ -1588,7 +1600,7 @@ describe('auth', () => {
           );
         const deviceSessionBeforeRefresh = deviceSessionsBeforeRefresh[0];
 
-        await delay(1000);
+        await waitForTokenRotation();
 
         const refreshResponse = await authTestManager.refreshToken(
           refreshToken,
@@ -1646,7 +1658,7 @@ describe('auth', () => {
           usersLoginInput[0],
         );
 
-        await delay(2000);
+        await delay(refreshTokenExpInMs);
 
         await authTestManager.logout(refreshToken, HttpStatus.UNAUTHORIZED);
       });

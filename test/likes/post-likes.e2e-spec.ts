@@ -25,6 +25,7 @@ import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-s
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { LikeDetailsViewDto } from '../../src/features/blogger-platform/common/dto/like-details.view-dto';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -33,6 +34,7 @@ describe('post likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  const accessTokenExpInMs = 4000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -42,7 +44,7 @@ describe('post likes', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '4s',
+              expiresIn: millisecondsToSeconds(accessTokenExpInMs) + 's',
             },
           });
         },
@@ -132,7 +134,7 @@ describe('post likes', () => {
         userData.password,
       );
 
-      await delay(4000);
+      await delay(accessTokenExpInMs);
 
       await postLikesTestManager.makePostLikeOperation(
         post.id,

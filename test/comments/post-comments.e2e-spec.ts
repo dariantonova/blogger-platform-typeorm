@@ -31,6 +31,7 @@ import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
+import { millisecondsToSeconds } from 'date-fns';
 
 describe('post comments', () => {
   let app: INestApplication;
@@ -39,6 +40,7 @@ describe('post comments', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  const accessTokenExpInMs = 2000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -48,7 +50,7 @@ describe('post comments', () => {
           return new JwtService({
             secret: coreConfig.accessJwtSecret,
             signOptions: {
-              expiresIn: '2s',
+              expiresIn: millisecondsToSeconds(accessTokenExpInMs) + 's',
             },
           });
         },
@@ -685,7 +687,7 @@ describe('post comments', () => {
           userData.password,
         );
 
-        await delay(2000);
+        await delay(accessTokenExpInMs);
 
         await commentsTestManager.createPostComment(
           post.id,

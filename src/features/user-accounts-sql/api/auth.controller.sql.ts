@@ -24,6 +24,8 @@ import { JwtAccessAuthGuardSql } from '../guards/bearer/jwt-access-auth.guard.sq
 import { MeQuerySql } from '../application/queries/me.query.sql';
 import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-user.input-dto';
 import { RegisterUserCommandSql } from '../application/usecases/register-user.usecase.sql';
+import { RegistrationEmailResendingInputDto } from '../../user-accounts/api/input-dto/registration-email-resending.input-dto';
+import { ResendRegistrationEmailCommandSql } from '../application/usecases/resend-registration-email.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -78,16 +80,16 @@ export class AuthControllerSql {
     await this.commandBus.execute(new RegisterUserCommandSql(body));
   }
 
-  // @Post('registration-email-resending')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async resendRegistrationEmail(
-  //   @Body() body: RegistrationEmailResendingInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new ResendRegistrationEmailCommand(body.email),
-  //   );
-  // }
-  //
+  @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async resendRegistrationEmail(
+    @Body() body: RegistrationEmailResendingInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new ResendRegistrationEmailCommandSql(body.email),
+    );
+  }
+
   // @Post('registration-confirmation')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async confirmRegistration(

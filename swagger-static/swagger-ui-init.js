@@ -420,6 +420,30 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/registration-email-resending": {
+        "post": {
+          "operationId": "AuthControllerSql_resendRegistrationEmail",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationEmailResendingInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

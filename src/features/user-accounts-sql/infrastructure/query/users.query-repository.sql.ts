@@ -69,12 +69,12 @@ export class UsersQueryRepositorySql {
 
     const countSql = `
     SELECT
-    COUNT(*) as count
+    COUNT(*)::int as count
     FROM users u
     ${whereClause}
     `;
     const countResult = await this.dataSource.query(countSql, searchParams);
-    const totalCount = +countResult[0].count;
+    const totalCount = countResult[0].count;
 
     const users: UserDtoSql[] = findResult.map(mapUserRowToDto);
 

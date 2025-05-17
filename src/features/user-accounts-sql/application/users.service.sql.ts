@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UserAccountsConfig } from '../../user-accounts/user-accounts.config';
-import { UserDocument } from '../../user-accounts/domain/user.entity';
 import { randomUUID } from 'node:crypto';
 import { UsersRepositorySql } from '../infrastructure/users.repository.sql';
 import { add } from 'date-fns';

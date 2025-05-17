@@ -7,6 +7,8 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { UserWithConfirmationDtoSql } from '../dto/user-with-confirmation.dto.sql';
+import { mapUserWithConfirmationRowToDto } from './mappers/user-with-confirmation.mapper';
 
 export class UsersRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -66,6 +68,26 @@ export class UsersRepositorySql {
     const findResult = await this.dataSource.query(findQuery, [email]);
 
     return findResult[0] ? mapUserRowToDto(findResult[0]) : null;
+  }
+
+  async findUserWithConfirmationByEmail(
+    email: string,
+  ): Promise<UserWithConfirmationDtoSql | null> {
+    const findQuery = `
+    SELECT
+    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at,
+    uc.confirmation_code, uc.expiration_date, uc.is_confirmed
+    FROM users u
+    LEFT JOIN user_confirmations uc
+    ON u.id = uc.user_id
+    WHERE u.email = $1
+    AND u.deleted_at IS NULL
+    `;
+    const findResult = await this.dataSource.query(findQuery, [email]);
+
+    return findResult[0]
+      ? mapUserWithConfirmationRowToDto(findResult[0])
+      : null;
   }
 
   async findById(id: number): Promise<UserDtoSql | null> {

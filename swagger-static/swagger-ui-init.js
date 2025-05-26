@@ -556,6 +556,18 @@ window.onload = function() {
           "tags": [
             "SecurityDevicesControllerSql"
           ]
+        },
+        "delete": {
+          "operationId": "SecurityDevicesControllerSql_terminateAllOtherUserDeviceSessions",
+          "parameters": [],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "SecurityDevicesControllerSql"
+          ]
         }
       },
       "/api/sql/security/devices/{deviceId}": {

@@ -74,6 +74,7 @@ import { SecurityDevicesControllerSql } from '../user-accounts-sql/api/security-
 import { DeviceAuthSessionsQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/device-auth-sessions.query-repository.sql';
 import { GetUserDeviceSessionsQueryHandlerSql } from '../user-accounts-sql/application/queries/get-user-device-sessions.query.sql';
 import { TerminateDeviceSessionUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-device-session.usecase.sql';
+import { TerminateAllOtherUserDeviceSessionsUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -109,6 +110,7 @@ const commandHandlersSql = [
   RefreshTokenUseCaseSql,
   LogoutUserUseCaseSql,
   TerminateDeviceSessionUseCaseSql,
+  TerminateAllOtherUserDeviceSessionsUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,

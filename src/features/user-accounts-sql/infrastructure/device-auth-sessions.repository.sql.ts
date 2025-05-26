@@ -100,4 +100,16 @@ export class DeviceAuthSessionsRepositorySql {
 
     return session;
   }
+
+  async hardDeleteUserDeviceAuthSessionsExceptCurrent(
+    userId: number,
+    currentDeviceId: string,
+  ): Promise<void> {
+    const deleteQuery = `
+    DELETE FROM device_auth_sessions
+    WHERE user_id = $1
+    AND device_id != $2;
+    `;
+    await this.dataSource.query(deleteQuery, [userId, currentDeviceId]);
+  }
 }

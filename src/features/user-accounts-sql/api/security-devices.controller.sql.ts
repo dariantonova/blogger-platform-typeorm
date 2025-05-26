@@ -14,6 +14,7 @@ import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-sessio
 import { DeviceViewDtoSql } from './view-dto/device.view-dto.sql';
 import { GetUserDeviceSessionsQuerySql } from '../application/queries/get-user-device-sessions.query.sql';
 import { TerminateDeviceSessionCommandSql } from '../application/usecases/terminate-device-session.usecase.sql';
+import { TerminateAllOtherUserDeviceSessionsCommandSql } from '../application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
 
 @Controller('sql/security/devices')
 export class SecurityDevicesControllerSql {
@@ -47,17 +48,17 @@ export class SecurityDevicesControllerSql {
     );
   }
 
-  // @Delete()
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtRefreshAuthGuard)
-  // async terminateAllOtherUserDeviceSessions(
-  //   @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new TerminateAllOtherUserDeviceSessionsCommand({
-  //       userId: user.userId,
-  //       currentDeviceId: user.deviceId,
-  //     }),
-  //   );
-  // }
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuardSql)
+  async terminateAllOtherUserDeviceSessions(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new TerminateAllOtherUserDeviceSessionsCommandSql({
+        userId: user.userId,
+        currentDeviceId: user.deviceId,
+      }),
+    );
+  }
 }

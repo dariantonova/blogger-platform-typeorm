@@ -23,7 +23,7 @@ import { getModelToken } from '@nestjs/mongoose';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { CreatePostCommentInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
-import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/user.view-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepositorySql } from '../users.repository.sql';
-import { MeViewDtoSql } from '../../api/view-dto/users.view-dto.sql';
+import { MeViewDtoSql } from '../../api/view-dto/user.view-dto.sql';
 
 @Injectable()
 export class AuthQueryRepositorySql {

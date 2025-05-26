@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
-import { UserViewDtoSql } from '../../api/view-dto/users.view-dto.sql';
+import { UserViewDtoSql } from '../../api/view-dto/user.view-dto.sql';
 import { GetUsersQueryParams } from '../../../user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { camelCaseToSnakeCase } from '../../utils/camel-case-to-snake-case';
 import { UserDtoSql } from '../../dto/user.dto.sql';

@@ -1,5 +1,5 @@
 import { UsersRepository } from '../users.repository';
-import { MeViewDto } from '../../api/view-dto/users.view-dto';
+import { MeViewDto } from '../../api/view-dto/user.view-dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 @Injectable()

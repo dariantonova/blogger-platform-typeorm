@@ -3,7 +3,7 @@ import { Test } from '@nestjs/testing';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetUsersQueryParams } from '../api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
-import { UserViewDto } from '../api/view-dto/users.view-dto';
+import { UserViewDto } from '../api/view-dto/user.view-dto';
 import { GetUsersQuery } from '../application/queries/get-users.query';
 
 describe('UsersController', () => {

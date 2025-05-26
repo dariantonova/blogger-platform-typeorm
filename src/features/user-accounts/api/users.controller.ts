@@ -12,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../core/dto/base.paginated.view-dto';
-import { UserViewDto } from './view-dto/users.view-dto';
+import { UserViewDto } from './view-dto/user.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { ObjectIdValidationPipe } from '../../../core/pipes/object-id-validation-pipe';
 import { BasicAuthGuard } from '../guards/basic/basic-auth.guard';

@@ -11,7 +11,7 @@ import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-acco
 import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
-import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/user.view-dto';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';

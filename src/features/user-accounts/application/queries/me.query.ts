@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { MeViewDto } from '../../api/view-dto/users.view-dto';
+import { MeViewDto } from '../../api/view-dto/user.view-dto';
 import { AuthQueryRepository } from '../../infrastructure/query/auth.query-repository';
 
 export class MeQuery {

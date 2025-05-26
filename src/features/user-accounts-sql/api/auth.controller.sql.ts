@@ -19,7 +19,7 @@ import { AuthTokensDto } from '../../user-accounts/dto/auth-tokens.dto';
 import { LocalAuthGuardSql } from '../guards/local/local-auth.guard.sql';
 import { UserContextDtoSql } from '../guards/dto/user-context.dto.sql';
 import { LoginUserCommandSql } from '../application/usecases/login-user.usecase.sql';
-import { MeViewDtoSql } from './view-dto/users.view-dto.sql';
+import { MeViewDtoSql } from './view-dto/user.view-dto.sql';
 import { JwtAccessAuthGuardSql } from '../guards/bearer/jwt-access-auth.guard.sql';
 import { MeQuerySql } from '../application/queries/me.query.sql';
 import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-user.input-dto';

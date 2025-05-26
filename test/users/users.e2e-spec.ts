@@ -14,7 +14,7 @@ import {
   UsersTestManager,
 } from './helpers/users.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
-import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/user.view-dto';
 import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersSortBy } from '../../src/features/user-accounts/api/input-dto/users-sort-by';

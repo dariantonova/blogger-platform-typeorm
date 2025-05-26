@@ -544,6 +544,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/security/devices": {
+        "get": {
+          "operationId": "SecurityDevicesControllerSql_getUserDeviceSessions",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "SecurityDevicesControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

@@ -7,7 +7,7 @@ import {
   USERS_PATH,
   VALID_BASIC_AUTH_VALUE,
 } from '../../helpers/helper';
-import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/users.view-dto';
+import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/user.view-dto';
 import {
   UserDocument,
   UserModelType,

@@ -14,7 +14,7 @@ import { LocalAuthGuard } from '../guards/local/local-auth.guard';
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request';
 import { JwtAccessAuthGuard } from '../guards/bearer/jwt-access-auth.guard';
-import { MeViewDto } from './view-dto/users.view-dto';
+import { MeViewDto } from './view-dto/user.view-dto';
 import { CreateUserInputDto } from './input-dto/create-user.input-dto';
 import { RegistrationEmailResendingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';

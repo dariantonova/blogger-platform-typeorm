@@ -70,6 +70,9 @@ import { SetNewPasswordUseCaseSql } from '../user-accounts-sql/application/useca
 import { RefreshTokenUseCaseSql } from '../user-accounts-sql/application/usecases/refresh-token.usecase.sql';
 import { JwtRefreshStrategySql } from '../user-accounts-sql/guards/refresh-token/jwt-refresh.strategy.sql';
 import { LogoutUserUseCaseSql } from '../user-accounts-sql/application/usecases/logout-user.usecase.sql';
+import { SecurityDevicesControllerSql } from '../user-accounts-sql/api/security-devices.controller.sql';
+import { DeviceAuthSessionsQueryRepositorySql } from '../user-accounts-sql/infrastructure/query/device-auth-sessions.query-repository.sql';
+import { GetUserDeviceSessionsQueryHandlerSql } from '../user-accounts-sql/application/queries/get-user-device-sessions.query.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -109,6 +112,7 @@ const queryHandlersSql = [
   GetUsersQueryHandlerSql,
   GetUserByIdOrInternalFailQueryHandlerSql,
   MeQueryHandlerSql,
+  GetUserDeviceSessionsQueryHandlerSql,
 ];
 const providersSql = [
   UsersQueryRepositorySql,
@@ -120,8 +124,13 @@ const providersSql = [
   AuthQueryRepositorySql,
   UsersServiceSql,
   JwtRefreshStrategySql,
+  DeviceAuthSessionsQueryRepositorySql,
 ];
-const controllersSql = [UsersControllerSql, AuthControllerSql];
+const controllersSql = [
+  UsersControllerSql,
+  AuthControllerSql,
+  SecurityDevicesControllerSql,
+];
 
 @Module({
   imports: [

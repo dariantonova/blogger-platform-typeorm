@@ -13,7 +13,7 @@ import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/lo
 import {
   MeViewDto,
   UserViewDto,
-} from '../../src/features/user-accounts/api/view-dto/users.view-dto';
+} from '../../src/features/user-accounts/api/view-dto/user.view-dto';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../src/features/notifications/email.service';

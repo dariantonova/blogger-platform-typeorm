@@ -444,6 +444,30 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/registration-confirmation": {
+        "post": {
+          "operationId": "AuthControllerSql_confirmRegistration",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegistrationConfirmationCodeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

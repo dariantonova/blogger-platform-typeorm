@@ -1,20 +1,20 @@
-import { UserWithConfirmationDtoSql } from '../../dto/user-with-confirmation.dto.sql';
+import { UserWithConfirmationStrictDtoSql } from '../../dto/user-with-confirmation-strict-dto.sql';
 
-export class UserWithConfirmationRow {
+export class UserWithConfirmationRowStrict {
   id: number;
   login: string;
   email: string;
   password_hash: string;
   created_at: Date;
   updated_at: Date;
-  confirmation_code: string | null;
-  expiration_date: Date | null;
+  confirmation_code: string;
+  expiration_date: Date;
   is_confirmed: boolean;
 }
 
-export const mapUserWithConfirmationRowToDto = (
-  row: UserWithConfirmationRow,
-): UserWithConfirmationDtoSql => {
+export const mapUserWithConfirmationRowToDtoStrict = (
+  row: UserWithConfirmationRowStrict,
+): UserWithConfirmationStrictDtoSql => {
   return {
     id: row.id,
     login: row.login,

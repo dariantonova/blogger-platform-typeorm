@@ -26,6 +26,8 @@ import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-use
 import { RegisterUserCommandSql } from '../application/usecases/register-user.usecase.sql';
 import { RegistrationEmailResendingInputDto } from '../../user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { ResendRegistrationEmailCommandSql } from '../application/usecases/resend-registration-email.usecase.sql';
+import { RegistrationConfirmationCodeInputDto } from '../../user-accounts/api/input-dto/registration-confirmation-code.input-dto';
+import { ConfirmRegistrationCommandSql } from '../application/usecases/confirm-registration.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -90,14 +92,14 @@ export class AuthControllerSql {
     );
   }
 
-  // @Post('registration-confirmation')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async confirmRegistration(
-  //   @Body() body: RegistrationConfirmationCodeInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new ConfirmRegistrationCommand(body.code));
-  // }
-  //
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async confirmRegistration(
+    @Body() body: RegistrationConfirmationCodeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(new ConfirmRegistrationCommandSql(body.code));
+  }
+
   // @Post('password-recovery')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async recoverPassword(@Body() body: PasswordRecoveryInputDto): Promise<void> {

@@ -64,6 +64,7 @@ import { MeQueryHandlerSql } from '../user-accounts-sql/application/queries/me.q
 import { RegisterUserUseCaseSql } from '../user-accounts-sql/application/usecases/register-user.usecase.sql';
 import { UsersServiceSql } from '../user-accounts-sql/application/users.service.sql';
 import { ResendRegistrationEmailUseCaseSql } from '../user-accounts-sql/application/usecases/resend-registration-email.usecase.sql';
+import { ConfirmRegistrationUseCaseSql } from '../user-accounts-sql/application/usecases/confirm-registration.usecase.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -93,6 +94,7 @@ const commandHandlersSql = [
   LoginUserUseCaseSql,
   RegisterUserUseCaseSql,
   ResendRegistrationEmailUseCaseSql,
+  ConfirmRegistrationUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,

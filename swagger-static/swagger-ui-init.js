@@ -558,6 +558,29 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/security/devices/{deviceId}": {
+        "delete": {
+          "operationId": "SecurityDevicesControllerSql_terminateDeviceSession",
+          "parameters": [
+            {
+              "name": "deviceId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "SecurityDevicesControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

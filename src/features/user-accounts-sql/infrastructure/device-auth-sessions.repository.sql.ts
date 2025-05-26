@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateDeviceAuthSessionRepoDto } from './dto/create-device-auth-session.repo-dto';
@@ -73,5 +73,31 @@ export class DeviceAuthSessionsRepositorySql {
     WHERE device_id = $1;
     `;
     await this.dataSource.query(deleteQuery, [deviceId]);
+  }
+
+  async findByDeviceId(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDtoSql | null> {
+    const findQuery = `
+    SELECT
+    d.id, d.device_id, d.user_id, d.exp, d.iat, d.device_name, d.ip
+    FROM device_auth_sessions d
+    WHERE d.device_id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [deviceId]);
+
+    return findResult[0] ? mapDeviceAuthSessionRowToDto(findResult[0]) : null;
+  }
+
+  async findByDeviceIdOrNotFoundFail(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDtoSql> {
+    const session = await this.findByDeviceId(deviceId);
+
+    if (!session) {
+      throw new NotFoundException('Device auth session not found');
+    }
+
+    return session;
   }
 }

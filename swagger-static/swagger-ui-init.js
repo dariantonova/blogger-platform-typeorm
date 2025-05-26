@@ -516,6 +516,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/refresh-token": {
+        "post": {
+          "operationId": "AuthControllerSql_refreshToken",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

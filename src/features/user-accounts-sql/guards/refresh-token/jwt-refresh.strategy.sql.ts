@@ -3,17 +3,17 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { CoreConfig } from '../../../../core/core.config';
 import { Request } from 'express';
-import { RefreshJWTPayload } from '../../dto/refresh-jwt-payload';
-import { DeviceAuthSessionContextDto } from '../dto/device-auth-session-context.dto';
-import { AuthService } from '../../application/auth.service';
+import { AuthServiceSql } from '../../application/auth.service.sql';
+import { RefreshJWTPayloadSql } from '../../dto/refresh-jwt-payload.sql';
+import { DeviceAuthSessionContextDtoSql } from '../dto/device-auth-session-context.dto.sql';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(
+export class JwtRefreshStrategySql extends PassportStrategy(
   Strategy,
-  'jwt-refresh-token',
+  'jwt-refresh-token-sql',
 ) {
   constructor(
-    private authService: AuthService,
+    private authService: AuthServiceSql,
     coreConfig: CoreConfig,
   ) {
     super({
@@ -26,8 +26,8 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(
-    payload: RefreshJWTPayload,
-  ): Promise<DeviceAuthSessionContextDto> {
+    payload: RefreshJWTPayloadSql,
+  ): Promise<DeviceAuthSessionContextDtoSql> {
     const session =
       await this.authService.validateSessionFromRefreshToken(payload);
     if (!session) {

@@ -1513,7 +1513,7 @@ describe('auth', () => {
     });
   });
 
-  describe('refresh token', () => {
+  describe('refresh-token token', () => {
     beforeAll(async () => {
       await deleteAllData(app);
     });
@@ -1529,19 +1529,19 @@ describe('auth', () => {
       });
 
       // missing
-      it('should return 401 if refresh token cookie is missing', async () => {
+      it('should return 401 if refresh-token token cookie is missing', async () => {
         await request(app.getHttpServer())
           .post(AUTH_PATH + '/refresh-token')
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       // non-existing token
-      it('should return 401 if refresh token is invalid', async () => {
+      it('should return 401 if refresh-token token is invalid', async () => {
         await authTestManager.refreshToken('random', HttpStatus.UNAUTHORIZED);
       });
 
       // expired token
-      it('should return 401 if refresh token is expired', async () => {
+      it('should return 401 if refresh-token token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -1565,7 +1565,7 @@ describe('auth', () => {
           await usersCommonTestManager.getLoginInputOfGeneratedUsers(3);
       });
 
-      it('should return valid auth tokens after successful token refresh', async () => {
+      it('should return valid auth tokens after successful token refresh-token', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -1577,7 +1577,7 @@ describe('auth', () => {
         await authTestManager.validateAuthTokensResponse(response);
       });
 
-      it('refresh token cannot be reused after successful token refresh', async () => {
+      it('refresh-token token cannot be reused after successful token refresh-token', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[1],
         );
@@ -1589,7 +1589,7 @@ describe('auth', () => {
         await authTestManager.assertRefreshTokenIsInvalid(refreshToken);
       });
 
-      it('should update device session after successful token refresh', async () => {
+      it('should update device session after successful token refresh-token', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[2],
         );
@@ -1641,19 +1641,19 @@ describe('auth', () => {
       });
 
       // missing
-      it('should return 401 if refresh token cookie is missing', async () => {
+      it('should return 401 if refresh-token token cookie is missing', async () => {
         await request(app.getHttpServer())
           .post(AUTH_PATH + '/logout')
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       // non-existing token
-      it('should return 401 if refresh token is invalid', async () => {
+      it('should return 401 if refresh-token token is invalid', async () => {
         await authTestManager.logout('random', HttpStatus.UNAUTHORIZED);
       });
 
       // expired token
-      it('should return 401 if refresh token is expired', async () => {
+      it('should return 401 if refresh-token token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -1674,7 +1674,7 @@ describe('auth', () => {
           await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
       });
 
-      it('should make refresh token unusable after successful logout', async () => {
+      it('should make refresh-token token unusable after successful logout', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );

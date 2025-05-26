@@ -32,6 +32,9 @@ import { PasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/pass
 import { RecoverPasswordCommandSql } from '../application/usecases/recover-password.usecase.sql';
 import { NewPasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/new-password-recovery.input-dto';
 import { SetNewPasswordCommandSql } from '../application/usecases/set-new-password.usecase.sql';
+import { JwtRefreshAuthGuardSql } from '../guards/refresh-token/jwt-refresh-auth.guard.sql';
+import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-session-context.dto.sql';
+import { RefreshTokenCommandSql } from '../application/usecases/refresh-token.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -120,36 +123,36 @@ export class AuthControllerSql {
     );
   }
 
-  // @Post('refresh-token')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(JwtRefreshAuthGuard)
-  // @SkipThrottle()
-  // async refreshToken(
-  //   @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
-  //   @Ip() ip: string | undefined,
-  //   @Res({ passthrough: true })
-  //     response: Response,
-  // ): Promise<LoginSuccessViewDto> {
-  //   const result = await this.commandBus.execute<
-  //     RefreshTokenCommand,
-  //     AuthTokensDto
-  //   >(
-  //     new RefreshTokenCommand({
-  //       userId: user.userId,
-  //       deviceId: user.deviceId,
-  //       ip: ip || 'unknown',
-  //     }),
-  //   );
-  //
-  //   this.setRefreshTokenCookie(
-  //     response,
-  //     result.refreshToken,
-  //     result.refreshTokenExpiresAt,
-  //   );
-  //
-  //   return { accessToken: result.accessToken };
-  // }
-  //
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshAuthGuardSql)
+  @SkipThrottle()
+  async refreshToken(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
+    @Ip() ip: string | undefined,
+    @Res({ passthrough: true })
+    response: Response,
+  ): Promise<LoginSuccessViewDto> {
+    const result = await this.commandBus.execute<
+      RefreshTokenCommandSql,
+      AuthTokensDto
+    >(
+      new RefreshTokenCommandSql({
+        userId: user.userId,
+        deviceId: user.deviceId,
+        ip: ip || 'unknown',
+      }),
+    );
+
+    this.setRefreshTokenCookie(
+      response,
+      result.refreshToken,
+      result.refreshTokenExpiresAt,
+    );
+
+    return { accessToken: result.accessToken };
+  }
+
   // @Post('logout')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtRefreshAuthGuard)

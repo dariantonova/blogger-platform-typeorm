@@ -4,6 +4,9 @@ import { UsersRepositorySql } from '../infrastructure/users.repository.sql';
 import { DeviceAuthSessionsRepositorySql } from '../infrastructure/device-auth-sessions.repository.sql';
 import { UserContextDtoSql } from '../guards/dto/user-context.dto.sql';
 import { AccessJwtPayloadSql } from '../dto/access-jwt-payload.sql';
+import { RefreshJWTPayloadSql } from '../dto/refresh-jwt-payload.sql';
+import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-session-context.dto.sql';
+import { unixToDate } from '../../../common/utils/date.util';
 
 @Injectable()
 export class AuthServiceSql {
@@ -44,18 +47,18 @@ export class AuthServiceSql {
     return { id: payload.userId };
   }
 
-  // async validateSessionFromRefreshToken(
-  //   payload: RefreshJWTPayload,
-  // ): Promise<DeviceAuthSessionContextDto | null> {
-  //   const deviceAuthSession =
-  //     await this.deviceAuthSessionsRepository.findByDeviceIdAndIat(
-  //       payload.deviceId,
-  //       unixToDate(payload.iat),
-  //     );
-  //   if (!deviceAuthSession) {
-  //     return null;
-  //   }
-  //
-  //   return { userId: payload.userId, deviceId: payload.deviceId };
-  // }
+  async validateSessionFromRefreshToken(
+    payload: RefreshJWTPayloadSql,
+  ): Promise<DeviceAuthSessionContextDtoSql | null> {
+    const deviceAuthSession =
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndIat(
+        payload.deviceId,
+        unixToDate(payload.iat),
+      );
+    if (!deviceAuthSession) {
+      return null;
+    }
+
+    return { userId: payload.userId, deviceId: payload.deviceId };
+  }
 }

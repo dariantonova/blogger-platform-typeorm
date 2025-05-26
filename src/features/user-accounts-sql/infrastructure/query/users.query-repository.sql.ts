@@ -63,7 +63,7 @@ export class UsersQueryRepositorySql {
     FROM users u
     ${whereClause}
     ORDER BY u.${sortBy} ${sortDirection}
-    LIMIT $${params.length - 1} OFFSET $${params.length}
+    LIMIT $${params.length - 1} OFFSET $${params.length};
     `;
     const findResult = await this.dataSource.query(findSql, params);
 
@@ -71,7 +71,7 @@ export class UsersQueryRepositorySql {
     SELECT
     COUNT(*)::int as count
     FROM users u
-    ${whereClause}
+    ${whereClause};
     `;
     const countResult = await this.dataSource.query(countSql, searchParams);
     const totalCount = countResult[0].count;

@@ -146,8 +146,8 @@ export class AuthTestManager {
   }
 
   /**
-   * Extracts and asserts that the refresh token cookie exists and is not empty.
-   * @returns The extracted refresh token.
+   * Extracts and asserts that the refresh-token token cookie exists and is not empty.
+   * @returns The extracted refresh-token token.
    */
   private assertRefreshTokenPresent(response: Response): string {
     const refreshToken = this.extractRefreshTokenFromResponse(response);
@@ -163,7 +163,7 @@ export class AuthTestManager {
   }
 
   /**
-   * Validates that the refresh token is usable by calling the refresh endpoint.
+   * Validates that the refresh-token token is usable by calling the refresh-token endpoint.
    */
   async assertRefreshTokenIsValid(refreshToken: string): Promise<void> {
     await this.refreshToken(refreshToken, HttpStatus.OK);
@@ -177,15 +177,15 @@ export class AuthTestManager {
   }
 
   /**
-   * Validates that the refresh token is usable by calling the refresh endpoint.
+   * Validates that the refresh-token token is usable by calling the refresh-token endpoint.
    */
   async assertRefreshTokenIsInvalid(refreshToken: string): Promise<void> {
     await this.refreshToken(refreshToken, HttpStatus.UNAUTHORIZED);
   }
 
   /**
-   * Asserts that the login/refresh response contains valid tokens.
-   * @param response - The HTTP response from login or token refresh.
+   * Asserts that the login/refresh-token response contains valid tokens.
+   * @param response - The HTTP response from login or token refresh-token.
    */
   async validateAuthTokensResponse(response: Response): Promise<void> {
     this.assertAccessTokenPresent(response);

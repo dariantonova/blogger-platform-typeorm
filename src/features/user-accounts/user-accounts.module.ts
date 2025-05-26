@@ -67,6 +67,8 @@ import { ResendRegistrationEmailUseCaseSql } from '../user-accounts-sql/applicat
 import { ConfirmRegistrationUseCaseSql } from '../user-accounts-sql/application/usecases/confirm-registration.usecase.sql';
 import { RecoverPasswordUseCaseSql } from '../user-accounts-sql/application/usecases/recover-password.usecase.sql';
 import { SetNewPasswordUseCaseSql } from '../user-accounts-sql/application/usecases/set-new-password.usecase.sql';
+import { RefreshTokenUseCaseSql } from '../user-accounts-sql/application/usecases/refresh-token.usecase.sql';
+import { JwtRefreshStrategySql } from '../user-accounts-sql/guards/refresh-token/jwt-refresh.strategy.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -99,6 +101,7 @@ const commandHandlersSql = [
   ConfirmRegistrationUseCaseSql,
   RecoverPasswordUseCaseSql,
   SetNewPasswordUseCaseSql,
+  RefreshTokenUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,
@@ -114,6 +117,7 @@ const providersSql = [
   JwtAccessStrategySql,
   AuthQueryRepositorySql,
   UsersServiceSql,
+  JwtRefreshStrategySql,
 ];
 const controllersSql = [UsersControllerSql, AuthControllerSql];
 

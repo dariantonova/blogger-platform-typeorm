@@ -82,14 +82,14 @@ describe('security devices', () => {
       });
 
       // missing
-      it('should return 401 if refresh-token token cookie is missing', async () => {
+      it('should return 401 if refresh token cookie is missing', async () => {
         await request(app.getHttpServer())
           .get(SECURITY_DEVICES_PATH)
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       // non-existing token
-      it('should return 401 if refresh-token token is invalid', async () => {
+      it('should return 401 if refresh token is invalid', async () => {
         await securityDevicesTestManager.getUserDeviceSessions(
           'random',
           HttpStatus.UNAUTHORIZED,
@@ -97,7 +97,7 @@ describe('security devices', () => {
       });
 
       // expired token
-      it('should return 401 if refresh-token token is expired', async () => {
+      it('should return 401 if refresh token is expired', async () => {
         const refreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -216,7 +216,7 @@ describe('security devices', () => {
       });
 
       // missing
-      it('should return 401 if refresh-token token cookie is missing', async () => {
+      it('should return 401 if refresh token cookie is missing', async () => {
         deviceIdToTerminateRefreshToken =
           await authTestManager.getNewRefreshToken(usersLoginInput[0]);
         const deviceIdToTerminate =
@@ -230,7 +230,7 @@ describe('security devices', () => {
       });
 
       // non-existing token
-      it('should return 401 if refresh-token token is invalid', async () => {
+      it('should return 401 if refresh token is invalid', async () => {
         deviceIdToTerminateRefreshToken =
           await authTestManager.getNewRefreshToken(usersLoginInput[0]);
         const deviceIdToTerminate =
@@ -246,7 +246,7 @@ describe('security devices', () => {
       });
 
       // expired token
-      it('should return 401 if refresh-token token is expired', async () => {
+      it('should return 401 if refresh token is expired', async () => {
         const expiredRefreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -309,7 +309,7 @@ describe('security devices', () => {
           await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
       });
 
-      it('should make refresh-token token of device session invalid', async () => {
+      it('should make refresh token of device session invalid', async () => {
         const refreshToken1 = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -381,14 +381,14 @@ describe('security devices', () => {
       });
 
       // missing
-      it('should return 401 if refresh-token token cookie is missing', async () => {
+      it('should return 401 if refresh token cookie is missing', async () => {
         await request(app.getHttpServer())
           .delete(SECURITY_DEVICES_PATH)
           .expect(HttpStatus.UNAUTHORIZED);
       });
 
       // non-existing token
-      it('should return 401 if refresh-token token is invalid', async () => {
+      it('should return 401 if refresh token is invalid', async () => {
         await securityDevicesTestManager.terminateAllOtherUserDeviceSessions(
           'random',
           HttpStatus.UNAUTHORIZED,
@@ -396,7 +396,7 @@ describe('security devices', () => {
       });
 
       // expired token
-      it('should return 401 if refresh-token token is expired', async () => {
+      it('should return 401 if refresh token is expired', async () => {
         const expiredRefreshToken = await authTestManager.getNewRefreshToken(
           usersLoginInput[0],
         );
@@ -430,7 +430,7 @@ describe('security devices', () => {
           await usersCommonTestManager.getLoginInputOfGeneratedUsers(4);
       });
 
-      it('should make refresh-token tokens of all other user device sessions invalid', async () => {
+      it('should make refresh tokens of all other user device sessions invalid', async () => {
         const refreshTokens = await authTestManager.getNewRefreshTokensOfUser(
           usersLoginInput[0],
           3,

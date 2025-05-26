@@ -10,7 +10,7 @@ import { AuthService } from '../../application/auth.service';
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
-  'jwt-refresh-token',
+  'jwt-refresh',
 ) {
   constructor(
     private authService: AuthService,

@@ -10,7 +10,7 @@ import { DeviceAuthSessionContextDtoSql } from '../dto/device-auth-session-conte
 @Injectable()
 export class JwtRefreshStrategySql extends PassportStrategy(
   Strategy,
-  'jwt-refresh-token-sql',
+  'jwt-refresh-sql',
 ) {
   constructor(
     private authService: AuthServiceSql,

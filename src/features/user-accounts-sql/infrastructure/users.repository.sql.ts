@@ -200,4 +200,25 @@ export class UsersRepositorySql {
     `;
     await this.dataSource.query(updateQuery, [userId]);
   }
+
+  async updateUserPasswordRecoveryCode(
+    userId: number,
+    recoveryCodeHash: string,
+    expirationDate: Date,
+  ): Promise<void> {
+    const createOrUpdateQuery = `
+    INSERT INTO password_recoveries
+    (user_id, recovery_code_hash, expiration_date)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+    recovery_code_hash = EXCLUDED.recovery_code_hash,
+    expiration_date = EXCLUDED.expiration_date;
+    `;
+    await this.dataSource.query(createOrUpdateQuery, [
+      userId,
+      recoveryCodeHash,
+      expirationDate,
+    ]);
+  }
 }

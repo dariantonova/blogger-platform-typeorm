@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 import { UserWithConfirmationStrictDtoSql } from '../dto/user-with-confirmation-strict-dto.sql';
 import { mapUserWithConfirmationRowToDtoStrict } from './mappers/user-with-confirmation.mapper';
+import { UserWithPasswordRecoveryStrictDtoSql } from '../dto/user-with-password-recovery-strict.dto';
+import { mapUserWithPasswordRecoveryRowToDtoStrict } from './mappers/user-with-password-recovery.mapper';
 
 export class UsersRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
@@ -19,7 +21,7 @@ export class UsersRepositorySql {
       INSERT INTO users
       (login, email, password_hash)
       VALUES ($1, $2, $3)
-      RETURNING id
+      RETURNING id;
       `;
       const userResult = await manager.query(createUserQuery, [
         dto.login,
@@ -31,7 +33,7 @@ export class UsersRepositorySql {
       const createUserConfirmationQuery = `
       INSERT INTO user_confirmations
       (user_id, confirmation_code, expiration_date, is_confirmed)
-      VALUES ($1, $2, $3, $4)
+      VALUES ($1, $2, $3, $4);
       `;
       await manager.query(createUserConfirmationQuery, [
         createdUserId,
@@ -50,7 +52,7 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.login = $1
-    AND u.deleted_at IS NULL
+    AND u.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [login]);
 
@@ -63,7 +65,7 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.email = $1
-    AND u.deleted_at IS NULL
+    AND u.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [email]);
 
@@ -81,7 +83,7 @@ export class UsersRepositorySql {
     LEFT JOIN user_confirmations uc
     ON u.id = uc.user_id
     WHERE u.email = $1
-    AND u.deleted_at IS NULL
+    AND u.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [email]);
 
@@ -96,7 +98,7 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.id = $1
-    AND u.deleted_at IS NULL
+    AND u.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [id]);
 
@@ -129,15 +131,15 @@ export class UsersRepositorySql {
       UPDATE users
       SET deleted_at = now()
       WHERE id = $1
-      AND deleted_at IS NULL
+      AND deleted_at IS NULL;
       `;
       await manager.query(deleteUserQuery, [id]);
 
-      const deletePasswordRecoveriesQuery = `
+      const deletePasswordRecoveryQuery = `
       DELETE FROM password_recoveries
-      WHERE user_id = $1
+      WHERE user_id = $1;
       `;
-      await manager.query(deletePasswordRecoveriesQuery, [id]);
+      await manager.query(deletePasswordRecoveryQuery, [id]);
     });
   }
 
@@ -147,7 +149,7 @@ export class UsersRepositorySql {
     u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at
     FROM users u
     WHERE u.deleted_at IS NULL
-    AND (u.login = $1 OR u.email = $1)
+    AND (u.login = $1 OR u.email = $1);
     `;
     const findResult = await this.dataSource.query(findQuery, [loginOrEmail]);
 
@@ -162,7 +164,7 @@ export class UsersRepositorySql {
     const updateQuery = `
     UPDATE user_confirmations
     SET confirmation_code = $1, expiration_date = $2
-    WHERE user_id = $3
+    WHERE user_id = $3;
     `;
     await this.dataSource.query(updateQuery, [
       confirmationCode,
@@ -182,6 +184,7 @@ export class UsersRepositorySql {
     LEFT JOIN user_confirmations uc
     ON u.id = uc.user_id
     WHERE uc.confirmation_code = $1
+    AND u.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [
       confirmationCode,
@@ -196,7 +199,7 @@ export class UsersRepositorySql {
     const updateQuery = `
     UPDATE user_confirmations
     SET is_confirmed = true
-    WHERE user_id = $1
+    WHERE user_id = $1;
     `;
     await this.dataSource.query(updateQuery, [userId]);
   }
@@ -220,5 +223,48 @@ export class UsersRepositorySql {
       recoveryCodeHash,
       expirationDate,
     ]);
+  }
+
+  async findUserWithPasswordRecoveryByRecoveryCodeHash(
+    recoveryCodeHash: string,
+  ): Promise<UserWithPasswordRecoveryStrictDtoSql | null> {
+    const findQuery = `
+    SELECT
+    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at,
+    pr.recovery_code_hash, pr.expiration_date
+    FROM users u
+    LEFT JOIN password_recoveries pr
+    ON u.id = pr.user_id
+    WHERE pr.recovery_code_hash = $1
+    AND u.deleted_at IS NULL;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [
+      recoveryCodeHash,
+    ]);
+
+    return findResult[0]
+      ? mapUserWithPasswordRecoveryRowToDtoStrict(findResult[0])
+      : null;
+  }
+
+  async hardDeleteUserPasswordRecovery(userId: number): Promise<void> {
+    const deleteQuery = `
+      DELETE FROM password_recoveries
+      WHERE user_id = $1;
+      `;
+    await this.dataSource.query(deleteQuery, [userId]);
+  }
+
+  async updateUserPasswordHash(
+    userId: number,
+    passwordHash: string,
+  ): Promise<void> {
+    const updateQuery = `
+    UPDATE users
+    SET password_hash = $1,
+        updated_at = now()
+    WHERE id = $2;
+    `;
+    await this.dataSource.query(updateQuery, [passwordHash, userId]);
   }
 }

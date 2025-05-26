@@ -66,6 +66,7 @@ import { UsersServiceSql } from '../user-accounts-sql/application/users.service.
 import { ResendRegistrationEmailUseCaseSql } from '../user-accounts-sql/application/usecases/resend-registration-email.usecase.sql';
 import { ConfirmRegistrationUseCaseSql } from '../user-accounts-sql/application/usecases/confirm-registration.usecase.sql';
 import { RecoverPasswordUseCaseSql } from '../user-accounts-sql/application/usecases/recover-password.usecase.sql';
+import { SetNewPasswordUseCaseSql } from '../user-accounts-sql/application/usecases/set-new-password.usecase.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -97,6 +98,7 @@ const commandHandlersSql = [
   ResendRegistrationEmailUseCaseSql,
   ConfirmRegistrationUseCaseSql,
   RecoverPasswordUseCaseSql,
+  SetNewPasswordUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,

@@ -30,6 +30,8 @@ import { RegistrationConfirmationCodeInputDto } from '../../user-accounts/api/in
 import { ConfirmRegistrationCommandSql } from '../application/usecases/confirm-registration.usecase.sql';
 import { PasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/password-recovery.input-dto';
 import { RecoverPasswordCommandSql } from '../application/usecases/recover-password.usecase.sql';
+import { NewPasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/new-password-recovery.input-dto';
+import { SetNewPasswordCommandSql } from '../application/usecases/set-new-password.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -108,16 +110,16 @@ export class AuthControllerSql {
     await this.commandBus.execute(new RecoverPasswordCommandSql(body.email));
   }
 
-  // @Post('new-password')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async setNewPassword(
-  //   @Body() body: NewPasswordRecoveryInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new SetNewPasswordCommand(body.newPassword, body.recoveryCode),
-  //   );
-  // }
-  //
+  @Post('new-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async setNewPassword(
+    @Body() body: NewPasswordRecoveryInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new SetNewPasswordCommandSql(body.newPassword, body.recoveryCode),
+    );
+  }
+
   // @Post('refresh-token')
   // @HttpCode(HttpStatus.OK)
   // @UseGuards(JwtRefreshAuthGuard)

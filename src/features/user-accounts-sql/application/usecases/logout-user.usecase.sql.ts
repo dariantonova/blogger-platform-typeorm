@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeviceAuthSessionsRepositorySql } from '../../infrastructure/device-auth-sessions.repository.sql';
 
 export class LogoutUserCommandSql {
-  constructor(public dto: { deviceId: string }) {}
+  constructor(public dto: { deviceId: string; userId: number }) {}
 }
 
 @CommandHandler(LogoutUserCommandSql)
@@ -14,6 +14,9 @@ export class LogoutUserUseCaseSql
   ) {}
 
   async execute({ dto }: LogoutUserCommandSql): Promise<void> {
-    await this.deviceAuthSessionsRepository.hardDeleteByDeviceId(dto.deviceId);
+    await this.deviceAuthSessionsRepository.hardDeleteByDeviceIdAndUserId(
+      dto.deviceId,
+      dto.userId,
+    );
   }
 }

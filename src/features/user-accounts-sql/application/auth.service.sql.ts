@@ -51,9 +51,10 @@ export class AuthServiceSql {
     payload: RefreshJWTPayloadSql,
   ): Promise<DeviceAuthSessionContextDtoSql | null> {
     const deviceAuthSession =
-      await this.deviceAuthSessionsRepository.findByDeviceIdAndIat(
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndIatAndUserId(
         payload.deviceId,
         unixToDate(payload.iat),
+        payload.userId,
       );
     if (!deviceAuthSession) {
       return null;

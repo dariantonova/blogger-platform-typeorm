@@ -35,23 +35,30 @@ export class DeviceAuthSessionsRepositorySql {
     ]);
   }
 
-  async findByDeviceIdAndIat(
+  async findByDeviceIdAndIatAndUserId(
     deviceId: string,
     iat: Date,
+    userId: number,
   ): Promise<DeviceAuthSessionDtoSql | null> {
     const findQuery = `
     SELECT
     d.id, d.device_id, d.user_id, d.exp, d.iat, d.device_name, d.ip
     FROM device_auth_sessions d
     WHERE d.device_id = $1
-    AND d.iat = $2;
+    AND d.iat = $2
+    AND d.user_id = $3;
     `;
-    const findResult = await this.dataSource.query(findQuery, [deviceId, iat]);
+    const findResult = await this.dataSource.query(findQuery, [
+      deviceId,
+      iat,
+      userId,
+    ]);
 
     return findResult[0] ? mapDeviceAuthSessionRowToDto(findResult[0]) : null;
   }
 
   async updateDeviceAuthSession(
+    userId: number,
     deviceId: string,
     exp: Date,
     iat: Date,
@@ -62,17 +69,22 @@ export class DeviceAuthSessionsRepositorySql {
     SET exp = $1,
         iat = $2,
         ip = $3
-    WHERE device_id = $4;
+    WHERE device_id = $4
+    AND user_id = $5;
     `;
-    await this.dataSource.query(updateQuery, [exp, iat, ip, deviceId]);
+    await this.dataSource.query(updateQuery, [exp, iat, ip, deviceId, userId]);
   }
 
-  async hardDeleteByDeviceId(deviceId: string): Promise<void> {
+  async hardDeleteByDeviceIdAndUserId(
+    deviceId: string,
+    userId: number,
+  ): Promise<void> {
     const deleteQuery = `
     DELETE FROM device_auth_sessions
-    WHERE device_id = $1;
+    WHERE device_id = $1
+    AND user_id = $2;
     `;
-    await this.dataSource.query(deleteQuery, [deviceId]);
+    await this.dataSource.query(deleteQuery, [deviceId, userId]);
   }
 
   async findByDeviceId(
@@ -99,6 +111,20 @@ export class DeviceAuthSessionsRepositorySql {
     }
 
     return session;
+  }
+
+  async findManyByDeviceId(
+    deviceId: string,
+  ): Promise<DeviceAuthSessionDtoSql[]> {
+    const findQuery = `
+    SELECT
+    d.id, d.device_id, d.user_id, d.exp, d.iat, d.device_name, d.ip
+    FROM device_auth_sessions d
+    WHERE d.device_id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [deviceId]);
+
+    return findResult.map(mapDeviceAuthSessionRowToDto);
   }
 
   async hardDeleteUserDeviceAuthSessionsExceptCurrent(

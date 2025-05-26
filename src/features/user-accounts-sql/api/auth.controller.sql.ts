@@ -162,7 +162,10 @@ export class AuthControllerSql {
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
-      new LogoutUserCommandSql({ deviceId: user.deviceId }),
+      new LogoutUserCommandSql({
+        deviceId: user.deviceId,
+        userId: user.userId,
+      }),
     );
   }
 

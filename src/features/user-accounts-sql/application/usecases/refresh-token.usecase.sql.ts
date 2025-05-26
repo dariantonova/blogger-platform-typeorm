@@ -37,6 +37,7 @@ export class RefreshTokenUseCaseSql
       this.refreshTokenContext.decode(refreshToken);
 
     await this.updateDeviceAuthSession(
+      dto.userId,
       dto.deviceId,
       refreshTokenPayload.exp,
       refreshTokenPayload.iat,
@@ -51,12 +52,14 @@ export class RefreshTokenUseCaseSql
   }
 
   private async updateDeviceAuthSession(
+    userId: number,
     deviceId: string,
     expUnix: number,
     iatUnix: number,
     ip: string,
   ): Promise<void> {
     await this.deviceAuthSessionsRepository.updateDeviceAuthSession(
+      userId,
       deviceId,
       unixToDate(expUnix),
       unixToDate(iatUnix),

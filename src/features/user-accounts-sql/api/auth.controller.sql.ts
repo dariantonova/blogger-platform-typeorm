@@ -35,6 +35,7 @@ import { SetNewPasswordCommandSql } from '../application/usecases/set-new-passwo
 import { JwtRefreshAuthGuardSql } from '../guards/refresh-token/jwt-refresh-auth.guard.sql';
 import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-session-context.dto.sql';
 import { RefreshTokenCommandSql } from '../application/usecases/refresh-token.usecase.sql';
+import { LogoutUserCommandSql } from '../application/usecases/logout-user.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('sql/auth')
@@ -153,18 +154,18 @@ export class AuthControllerSql {
     return { accessToken: result.accessToken };
   }
 
-  // @Post('logout')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtRefreshAuthGuard)
-  // @SkipThrottle()
-  // async logout(
-  //   @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new LogoutUserCommand({ deviceId: user.deviceId }),
-  //   );
-  // }
-  //
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuardSql)
+  @SkipThrottle()
+  async logout(
+    @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new LogoutUserCommandSql({ deviceId: user.deviceId }),
+    );
+  }
+
   private setRefreshTokenCookie(
     response: Response,
     refreshToken: string,

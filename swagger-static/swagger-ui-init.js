@@ -530,6 +530,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/auth/logout": {
+        "post": {
+          "operationId": "AuthControllerSql_logout",
+          "parameters": [],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "AuthControllerSql"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

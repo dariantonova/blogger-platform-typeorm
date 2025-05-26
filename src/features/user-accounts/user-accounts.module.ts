@@ -69,6 +69,7 @@ import { RecoverPasswordUseCaseSql } from '../user-accounts-sql/application/usec
 import { SetNewPasswordUseCaseSql } from '../user-accounts-sql/application/usecases/set-new-password.usecase.sql';
 import { RefreshTokenUseCaseSql } from '../user-accounts-sql/application/usecases/refresh-token.usecase.sql';
 import { JwtRefreshStrategySql } from '../user-accounts-sql/guards/refresh-token/jwt-refresh.strategy.sql';
+import { LogoutUserUseCaseSql } from '../user-accounts-sql/application/usecases/logout-user.usecase.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -102,6 +103,7 @@ const commandHandlersSql = [
   RecoverPasswordUseCaseSql,
   SetNewPasswordUseCaseSql,
   RefreshTokenUseCaseSql,
+  LogoutUserUseCaseSql,
 ];
 const queryHandlersSql = [
   GetUsersQueryHandlerSql,

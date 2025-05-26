@@ -66,4 +66,12 @@ export class DeviceAuthSessionsRepositorySql {
     `;
     await this.dataSource.query(updateQuery, [exp, iat, ip, deviceId]);
   }
+
+  async hardDeleteByDeviceId(deviceId: string): Promise<void> {
+    const deleteQuery = `
+    DELETE FROM device_auth_sessions
+    WHERE device_id = $1;
+    `;
+    await this.dataSource.query(deleteQuery, [deviceId]);
+  }
 }

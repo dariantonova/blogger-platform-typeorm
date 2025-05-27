@@ -25,291 +25,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/users": {
-        "get": {
-          "operationId": "UsersController_getUsers",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Users"
-          ]
-        },
-        "post": {
-          "operationId": "UsersController_createUser",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateUserInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Users"
-          ]
-        }
-      },
-      "/api/users/{id}": {
-        "delete": {
-          "operationId": "UsersController_deleteUser",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Users"
-          ]
-        }
-      },
-      "/api/auth/login": {
-        "post": {
-          "operationId": "AuthController_login",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/me": {
-        "get": {
-          "operationId": "AuthController_me",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/registration": {
-        "post": {
-          "operationId": "AuthController_register",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateUserInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/registration-email-resending": {
-        "post": {
-          "operationId": "AuthController_resendRegistrationEmail",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistrationEmailResendingInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/registration-confirmation": {
-        "post": {
-          "operationId": "AuthController_confirmRegistration",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegistrationConfirmationCodeInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/password-recovery": {
-        "post": {
-          "operationId": "AuthController_recoverPassword",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PasswordRecoveryInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/new-password": {
-        "post": {
-          "operationId": "AuthController_setNewPassword",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/NewPasswordRecoveryInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/refresh-token": {
-        "post": {
-          "operationId": "AuthController_refreshToken",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/auth/logout": {
-        "post": {
-          "operationId": "AuthController_logout",
-          "parameters": [],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Auth"
-          ]
-        }
-      },
-      "/api/security/devices": {
-        "get": {
-          "operationId": "SecurityDevicesController_getUserDeviceSessions",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "SecurityDevices"
-          ]
-        },
-        "delete": {
-          "operationId": "SecurityDevicesController_terminateAllOtherUserDeviceSessions",
-          "parameters": [],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "SecurityDevices"
-          ]
-        }
-      },
-      "/api/security/devices/{deviceId}": {
-        "delete": {
-          "operationId": "SecurityDevicesController_terminateDeviceSession",
-          "parameters": [
-            {
-              "name": "deviceId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "SecurityDevices"
-          ]
-        }
-      },
-      "/api/sql/users": {
+      "/api/sa/users": {
         "get": {
           "operationId": "UsersControllerSql_getUsers",
           "parameters": [],
@@ -345,7 +61,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/users/{id}": {
+      "/api/sa/users/{id}": {
         "delete": {
           "operationId": "UsersControllerSql_deleteUser",
           "parameters": [
@@ -368,7 +84,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/login": {
+      "/api/auth/login": {
         "post": {
           "operationId": "AuthControllerSql_login",
           "parameters": [],
@@ -382,7 +98,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/me": {
+      "/api/auth/me": {
         "get": {
           "operationId": "AuthControllerSql_me",
           "parameters": [],
@@ -396,7 +112,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/registration": {
+      "/api/auth/registration": {
         "post": {
           "operationId": "AuthControllerSql_register",
           "parameters": [],
@@ -420,7 +136,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/registration-email-resending": {
+      "/api/auth/registration-email-resending": {
         "post": {
           "operationId": "AuthControllerSql_resendRegistrationEmail",
           "parameters": [],
@@ -444,7 +160,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/registration-confirmation": {
+      "/api/auth/registration-confirmation": {
         "post": {
           "operationId": "AuthControllerSql_confirmRegistration",
           "parameters": [],
@@ -468,7 +184,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/password-recovery": {
+      "/api/auth/password-recovery": {
         "post": {
           "operationId": "AuthControllerSql_recoverPassword",
           "parameters": [],
@@ -492,7 +208,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/new-password": {
+      "/api/auth/new-password": {
         "post": {
           "operationId": "AuthControllerSql_setNewPassword",
           "parameters": [],
@@ -516,7 +232,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/refresh-token": {
+      "/api/auth/refresh-token": {
         "post": {
           "operationId": "AuthControllerSql_refreshToken",
           "parameters": [],
@@ -530,7 +246,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/auth/logout": {
+      "/api/auth/logout": {
         "post": {
           "operationId": "AuthControllerSql_logout",
           "parameters": [],
@@ -544,7 +260,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/security/devices": {
+      "/api/security/devices": {
         "get": {
           "operationId": "SecurityDevicesControllerSql_getUserDeviceSessions",
           "parameters": [],
@@ -570,7 +286,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/security/devices/{deviceId}": {
+      "/api/security/devices/{deviceId}": {
         "delete": {
           "operationId": "SecurityDevicesControllerSql_terminateDeviceSession",
           "parameters": [

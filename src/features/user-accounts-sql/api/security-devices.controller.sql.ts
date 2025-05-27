@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -16,7 +17,8 @@ import { GetUserDeviceSessionsQuerySql } from '../application/queries/get-user-d
 import { TerminateDeviceSessionCommandSql } from '../application/usecases/terminate-device-session.usecase.sql';
 import { TerminateAllOtherUserDeviceSessionsCommandSql } from '../application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
 
-@Controller('sql/security/devices')
+// @Controller('sql/security/devices')
+@Controller('security/devices')
 export class SecurityDevicesControllerSql {
   constructor(
     private queryBus: QueryBus,
@@ -37,7 +39,11 @@ export class SecurityDevicesControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuardSql)
   async terminateDeviceSession(
-    @Param('deviceId') deviceId: string,
+    @Param(
+      'deviceId',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    deviceId: string,
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(

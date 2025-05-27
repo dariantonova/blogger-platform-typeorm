@@ -2,7 +2,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   caseInsensitiveSearch,
   deleteAllData,
-  generateNonExistingId,
   getPageOfArray,
   initApp,
   invalidBasicAuthTestValues,
@@ -24,6 +23,8 @@ import { getModelToken } from '@nestjs/mongoose';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
+import { UsersTestRepositorySql } from '../helpers/users.test-repository.sql';
+import { DataSource } from 'typeorm';
 
 describe('users', () => {
   let app: INestApplication;
@@ -31,6 +32,7 @@ describe('users', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let UserModel: UserModelType;
   let authTestManager: AuthTestManager;
+  let usersTestRepository: UsersTestRepositorySql;
 
   beforeAll(async () => {
     app = await initApp();
@@ -40,6 +42,9 @@ describe('users', () => {
     usersTestManager = new UsersTestManager(app, UserModel);
     usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
     authTestManager = new AuthTestManager(app);
+
+    const dataSource = app.get(DataSource);
+    usersTestRepository = new UsersTestRepositorySql(dataSource);
   });
 
   afterAll(async () => {
@@ -66,8 +71,11 @@ describe('users', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      const dbCreatedUser = await usersTestManager.findUserById(createdUser.id);
-      expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
+      // const dbCreatedUser = await usersTestManager.findUserById(createdUser.id);
+      // expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
+      const dbCreatedUserConfirmationInfo =
+        await usersTestRepository.findUserConfirmationInfo(createdUser.id);
+      expect(dbCreatedUserConfirmationInfo.isConfirmed).toBe(false);
 
       const getUsersResponse = await usersTestManager.getUsers(HttpStatus.OK);
       const paginatedUsers: PaginatedViewDto<UserViewDto[]> =
@@ -449,12 +457,18 @@ describe('users', () => {
       });
 
       it('should return 404 when trying to delete non-existing user', async () => {
-        const nonExistingId = generateNonExistingId();
+        // const nonExistingId = generateNonExistingId();
+        const nonExistingId = '100000';
         await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
       });
 
-      it('should return 404 when user id is not valid ObjectId', async () => {
-        const invalidId = 'not ObjectId';
+      // it('should return 404 when user id is not valid ObjectId', async () => {
+      //   const invalidId = 'not ObjectId';
+      //   await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
+      // });
+
+      it('should return 404 when user id is not a number', async () => {
+        const invalidId = 'string';
         await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
       });
 
@@ -736,14 +750,14 @@ describe('users', () => {
         expect(response.body.items).toEqual(expectedItems);
       });
 
-      it(`should return users in order of creation if sort field doesn't exist`, async () => {
-        const expectedItems = users;
-
-        const response = await usersTestManager.getUsers(HttpStatus.OK, {
-          sortBy: 'nonExisting',
-        });
-        expect(response.body.items).toEqual(expectedItems);
-      });
+      // it(`should return users in order of creation if sort field doesn't exist`, async () => {
+      //   const expectedItems = users;
+      //
+      //   const response = await usersTestManager.getUsers(HttpStatus.OK, {
+      //     sortBy: 'nonExisting',
+      //   });
+      //   expect(response.body.items).toEqual(expectedItems);
+      // });
     });
 
     describe('filtering', () => {

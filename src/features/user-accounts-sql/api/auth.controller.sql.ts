@@ -38,7 +38,8 @@ import { RefreshTokenCommandSql } from '../application/usecases/refresh-token.us
 import { LogoutUserCommandSql } from '../application/usecases/logout-user.usecase.sql';
 
 @UseGuards(ThrottlerGuard)
-@Controller('sql/auth')
+// @Controller('sql/auth')
+@Controller('auth')
 export class AuthControllerSql {
   constructor(
     private commandBus: CommandBus,

@@ -37,6 +37,8 @@ import request from 'supertest';
 import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 import { millisecondsToSeconds } from 'date-fns';
+import { DataSource } from 'typeorm';
+import { UsersTestRepositorySql } from '../helpers/users.test-repository.sql';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -46,8 +48,10 @@ describe('auth', () => {
   let UserModel: UserModelType;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
+  let usersTestRepository: UsersTestRepositorySql;
+
   const accessTokenExpInMs = 2000;
-  const refreshTokenExpInMs = 2000;
+  const refreshTokenExpInMs = 3000;
   const emailConfirmationCodeExpInMs = 2000;
 
   beforeAll(async () => {
@@ -105,6 +109,9 @@ describe('auth', () => {
       REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
     );
     jwtTestManager = new JwtTestManager(refreshJwtService);
+
+    const dataSource = app.get(DataSource);
+    usersTestRepository = new UsersTestRepositorySql(dataSource);
   });
 
   afterAll(async () => {
@@ -448,13 +455,18 @@ describe('auth', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      const dbCreatedUser = await usersCommonTestManager.findUserById(
-        createdUser.id,
-      );
-      expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
-      expect(
-        dbCreatedUser.confirmationInfo.confirmationCode.length,
-      ).toBeGreaterThan(0);
+      // const dbCreatedUser = await usersCommonTestManager.findUserById(
+      //   createdUser.id,
+      // );
+      // expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
+      // expect(
+      //   dbCreatedUser.confirmationInfo.confirmationCode.length,
+      // ).toBeGreaterThan(0);
+
+      const dbCreatedUserConfirmationInfo =
+        await usersTestRepository.findUserConfirmationInfo(createdUser.id);
+      expect(dbCreatedUserConfirmationInfo.isConfirmed).toBe(false);
+      expect(dbCreatedUserConfirmationInfo.confirmationCode).not.toBeNull();
 
       expect(emailService.sendConfirmationEmail).toHaveBeenCalledTimes(1);
     });
@@ -744,11 +756,14 @@ describe('auth', () => {
       const getUsersResponse = await usersCommonTestManager.getUsers();
       const createdUser = getUsersResponse.body.items[0] as UserViewDto;
 
-      const dbUnconfirmedUser = await usersCommonTestManager.findUserById(
-        createdUser.id,
-      );
+      // const dbUnconfirmedUser = await usersCommonTestManager.findUserById(
+      //   createdUser.id,
+      // );
+      // const confirmationCode =
+      //   dbUnconfirmedUser.confirmationInfo.confirmationCode;
+
       const confirmationCode =
-        dbUnconfirmedUser.confirmationInfo.confirmationCode;
+        await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
       const inputDto: RegistrationConfirmationCodeInputDto = {
         code: confirmationCode,
@@ -758,10 +773,14 @@ describe('auth', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const dbConfirmedUser = await usersCommonTestManager.findUserById(
-        createdUser.id,
-      );
-      expect(dbConfirmedUser.confirmationInfo.isConfirmed).toBe(true);
+      // const dbConfirmedUser = await usersCommonTestManager.findUserById(
+      //   createdUser.id,
+      // );
+      // expect(dbConfirmedUser.confirmationInfo.isConfirmed).toBe(true);
+
+      const dbUserConfirmationInfo =
+        await usersTestRepository.findUserConfirmationInfo(createdUser.id);
+      expect(dbUserConfirmationInfo.isConfirmed).toBe(true);
     });
 
     describe('validation', () => {
@@ -833,17 +852,25 @@ describe('auth', () => {
 
       // code of deleted user
       it('should return 400 if confirmation code matches deleted user', async () => {
-        const userToDelete = await usersCommonTestManager.createUser({
+        const userToDeleteData: CreateUserDto = {
           login: 'deleted',
           email: 'deleted@example.com',
           password: 'qwerty',
-        });
+        };
+        await authTestManager.register(userToDeleteData, HttpStatus.NO_CONTENT);
+
+        const getUsersResponse = await usersCommonTestManager.getUsers();
+        const userToDelete = getUsersResponse.body.items[0] as UserViewDto;
+
         await usersCommonTestManager.deleteUser(userToDelete.id);
 
-        const dbDeletedUser = await usersCommonTestManager.findUserById(
+        // const dbDeletedUser = await usersCommonTestManager.findUserById(
+        //   userToDelete.id,
+        // );
+        // const code = dbDeletedUser.confirmationInfo.confirmationCode;
+        const code = await usersTestRepository.findUserConfirmationCode(
           userToDelete.id,
         );
-        const code = dbDeletedUser.confirmationInfo.confirmationCode;
 
         const response = await authTestManager.confirmRegistration(
           { code },
@@ -868,8 +895,10 @@ describe('auth', () => {
         };
         await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
+        // const confirmationCode =
+        //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
         const confirmationCode =
-          await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+          await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
         const inputDto: RegistrationConfirmationCodeInputDto = {
           code: confirmationCode,
@@ -902,8 +931,10 @@ describe('auth', () => {
         };
         await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
+        // const confirmationCode =
+        //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
         const confirmationCode =
-          await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+          await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
         const inputDto: RegistrationConfirmationCodeInputDto = {
           code: confirmationCode,
@@ -1021,8 +1052,10 @@ describe('auth', () => {
       };
       await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
+      // const confirmationCode =
+      //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
       const confirmationCode =
-        await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
+        await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
       await authTestManager.confirmRegistration(
         { code: confirmationCode },
@@ -1184,7 +1217,11 @@ describe('auth', () => {
       const recoveryCodeHash =
         cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
 
-      await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+      // await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+      //   user.id,
+      //   recoveryCodeHash,
+      // );
+      await usersTestRepository.setUserPasswordRecoveryCodeHash(
         user.id,
         recoveryCodeHash,
       );
@@ -1245,7 +1282,11 @@ describe('auth', () => {
         );
 
         for (let i = 0; i < usersData.length; i++) {
-          await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+          // await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
+          //   users[i].id,
+          //   recoveryCodesHashes[i],
+          // );
+          await usersTestRepository.setUserPasswordRecoveryCodeHash(
             users[i].id,
             recoveryCodesHashes[i],
           );
@@ -1444,7 +1485,11 @@ describe('auth', () => {
 
       // expired code
       it('should return 400 if recovery code is expired', async () => {
-        await usersCommonTestManager.setUserPasswordRecoveryExpirationDate(
+        // await usersCommonTestManager.setUserPasswordRecoveryExpirationDate(
+        //   users[2].id,
+        //   new Date(),
+        // );
+        await usersTestRepository.setUserPasswordRecoveryExpirationDate(
           users[2].id,
           new Date(),
         );

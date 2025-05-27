@@ -22,7 +22,8 @@ import { CreateUserCommandSql } from '../application/usecases/create-user.usecas
 import { GetUserByIdOrInternalFailQuerySql } from '../application/queries/get-user-by-id-or-internal-fail.query.sql';
 import { DeleteUserCommandSql } from '../application/usecases/delete-user.usecase.sql';
 
-@Controller('sql/users')
+// @Controller('sql/users')
+@Controller('sa/users')
 export class UsersControllerSql {
   constructor(
     private commandBus: CommandBus,
@@ -53,7 +54,13 @@ export class UsersControllerSql {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
-  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async deleteUser(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+  ): Promise<void> {
     await this.commandBus.execute(new DeleteUserCommandSql(id));
   }
 }

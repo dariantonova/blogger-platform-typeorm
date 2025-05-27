@@ -13,7 +13,8 @@ export class DeviceAuthSessionsQueryRepositorySql {
     SELECT
     d.id, d.device_id, d.user_id, d.exp, d.iat, d.device_name, d.ip
     FROM device_auth_sessions d
-    WHERE d.user_id = $1;
+    WHERE d.user_id = $1
+    ORDER BY d.id;
     `;
     const findResult = await this.dataSource.query(findQuery, [userId]);
 

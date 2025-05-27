@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UsersController } from './api/users.controller';
 import { UsersService } from './application/users.service';
 import { UsersQueryRepository } from './infrastructure/query/users.query-repository';
 import { UsersRepository } from './infrastructure/users.repository';
@@ -9,7 +8,6 @@ import { BasicStrategy } from './guards/basic/basic.strategy';
 import { AuthService } from './application/auth.service';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { CryptoService } from './application/crypto.service';
-import { AuthController } from './api/auth.controller';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { JwtAccessStrategy } from './guards/bearer/jwt-access.strategy';
 import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
@@ -42,7 +40,6 @@ import { RefreshTokenUseCase } from './application/usecases/refresh-token.usecas
 import { LogoutUserUseCase } from './application/usecases/logout-user.usecase';
 import { DeviceAuthSessionsQueryRepository } from './infrastructure/query/device-auth-sessions.query-repository';
 import { GetUserDeviceSessionsQueryHandler } from './application/queries/get-user-device-sessions.query';
-import { SecurityDevicesController } from './api/security-devices.controller';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
 import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/users/terminate-all-other-device-sessions.usecase';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -155,9 +152,9 @@ const controllersSql = [
     }),
   ],
   controllers: [
-    UsersController,
-    AuthController,
-    SecurityDevicesController,
+    // UsersController,
+    // AuthController,
+    // SecurityDevicesController,
     ...controllersSql,
   ],
   providers: [

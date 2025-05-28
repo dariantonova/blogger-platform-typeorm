@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { UserViewDtoSql } from '../../api/view-dto/user.view-dto.sql';
 import { GetUsersQueryParams } from '../../../user-accounts/api/input-dto/get-users-query-params.input-dto';
-import { camelCaseToSnakeCase } from '../../utils/camel-case-to-snake-case';
+import { camelCaseToSnakeCase } from '../../../../utils/camel-case-to-snake-case';
 import { UserDtoSql } from '../../dto/user.dto.sql';
 import { UsersSortBy } from '../../../user-accounts/api/input-dto/users-sort-by';
 import { mapUserRowToDto } from '../mappers/user.mapper';

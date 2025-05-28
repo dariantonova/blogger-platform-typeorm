@@ -780,6 +780,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/sa/blogs": {
+        "get": {
+          "operationId": "BlogsSaController_getBlogs",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",

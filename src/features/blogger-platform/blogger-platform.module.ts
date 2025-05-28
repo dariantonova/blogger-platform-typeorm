@@ -41,6 +41,9 @@ import { MakeCommentLikeOperationUseCase } from './comments/application/usecases
 import { LikesQueryRepository } from './likes/infrastructure/query/likes.query-repository';
 import { CommentsQueryService } from './comments/application/comments.query-service';
 import { PostsQueryService } from './posts/application/posts.query-service';
+import { BlogsSaController } from '../blogger-platform-sql/blogs/api/blogs-sa.controller.sql';
+import { GetBlogsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blogs.query.sql';
+import { BlogsQueryRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/query/blogs.query-repository.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -69,6 +72,10 @@ const queryHandlers = [
   GetCommentByIdOrInternalFailQueryHandler,
 ];
 
+const controllersSql = [BlogsSaController];
+const providersSql = [BlogsQueryRepositorySql];
+const queryHandlersSql = [GetBlogsQueryHandlerSql];
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -80,7 +87,12 @@ const queryHandlers = [
     CqrsModule.forRoot(),
     UserAccountsModule,
   ],
-  controllers: [BlogsController, PostsController, CommentsController],
+  controllers: [
+    BlogsController,
+    PostsController,
+    CommentsController,
+    ...controllersSql,
+  ],
   providers: [
     BlogsQueryRepository,
     BlogsRepository,
@@ -95,6 +107,8 @@ const queryHandlers = [
     LikesQueryRepository,
     CommentsQueryService,
     PostsQueryService,
+    ...providersSql,
+    ...queryHandlersSql,
   ],
 })
 export class BloggerPlatformModule {}

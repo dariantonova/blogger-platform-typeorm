@@ -44,6 +44,12 @@ import { PostsQueryService } from './posts/application/posts.query-service';
 import { BlogsSaController } from '../blogger-platform-sql/blogs/api/blogs-sa.controller.sql';
 import { GetBlogsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blogs.query.sql';
 import { BlogsQueryRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/query/blogs.query-repository.sql';
+import { BlogsRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/blogs.repository.sql';
+import {
+  GetBlogByIdOrInternalFailQueryHandlerSql,
+  GetBlogByIdOrInternalFailQuerySql,
+} from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-internal-fail.query.sql';
+import { CreateBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/create-blog.usecase.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -73,8 +79,12 @@ const queryHandlers = [
 ];
 
 const controllersSql = [BlogsSaController];
-const providersSql = [BlogsQueryRepositorySql];
-const queryHandlersSql = [GetBlogsQueryHandlerSql];
+const providersSql = [BlogsQueryRepositorySql, BlogsRepositorySql];
+const queryHandlersSql = [
+  GetBlogsQueryHandlerSql,
+  GetBlogByIdOrInternalFailQueryHandlerSql,
+];
+const commandHandlersSql = [CreateBlogUseCaseSql];
 
 @Module({
   imports: [
@@ -109,6 +119,7 @@ const queryHandlersSql = [GetBlogsQueryHandlerSql];
     PostsQueryService,
     ...providersSql,
     ...queryHandlersSql,
+    ...commandHandlersSql,
   ],
 })
 export class BloggerPlatformModule {}

@@ -28,7 +28,7 @@ export class UsersRepositorySql {
         dto.email,
         dto.passwordHash,
       ]);
-      const createdUserId = Number(userResult[0].id);
+      const createdUserId = userResult[0].id;
 
       const createUserConfirmationQuery = `
       INSERT INTO user_confirmations

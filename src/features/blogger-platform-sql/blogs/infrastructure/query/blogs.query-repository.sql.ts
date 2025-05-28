@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetBlogsQueryParams } from '../../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
@@ -8,10 +8,14 @@ import { camelCaseToSnakeCase } from '../../../../../utils/camel-case-to-snake-c
 import { BlogsSortBy } from '../../../../blogger-platform/blogs/api/input-dto/blogs-sort-by';
 import { mapBlogRowToDto } from '../mappers/blog.mapper';
 import { BlogDtoSql } from '../../dto/blog.dto.sql';
+import { BlogsRepositorySql } from '../blogs.repository.sql';
 
 @Injectable()
 export class BlogsQueryRepositorySql {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private blogsRepository: BlogsRepositorySql,
+  ) {}
 
   async findBlogs(
     queryParams: GetBlogsQueryParams,
@@ -77,5 +81,15 @@ export class BlogsQueryRepositorySql {
       page: queryParams.pageNumber,
       pageSize: queryParams.pageSize,
     });
+  }
+
+  async findByIdOrInternalFail(id: number): Promise<BlogViewDtoSql> {
+    const blog = await this.blogsRepository.findById(id);
+
+    if (!blog) {
+      throw new InternalServerErrorException('Blog not found');
+    }
+
+    return BlogViewDtoSql.mapToView(blog);
   }
 }

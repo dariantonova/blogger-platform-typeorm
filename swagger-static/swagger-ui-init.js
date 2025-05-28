@@ -792,6 +792,28 @@ window.onload = function() {
           "tags": [
             "BlogsSa"
           ]
+        },
+        "post": {
+          "operationId": "BlogsSaController_createBlog",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlogInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
         }
       },
       "/api/testing/all-data": {

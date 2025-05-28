@@ -1,10 +1,13 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 import { BlogViewDtoSql } from './view-dto/blog.view-dto.sql';
 import { GetBlogsQuerySql } from '../application/queries/get-blogs.query.sql';
+import { CreateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog.input-dto';
+import { CreateBlogCommandSql } from '../application/usecases/create-blog.usecase.sql';
+import { GetBlogByIdOrInternalFailQuerySql } from '../application/queries/get-blog-by-id-or-internal-fail.query.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -21,22 +24,20 @@ export class BlogsSaController {
     return this.queryBus.execute(new GetBlogsQuerySql(query));
   }
 
-  // @Post()
-  // @UseGuards(BasicAuthGuard)
-  // async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
-  //   const createdBlogId = await this.commandBus.execute<
-  //     CreateBlogCommand,
-  //     string
-  //   >(new CreateBlogCommand(body));
-  //
-  //   return this.queryBus.execute(
-  //     new GetBlogByIdOrInternalFailQuery(createdBlogId),
-  //   );
-  // }
-  //
+  @Post()
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDtoSql> {
+    const createdBlogId = await this.commandBus.execute<
+      CreateBlogCommandSql,
+      number
+    >(new CreateBlogCommandSql(body));
+
+    return this.queryBus.execute(
+      new GetBlogByIdOrInternalFailQuerySql(createdBlogId),
+    );
+  }
+
   // @Put(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(BasicAuthGuard)
   // async updateBlog(
   //   @Param('id', ObjectIdValidationPipe) id: string,
   //   @Body() body: UpdateBlogInputDto,
@@ -46,7 +47,6 @@ export class BlogsSaController {
   //
   // @Delete(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(BasicAuthGuard)
   // async deleteBlog(
   //   @Param('id', ObjectIdValidationPipe) id: string,
   // ): Promise<void> {
@@ -54,7 +54,6 @@ export class BlogsSaController {
   // }
   //
   // @Get(':blogId/posts')
-  // @UseGuards(JwtAccessOptionalAuthGuard)
   // async getBlogPosts(
   //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
   //   @Query() query: GetPostsQueryParams,
@@ -66,7 +65,6 @@ export class BlogsSaController {
   // }
   //
   // @Post(':blogId/posts')
-  // @UseGuards(BasicAuthGuard)
   // async createBlogPost(
   //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
   //   @Body() body: CreateBlogPostInputDto,

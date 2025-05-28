@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
@@ -8,6 +20,8 @@ import { GetBlogsQuerySql } from '../application/queries/get-blogs.query.sql';
 import { CreateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import { CreateBlogCommandSql } from '../application/usecases/create-blog.usecase.sql';
 import { GetBlogByIdOrInternalFailQuerySql } from '../application/queries/get-blog-by-id-or-internal-fail.query.sql';
+import { UpdateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/update-blog.input-dto';
+import { UpdateBlogCommandSql } from '../application/usecases/update-blog.usecase.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -36,15 +50,19 @@ export class BlogsSaController {
     );
   }
 
-  // @Put(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async updateBlog(
-  //   @Param('id', ObjectIdValidationPipe) id: string,
-  //   @Body() body: UpdateBlogInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new UpdateBlogCommand(id, body));
-  // }
-  //
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlog(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+    @Body() body: UpdateBlogInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(new UpdateBlogCommandSql(id, body));
+  }
+
   // @Delete(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async deleteBlog(

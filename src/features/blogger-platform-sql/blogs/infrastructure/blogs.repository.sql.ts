@@ -1,9 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateBlogRepoDto } from './dto/create-blog.repo-dto';
 import { BlogDtoSql } from '../dto/blog.dto.sql';
 import { mapBlogRowToDto } from './mappers/blog.mapper';
+import { BlogViewDtoSql } from '../api/view-dto/blog.view-dto.sql';
+import { UpdateBlogRepoDto } from './dto/update-blog.repo-dto';
 
 @Injectable()
 export class BlogsRepositorySql {
@@ -37,5 +43,32 @@ export class BlogsRepositorySql {
     const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? mapBlogRowToDto(findResult[0]) : null;
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<BlogDtoSql> {
+    const blog = await this.findById(id);
+
+    if (!blog) {
+      throw new NotFoundException('Blog not found');
+    }
+
+    return blog;
+  }
+
+  async updateBlog(id: number, dto: UpdateBlogRepoDto): Promise<void> {
+    const updateQuery = `
+    UPDATE blogs
+    SET name = $1,
+        description = $2,
+        website_url = $3,
+        updated_at = now()
+    WHERE id = $4;
+    `;
+    await this.dataSource.query(updateQuery, [
+      dto.name,
+      dto.description,
+      dto.websiteUrl,
+      id,
+    ]);
   }
 }

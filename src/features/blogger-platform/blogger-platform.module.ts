@@ -51,6 +51,8 @@ import {
 } from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-internal-fail.query.sql';
 import { CreateBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/create-blog.usecase.sql';
 import { UpdateBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/update-blog.usecase.sql';
+import { PostsRepositorySql } from '../blogger-platform-sql/posts/infrastructure/posts.repository.sql';
+import { DeleteBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/delete-blog.usecase.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -80,12 +82,20 @@ const queryHandlers = [
 ];
 
 const controllersSql = [BlogsSaController];
-const providersSql = [BlogsQueryRepositorySql, BlogsRepositorySql];
+const providersSql = [
+  BlogsQueryRepositorySql,
+  BlogsRepositorySql,
+  PostsRepositorySql,
+];
 const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
   GetBlogByIdOrInternalFailQueryHandlerSql,
 ];
-const commandHandlersSql = [CreateBlogUseCaseSql, UpdateBlogUseCaseSql];
+const commandHandlersSql = [
+  CreateBlogUseCaseSql,
+  UpdateBlogUseCaseSql,
+  DeleteBlogUseCaseSql,
+];
 
 @Module({
   imports: [

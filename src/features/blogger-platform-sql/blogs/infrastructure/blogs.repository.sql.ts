@@ -1,14 +1,9 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateBlogRepoDto } from './dto/create-blog.repo-dto';
 import { BlogDtoSql } from '../dto/blog.dto.sql';
 import { mapBlogRowToDto } from './mappers/blog.mapper';
-import { BlogViewDtoSql } from '../api/view-dto/blog.view-dto.sql';
 import { UpdateBlogRepoDto } from './dto/update-blog.repo-dto';
 
 @Injectable()
@@ -70,5 +65,15 @@ export class BlogsRepositorySql {
       dto.websiteUrl,
       id,
     ]);
+  }
+
+  async softDeleteById(id: number): Promise<void> {
+    const updateQuery = `
+    UPDATE blogs
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [id]);
   }
 }

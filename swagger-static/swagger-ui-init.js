@@ -847,6 +847,27 @@ window.onload = function() {
           "tags": [
             "BlogsSa"
           ]
+        },
+        "delete": {
+          "operationId": "BlogsSaController_deleteBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
         }
       },
       "/api/testing/all-data": {

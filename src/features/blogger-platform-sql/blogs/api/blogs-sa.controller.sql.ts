@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -22,6 +23,7 @@ import { CreateBlogCommandSql } from '../application/usecases/create-blog.usecas
 import { GetBlogByIdOrInternalFailQuerySql } from '../application/queries/get-blog-by-id-or-internal-fail.query.sql';
 import { UpdateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 import { UpdateBlogCommandSql } from '../application/usecases/update-blog.usecase.sql';
+import { DeleteBlogCommandSql } from '../application/usecases/delete-blog.usecase.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -63,14 +65,18 @@ export class BlogsSaController {
     await this.commandBus.execute(new UpdateBlogCommandSql(id, body));
   }
 
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async deleteBlog(
-  //   @Param('id', ObjectIdValidationPipe) id: string,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new DeleteBlogCommand(id));
-  // }
-  //
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlog(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteBlogCommandSql(id));
+  }
+
   // @Get(':blogId/posts')
   // async getBlogPosts(
   //   @Param('blogId', ObjectIdValidationPipe) blogId: string,

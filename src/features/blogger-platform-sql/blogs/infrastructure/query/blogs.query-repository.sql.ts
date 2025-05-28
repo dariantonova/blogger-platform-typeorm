@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetBlogsQueryParams } from '../../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
@@ -88,6 +92,16 @@ export class BlogsQueryRepositorySql {
 
     if (!blog) {
       throw new InternalServerErrorException('Blog not found');
+    }
+
+    return BlogViewDtoSql.mapToView(blog);
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<BlogViewDtoSql> {
+    const blog = await this.blogsRepository.findById(id);
+
+    if (!blog) {
+      throw new NotFoundException('Blog not found');
     }
 
     return BlogViewDtoSql.mapToView(blog);

@@ -24,6 +24,9 @@ import { GetBlogByIdOrInternalFailQuerySql } from '../application/queries/get-bl
 import { UpdateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 import { UpdateBlogCommandSql } from '../application/usecases/update-blog.usecase.sql';
 import { DeleteBlogCommandSql } from '../application/usecases/delete-blog.usecase.sql';
+import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { PostViewDtoSql } from '../../posts/api/view-dto/post.view-dto.sql';
+import { GetBlogPostsQuerySql } from '../application/queries/get-blog-posts.query.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -77,17 +80,20 @@ export class BlogsSaController {
     await this.commandBus.execute(new DeleteBlogCommandSql(id));
   }
 
-  // @Get(':blogId/posts')
-  // async getBlogPosts(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Query() query: GetPostsQueryParams,
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  // ): Promise<PaginatedViewDto<PostViewDto[]>> {
-  //   return this.queryBus.execute(
-  //     new GetBlogPostsQuery(blogId, query, user?.id),
-  //   );
-  // }
-  //
+  @Get(':blogId/posts')
+  async getBlogPosts(
+    @Param(
+      'blogId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    blogId: number,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDtoSql[]>> {
+    return this.queryBus.execute(
+      new GetBlogPostsQuerySql(blogId, query, undefined),
+    );
+  }
+
   // @Post(':blogId/posts')
   // async createBlogPost(
   //   @Param('blogId', ObjectIdValidationPipe) blogId: string,

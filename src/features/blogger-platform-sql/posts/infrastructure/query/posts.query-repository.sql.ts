@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetPostsQueryParams } from '../../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
@@ -77,6 +81,16 @@ export class PostsQueryRepositorySql {
 
     if (!post) {
       throw new InternalServerErrorException('Post not found');
+    }
+
+    return post;
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<PostDtoSql> {
+    const post = await this.postsRepository.findById(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
     }
 
     return post;

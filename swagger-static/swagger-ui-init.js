@@ -1054,6 +1054,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/posts": {
+        "get": {
+          "operationId": "PostsControllerSql_getPosts",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerSql"
+          ]
+        }
+      },
       "/api/sql/posts/{id}": {
         "get": {
           "operationId": "PostsControllerSql_getPost",

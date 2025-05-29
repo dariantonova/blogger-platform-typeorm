@@ -61,6 +61,7 @@ import { BlogsControllerSql } from '../blogger-platform-sql/blogs/api/blogs.cont
 import { GetBlogByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-not-found-fail.query.sql';
 import { GetPostByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-not-found-fail.query.sql';
 import { PostsControllerSql } from '../blogger-platform-sql/posts/api/posts.controller.sql';
+import { GetPostsQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-posts.query.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -108,6 +109,7 @@ const queryHandlersSql = [
   GetPostByIdOrInternalFailQueryHandlerSql,
   GetBlogByIdOrNotFoundFailQueryHandlerSql,
   GetPostByIdOrNotFoundFailQueryHandlerSql,
+  GetPostsQueryHandlerSql,
 ];
 const commandHandlersSql = [
   CreateBlogUseCaseSql,

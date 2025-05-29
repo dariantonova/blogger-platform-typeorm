@@ -76,6 +76,14 @@ export class PostsQueryRepositorySql {
     return this.findManyByWhereAndQuery(whereParts, whereParams, queryParams);
   }
 
+  async findPosts(
+    queryParams: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostDtoSql[]>> {
+    const whereParts = ['p.deleted_at IS NULL'];
+
+    return this.findManyByWhereAndQuery(whereParts, [], queryParams);
+  }
+
   async findByIdOrInternalFail(id: number): Promise<PostDtoSql> {
     const post = await this.postsRepository.findById(id);
 

@@ -1,10 +1,10 @@
 import { GetPostsQueryParams } from '../../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
-import { PostViewDtoSql } from '../../../posts/api/view-dto/post.view-dto.sql';
-import { BlogsQueryRepositorySql } from '../../infrastructure/query/blogs.query-repository.sql';
-import { PostsQueryRepositorySql } from '../../../posts/infrastructure/query/posts.query-repository.sql';
-import { PostsQueryServiceSql } from '../../../posts/application/posts.query-service.sql';
+import { PostViewDtoSql } from '../../api/view-dto/post.view-dto.sql';
+import { BlogsQueryRepositorySql } from '../../../blogs/infrastructure/query/blogs.query-repository.sql';
+import { PostsQueryRepositorySql } from '../../infrastructure/query/posts.query-repository.sql';
+import { PostsQueryServiceSql } from '../posts.query-service.sql';
 
 export class GetBlogPostsQuerySql {
   constructor(

@@ -26,10 +26,12 @@ import { UpdateBlogCommandSql } from '../application/usecases/update-blog.usecas
 import { DeleteBlogCommandSql } from '../application/usecases/delete-blog.usecase.sql';
 import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDtoSql } from '../../posts/api/view-dto/post.view-dto.sql';
-import { GetBlogPostsQuerySql } from '../application/queries/get-blog-posts.query.sql';
+import { GetBlogPostsQuerySql } from '../../posts/application/queries/get-blog-posts.query.sql';
 import { CreateBlogPostInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 import { CreatePostCommandSql } from '../../posts/application/usecases/create-post.usecase.sql';
 import { GetPostByIdOrInternalFailQuerySql } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
+import { UpdatePostInputDtoSql } from './input-dto/update-blog-post.input-dto.sql';
+import { UpdateBlogPostCommandSql } from '../../posts/application/usecases/update-blog-post.usecase.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -120,6 +122,26 @@ export class BlogsSaController {
 
     return this.queryBus.execute(
       new GetPostByIdOrInternalFailQuerySql(createdPostId, undefined),
+    );
+  }
+
+  @Put(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlogPost(
+    @Param(
+      'blogId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    blogId: number,
+    @Param(
+      'postId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    postId: number,
+    @Body() body: UpdatePostInputDtoSql,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateBlogPostCommandSql(blogId, postId, body),
     );
   }
 }

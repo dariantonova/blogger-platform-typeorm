@@ -924,6 +924,47 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/sa/blogs/{blogId}/posts/{postId}": {
+        "put": {
+          "operationId": "BlogsSaController_updateBlogPost",
+          "parameters": [
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePostInputDtoSql"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",
@@ -1005,6 +1046,10 @@ window.onload = function() {
           "properties": {}
         },
         "UpdateCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdatePostInputDtoSql": {
           "type": "object",
           "properties": {}
         }

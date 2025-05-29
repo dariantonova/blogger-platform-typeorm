@@ -53,8 +53,7 @@ export class BlogsQueryRepositorySql {
     const sortDirection =
       queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 
-    params.push(limit);
-    params.push(offset);
+    params.push(limit, offset);
 
     const findSql = `
     SELECT

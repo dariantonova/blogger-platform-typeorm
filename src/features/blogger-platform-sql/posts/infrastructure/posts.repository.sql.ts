@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreatePostRepoDto } from './dto/create-post.repo-dto';
 import { PostDtoSql } from '../dto/post.dto.sql';
 import { buildWhereClause } from '../../../../utils/sql/build-where-clause';
 import { mapPostRowsToDtos } from './mappers/post.mapper';
+import { UpdateBlogPostRepoDto } from './dto/update-blog-post.repo-dto';
 
 @Injectable()
 export class PostsRepositorySql {
@@ -47,6 +48,57 @@ export class PostsRepositorySql {
     const posts: PostDtoSql[] = mapPostRowsToDtos(findResult);
 
     return posts[0] ? posts[0] : null;
+  }
+
+  async findByIdAndBlogId(
+    id: number,
+    blogId: number,
+  ): Promise<PostDtoSql | null> {
+    const whereParts = ['p.deleted_at IS NULL', 'p.id = $1', 'p.blog_id = $2'];
+    const whereClause = buildWhereClause(whereParts);
+
+    const findSql = this.getPostsSelectSql(whereClause, '', '');
+    const findResult = await this.dataSource.query(findSql, [id, blogId]);
+
+    const posts: PostDtoSql[] = mapPostRowsToDtos(findResult);
+
+    return posts[0] ? posts[0] : null;
+  }
+
+  async findByIdAndBlogIdOrNotFoundFail(
+    id: number,
+    blogId: number,
+  ): Promise<PostDtoSql> {
+    const post = await this.findByIdAndBlogId(id, blogId);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
+  }
+
+  async updateBlogPost(
+    postId: number,
+    blogId: number,
+    dto: UpdateBlogPostRepoDto,
+  ): Promise<void> {
+    const updateQuery = `
+    UPDATE posts
+    SET title = $1,
+        short_description = $2,
+        content = $3,
+        updated_at = now()
+    WHERE id = $4
+    AND blog_id = $5;
+    `;
+    await this.dataSource.query(updateQuery, [
+      dto.title,
+      dto.shortDescription,
+      dto.content,
+      postId,
+      blogId,
+    ]);
   }
 
   getPostLikesCteParts(): string[] {

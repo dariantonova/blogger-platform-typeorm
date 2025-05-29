@@ -1008,6 +1008,29 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/blogs/{blogId}/posts": {
+        "get": {
+          "operationId": "BlogsControllerSql_getBlogPosts",
+          "parameters": [
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerSql"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",

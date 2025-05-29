@@ -963,6 +963,35 @@ window.onload = function() {
           "tags": [
             "BlogsSa"
           ]
+        },
+        "delete": {
+          "operationId": "BlogsSaController_deleteBlogPost",
+          "parameters": [
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            },
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
         }
       },
       "/api/testing/all-data": {

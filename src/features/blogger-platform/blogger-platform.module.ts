@@ -56,6 +56,7 @@ import { PostsQueryRepositorySql } from '../blogger-platform-sql/posts/infrastru
 import { CreatePostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/create-post.usecase.sql';
 import { GetPostByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 import { UpdateBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/update-blog-post.usecase.sql';
+import { DeleteBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/delete-blog-post.usecase.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -104,6 +105,7 @@ const commandHandlersSql = [
   DeleteBlogUseCaseSql,
   CreatePostUseCaseSql,
   UpdateBlogPostUseCaseSql,
+  DeleteBlogPostUseCaseSql,
 ];
 
 @Module({

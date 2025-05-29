@@ -32,6 +32,7 @@ import { CreatePostCommandSql } from '../../posts/application/usecases/create-po
 import { GetPostByIdOrInternalFailQuerySql } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 import { UpdatePostInputDtoSql } from './input-dto/update-blog-post.input-dto.sql';
 import { UpdateBlogPostCommandSql } from '../../posts/application/usecases/update-blog-post.usecase.sql';
+import { DeleteBlogPostCommandSql } from '../../posts/application/usecases/delete-blog-post.usecase.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -143,5 +144,22 @@ export class BlogsSaController {
     await this.commandBus.execute(
       new UpdateBlogPostCommandSql(blogId, postId, body),
     );
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlogPost(
+    @Param(
+      'blogId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    blogId: number,
+    @Param(
+      'postId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    postId: number,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteBlogPostCommandSql(blogId, postId));
   }
 }

@@ -1031,6 +1031,29 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/blogs/{id}": {
+        "get": {
+          "operationId": "BlogsControllerSql_getBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerSql"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",

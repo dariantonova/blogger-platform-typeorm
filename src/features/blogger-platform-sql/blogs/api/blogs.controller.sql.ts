@@ -18,6 +18,7 @@ import { GetBlogPostsQuerySql } from '../../posts/application/queries/get-blog-p
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 import { JwtAccessOptionalAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-optional-auth.guard.sql';
 import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
+import { GetBlogByIdOrNotFoundFailQuerySql } from '../application/queries/get-blog-by-id-or-not-found-fail.query.sql';
 
 @Controller('sql/blogs')
 export class BlogsControllerSql {
@@ -47,5 +48,16 @@ export class BlogsControllerSql {
     return this.queryBus.execute(
       new GetBlogPostsQuerySql(blogId, query, user?.id),
     );
+  }
+
+  @Get(':id')
+  async getBlog(
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+  ): Promise<BlogViewDtoSql> {
+    return this.queryBus.execute(new GetBlogByIdOrNotFoundFailQuerySql(id));
   }
 }

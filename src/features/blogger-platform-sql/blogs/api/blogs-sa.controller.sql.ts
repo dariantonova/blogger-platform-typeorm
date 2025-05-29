@@ -27,6 +27,9 @@ import { DeleteBlogCommandSql } from '../application/usecases/delete-blog.usecas
 import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDtoSql } from '../../posts/api/view-dto/post.view-dto.sql';
 import { GetBlogPostsQuerySql } from '../application/queries/get-blog-posts.query.sql';
+import { CreateBlogPostInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
+import { CreatePostCommandSql } from '../../posts/application/usecases/create-post.usecase.sql';
+import { GetPostByIdOrInternalFailQuerySql } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -94,25 +97,29 @@ export class BlogsSaController {
     );
   }
 
-  // @Post(':blogId/posts')
-  // async createBlogPost(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Body() body: CreateBlogPostInputDto,
-  // ): Promise<PostViewDto> {
-  //   const createdPostId = await this.commandBus.execute<
-  //     CreatePostCommand,
-  //     string
-  //   >(
-  //     new CreatePostCommand({
-  //       title: body.title,
-  //       shortDescription: body.shortDescription,
-  //       content: body.content,
-  //       blogId,
-  //     }),
-  //   );
-  //
-  //   return this.queryBus.execute(
-  //     new GetPostByIdOrInternalFailQuery(createdPostId, undefined),
-  //   );
-  // }
+  @Post(':blogId/posts')
+  async createBlogPost(
+    @Param(
+      'blogId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    blogId: number,
+    @Body() body: CreateBlogPostInputDto,
+  ): Promise<PostViewDtoSql> {
+    const createdPostId = await this.commandBus.execute<
+      CreatePostCommandSql,
+      number
+    >(
+      new CreatePostCommandSql({
+        title: body.title,
+        shortDescription: body.shortDescription,
+        content: body.content,
+        blogId,
+      }),
+    );
+
+    return this.queryBus.execute(
+      new GetPostByIdOrInternalFailQuerySql(createdPostId, undefined),
+    );
+  }
 }

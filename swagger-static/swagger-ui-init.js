@@ -891,6 +891,37 @@ window.onload = function() {
           "tags": [
             "BlogsSa"
           ]
+        },
+        "post": {
+          "operationId": "BlogsSaController_createBlogPost",
+          "parameters": [
+            {
+              "name": "blogId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlogPostInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSa"
+          ]
         }
       },
       "/api/testing/all-data": {

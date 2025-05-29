@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetPostsQueryParams } from '../../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
@@ -7,90 +7,38 @@ import { PostDtoSql } from '../../dto/post.dto.sql';
 import { camelCaseToSnakeCase } from '../../../../../utils/camel-case-to-snake-case';
 import { PostsSortBy } from '../../../../blogger-platform/posts/api/input-dto/posts-sort-by';
 import { mapPostRowsToDtos } from '../mappers/post.mapper';
+import { buildWhereClause } from '../../../../../utils/sql/build-where-clause';
+import { buildPaginationClause } from '../../../../../utils/sql/build-pagination-clause';
+import { PostsRepositorySql } from '../posts.repository.sql';
 
 @Injectable()
 export class PostsQueryRepositorySql {
-  constructor(@InjectDataSource() private dataSource: DataSource) {}
+  constructor(
+    @InjectDataSource() private dataSource: DataSource,
+    private postsRepository: PostsRepositorySql,
+  ) {}
 
-  async findBlogPosts(
-    blogId: number,
+  async findManyByWhereAndQuery(
+    whereParts: string[],
+    whereSqlParams: any[],
     queryParams: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostDtoSql[]>> {
-    const params: any[] = [blogId];
-    const whereParts = [
-      'p.deleted_at IS NULL',
-      `p.blog_id = $${params.length}`,
-    ];
+    const whereClause = buildWhereClause(whereParts);
 
-    const whereClause =
-      whereParts.length > 0 ? 'WHERE ' + whereParts.join(' AND ') : '';
-
-    const searchParams = [...params];
-
-    const allowedSortFields = Object.values(PostsSortBy); // Защита от SQL-инъекций
-    const sortBy = camelCaseToSnakeCase(
-      allowedSortFields.includes(queryParams.sortBy)
-        ? queryParams.sortBy
-        : PostsSortBy.CreatedAt,
-    );
-    const sortDirection =
-      queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+    const orderClause = this.buildOrderClause(queryParams);
 
     const limit = queryParams.pageSize;
     const offset = queryParams.calculateSkip();
 
-    params.push(limit);
-    params.push(offset);
+    const sqlParams = [...whereSqlParams, limit, offset];
+    const paginationClause = buildPaginationClause(sqlParams.length);
 
-    const newestPostLikesRanked = `
-    SELECT
-    pl.post_id,
-    pl.user_id,
-    pl.created_at AS added_at,
-    u.login,
-    ROW_NUMBER() OVER (PARTITION BY pl.post_id ORDER BY pl.created_at DESC) AS rn
-    FROM post_likes pl
-    LEFT JOIN users u ON pl.user_id = u.id
-    WHERE pl.status = 'Like'
-    `;
-
-    const postNewestLikesQuery = `
-    SELECT *
-    FROM newest_post_likes_ranked
-    WHERE rn <= 3
-    `;
-
-    const postLikesCountsQuery = `
-    SELECT
-    pl.post_id,
-    COUNT(*) FILTER(WHERE status = 'Like')::int as likes_count, 
-    COUNT(*) FILTER(WHERE status = 'Dislike')::int as dislikes_count
-    FROM post_likes pl
-    GROUP BY pl.post_id
-    `;
-
-    const findSql = `
-    WITH newest_post_likes_ranked AS (${newestPostLikesRanked}),
-    post_newest_likes AS (${postNewestLikesQuery}),
-    post_likes_counts AS (${postLikesCountsQuery})
-    SELECT
-    p.id, p.title, p.short_description, p.content, p.created_at, p.updated_at,
-    p.blog_id, b.name as blog_name,
-    COALESCE(plc.likes_count, 0) as likes_count, 
-    COALESCE(plc.dislikes_count, 0) as dislikes_count,
-    pnl.user_id as like_user_id, pnl.login as like_user_login, pnl.added_at as like_added_at
-    FROM posts p
-    LEFT JOIN blogs b
-    ON p.blog_id = b.id
-    LEFT JOIN post_newest_likes pnl
-    ON p.id = pnl.post_id
-    LEFT JOIN post_likes_counts plc
-    ON p.id = plc.post_id
-    ${whereClause}
-    ORDER BY ${sortBy} ${sortDirection}
-    LIMIT $${params.length - 1} OFFSET $${params.length};
-    `;
-    const findResult = await this.dataSource.query(findSql, params);
+    const findSql = this.postsRepository.getPostsSelectSql(
+      whereClause,
+      orderClause,
+      paginationClause,
+    );
+    const findResult = await this.dataSource.query(findSql, sqlParams);
 
     const countSql = `
     SELECT
@@ -98,7 +46,7 @@ export class PostsQueryRepositorySql {
     FROM posts p
     ${whereClause};
     `;
-    const countResult = await this.dataSource.query(countSql, searchParams);
+    const countResult = await this.dataSource.query(countSql, whereSqlParams);
     const totalCount = countResult[0].count;
 
     const posts: PostDtoSql[] = mapPostRowsToDtos(findResult);
@@ -109,5 +57,41 @@ export class PostsQueryRepositorySql {
       page: queryParams.pageNumber,
       pageSize: queryParams.pageSize,
     });
+  }
+
+  async findBlogPosts(
+    blogId: number,
+    queryParams: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostDtoSql[]>> {
+    const whereParams: any[] = [blogId];
+    const whereParts = [
+      'p.deleted_at IS NULL',
+      `p.blog_id = $${whereParams.length}`,
+    ];
+
+    return this.findManyByWhereAndQuery(whereParts, whereParams, queryParams);
+  }
+
+  async findByIdOrInternalFail(id: number): Promise<PostDtoSql> {
+    const post = await this.postsRepository.findById(id);
+
+    if (!post) {
+      throw new InternalServerErrorException('Post not found');
+    }
+
+    return post;
+  }
+
+  buildOrderClause(queryParams: GetPostsQueryParams): string {
+    const allowedSortFields = Object.values(PostsSortBy); // Защита от SQL-инъекций
+    const sortBy = camelCaseToSnakeCase(
+      allowedSortFields.includes(queryParams.sortBy)
+        ? queryParams.sortBy
+        : PostsSortBy.CreatedAt,
+    );
+    const sortDirection =
+      queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    return `ORDER BY ${sortBy} ${sortDirection}`;
   }
 }

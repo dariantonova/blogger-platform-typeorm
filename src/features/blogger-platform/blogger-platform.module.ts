@@ -45,10 +45,7 @@ import { BlogsSaController } from '../blogger-platform-sql/blogs/api/blogs-sa.co
 import { GetBlogsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blogs.query.sql';
 import { BlogsQueryRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/query/blogs.query-repository.sql';
 import { BlogsRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/blogs.repository.sql';
-import {
-  GetBlogByIdOrInternalFailQueryHandlerSql,
-  GetBlogByIdOrInternalFailQuerySql,
-} from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-internal-fail.query.sql';
+import { GetBlogByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-internal-fail.query.sql';
 import { CreateBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/create-blog.usecase.sql';
 import { UpdateBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/usecases/update-blog.usecase.sql';
 import { PostsRepositorySql } from '../blogger-platform-sql/posts/infrastructure/posts.repository.sql';
@@ -56,6 +53,8 @@ import { DeleteBlogUseCaseSql } from '../blogger-platform-sql/blogs/application/
 import { GetBlogPostsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blog-posts.query.sql';
 import { PostsQueryServiceSql } from '../blogger-platform-sql/posts/application/posts.query-service.sql';
 import { PostsQueryRepositorySql } from '../blogger-platform-sql/posts/infrastructure/query/posts.query-repository.sql';
+import { CreatePostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/create-post.usecase.sql';
+import { GetPostByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -96,11 +95,13 @@ const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
   GetBlogByIdOrInternalFailQueryHandlerSql,
   GetBlogPostsQueryHandlerSql,
+  GetPostByIdOrInternalFailQueryHandlerSql,
 ];
 const commandHandlersSql = [
   CreateBlogUseCaseSql,
   UpdateBlogUseCaseSql,
   DeleteBlogUseCaseSql,
+  CreatePostUseCaseSql,
 ];
 
 @Module({

@@ -36,7 +36,7 @@ import { DeleteBlogPostCommandSql } from '../../posts/application/usecases/delet
 
 @Controller('sql/sa/blogs')
 @UseGuards(BasicAuthGuard)
-export class BlogsSaController {
+export class BlogsSaControllerSql {
   constructor(
     private commandBus: CommandBus,
     private queryBus: QueryBus,

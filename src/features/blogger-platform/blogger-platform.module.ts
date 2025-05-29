@@ -41,7 +41,7 @@ import { MakeCommentLikeOperationUseCase } from './comments/application/usecases
 import { LikesQueryRepository } from './likes/infrastructure/query/likes.query-repository';
 import { CommentsQueryService } from './comments/application/comments.query-service';
 import { PostsQueryService } from './posts/application/posts.query-service';
-import { BlogsSaController } from '../blogger-platform-sql/blogs/api/blogs-sa.controller.sql';
+import { BlogsSaControllerSql } from '../blogger-platform-sql/blogs/api/blogs-sa.controller.sql';
 import { GetBlogsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blogs.query.sql';
 import { BlogsQueryRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/query/blogs.query-repository.sql';
 import { BlogsRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/blogs.repository.sql';
@@ -57,6 +57,7 @@ import { CreatePostUseCaseSql } from '../blogger-platform-sql/posts/application/
 import { GetPostByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 import { UpdateBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/update-blog-post.usecase.sql';
 import { DeleteBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/delete-blog-post.usecase.sql';
+import { BlogsControllerSql } from '../blogger-platform-sql/blogs/api/blogs.controller.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -85,7 +86,7 @@ const queryHandlers = [
   GetCommentByIdOrInternalFailQueryHandler,
 ];
 
-const controllersSql = [BlogsSaController];
+const controllersSql = [BlogsSaControllerSql, BlogsControllerSql];
 const providersSql = [
   BlogsQueryRepositorySql,
   BlogsRepositorySql,

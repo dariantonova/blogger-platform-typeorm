@@ -782,7 +782,7 @@ window.onload = function() {
       },
       "/api/sql/sa/blogs": {
         "get": {
-          "operationId": "BlogsSaController_getBlogs",
+          "operationId": "BlogsSaControllerSql_getBlogs",
           "parameters": [],
           "responses": {
             "200": {
@@ -790,11 +790,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         },
         "post": {
-          "operationId": "BlogsSaController_createBlog",
+          "operationId": "BlogsSaControllerSql_createBlog",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -812,13 +812,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         }
       },
       "/api/sql/sa/blogs/{id}": {
         "put": {
-          "operationId": "BlogsSaController_updateBlog",
+          "operationId": "BlogsSaControllerSql_updateBlog",
           "parameters": [
             {
               "name": "id",
@@ -845,11 +845,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         },
         "delete": {
-          "operationId": "BlogsSaController_deleteBlog",
+          "operationId": "BlogsSaControllerSql_deleteBlog",
           "parameters": [
             {
               "name": "id",
@@ -866,13 +866,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         }
       },
       "/api/sql/sa/blogs/{blogId}/posts": {
         "get": {
-          "operationId": "BlogsSaController_getBlogPosts",
+          "operationId": "BlogsSaControllerSql_getBlogPosts",
           "parameters": [
             {
               "name": "blogId",
@@ -889,11 +889,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         },
         "post": {
-          "operationId": "BlogsSaController_createBlogPost",
+          "operationId": "BlogsSaControllerSql_createBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -920,13 +920,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         }
       },
       "/api/sql/sa/blogs/{blogId}/posts/{postId}": {
         "put": {
-          "operationId": "BlogsSaController_updateBlogPost",
+          "operationId": "BlogsSaControllerSql_updateBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -961,11 +961,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
           ]
         },
         "delete": {
-          "operationId": "BlogsSaController_deleteBlogPost",
+          "operationId": "BlogsSaControllerSql_deleteBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -990,7 +990,21 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSa"
+            "BlogsSaControllerSql"
+          ]
+        }
+      },
+      "/api/sql/blogs": {
+        "get": {
+          "operationId": "BlogsControllerSql_getBlogs",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerSql"
           ]
         }
       },

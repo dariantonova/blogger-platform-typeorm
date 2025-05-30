@@ -806,11 +806,44 @@ describe('blog posts', () => {
     });
 
     it('should return 404 when trying to update non-existing post', async () => {
-      const nonExistingId = '-1';
+      const nonExistingPostId = '-1';
 
       await postsTestManager.updateBlogPost(
         blog.id,
-        nonExistingId,
+        nonExistingPostId,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update post of non-existing blog', async () => {
+      const createdPosts =
+        await postsTestManager.createBlogPostsWithGeneratedData(1, blog.id);
+      const postToUpdate = createdPosts[0];
+
+      const nonExistingBlogId = '-1';
+
+      await postsTestManager.updateBlogPost(
+        nonExistingBlogId,
+        postToUpdate.id,
+        validInputDto,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to update post of another blog', async () => {
+      const anotherBlog =
+        await blogsCommonTestManager.createBlogWithGeneratedData();
+      const anotherBlogPosts =
+        await postsTestManager.createBlogPostsWithGeneratedData(
+          1,
+          anotherBlog.id,
+        );
+      const anotherBlogPost = anotherBlogPosts[0];
+
+      await postsTestManager.updateBlogPost(
+        blog.id,
+        anotherBlogPost.id,
         validInputDto,
         HttpStatus.NOT_FOUND,
       );
@@ -1154,6 +1187,37 @@ describe('blog posts', () => {
       await postsTestManager.deleteBlogPost(
         blog.id,
         nonExistingPost,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to delete post of non-existing blog', async () => {
+      const createdPosts =
+        await postsTestManager.createBlogPostsWithGeneratedData(1, blog.id);
+      const postToDelete = createdPosts[0];
+
+      const nonExistingBlogId = '-1';
+
+      await postsTestManager.deleteBlogPost(
+        nonExistingBlogId,
+        postToDelete.id,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when trying to delete post of another blog', async () => {
+      const anotherBlog =
+        await blogsCommonTestManager.createBlogWithGeneratedData();
+      const anotherBlogPosts =
+        await postsTestManager.createBlogPostsWithGeneratedData(
+          1,
+          anotherBlog.id,
+        );
+      const anotherBlogPost = anotherBlogPosts[0];
+
+      await postsTestManager.deleteBlogPost(
+        blog.id,
+        anotherBlogPost.id,
         HttpStatus.NOT_FOUND,
       );
     });

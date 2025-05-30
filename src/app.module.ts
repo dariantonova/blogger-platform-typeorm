@@ -22,15 +22,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 export class AppModule {
   static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
     const modules: any[] = [
-      TypeOrmModule.forRoot({
-        type: 'postgres',
-        host: 'localhost',
-        port: 5432,
-        username: 'postgres',
-        password: 'sa',
-        database: 'nest_blogger_platform_dev',
-        autoLoadEntities: false,
-        synchronize: false,
+      TypeOrmModule.forRootAsync({
+        inject: [CoreConfig],
+        useFactory: (coreConfig: CoreConfig) => {
+          return {
+            type: 'postgres',
+            host: coreConfig.pgHost,
+            port: coreConfig.pgPort,
+            username: coreConfig.pgUsername,
+            password: coreConfig.pgPassword,
+            database: coreConfig.pgDbName,
+            autoLoadEntities: false,
+            synchronize: false,
+          };
+        },
       }),
       MongooseModule.forRootAsync({
         inject: [CoreConfig],

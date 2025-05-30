@@ -38,6 +38,34 @@ export class CoreConfig {
   dbName: string;
 
   @IsNotEmpty({
+    message: 'Set Env variable PG_HOST, example: localhost',
+  })
+  pgHost: string;
+
+  @IsNumber(
+    {},
+    {
+      message: 'Set Env variable PG_PORT, example: 5432',
+    },
+  )
+  pgPort: number;
+
+  @IsNotEmpty({
+    message: 'Set Env variable PG_USERNAME, example: postgres',
+  })
+  pgUsername: string;
+
+  @IsNotEmpty({
+    message: 'Set Env variable PG_PASSWORD, example: sa',
+  })
+  pgPassword: string;
+
+  @IsNotEmpty({
+    message: 'Set Env variable PG_DB_NAME, example: my_app_db',
+  })
+  pgDbName: string;
+
+  @IsNotEmpty({
     message:
       'Set Env variable MAIL_TRANSPORT, example: smtps://user@yandex.ru:pass@smtp.yandex.ru',
   })
@@ -115,6 +143,18 @@ export class CoreConfig {
     this.mongoUri = this.configService.get('MONGO_URI') as string;
 
     this.dbName = this.configService.get('DB_NAME') as string;
+
+    this.pgHost = this.configService.get('PG_HOST') as string;
+
+    this.pgPort = configValidationUtility.convertToNumber(
+      this.configService.get('PG_PORT'),
+    ) as number;
+
+    this.pgUsername = this.configService.get('PG_USERNAME') as string;
+
+    this.pgPassword = this.configService.get('PG_PASSWORD') as string;
+
+    this.pgDbName = this.configService.get('PG_DB_NAME') as string;
 
     this.mailTransport = this.configService.get('MAIL_TRANSPORT') as string;
 

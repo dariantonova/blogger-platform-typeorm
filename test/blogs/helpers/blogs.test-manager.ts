@@ -4,6 +4,7 @@ import request, { Response } from 'supertest';
 import { BlogViewDto } from '../../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import {
   BLOGS_PATH,
+  BLOGS_SA_PATH,
   DEFAULT_PAGE_SIZE,
   QueryType,
   VALID_BASIC_AUTH_VALUE,
@@ -20,7 +21,7 @@ export class BlogsTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .post(BLOGS_PATH)
+      .post(BLOGS_SA_PATH)
       .set('Authorization', auth)
       .send(createDto)
       .expect(expectedStatusCode);
@@ -66,13 +67,25 @@ export class BlogsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async getBlogsSa(
+    expectedStatusCode: HttpStatus,
+    query: QueryType = {},
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .get(BLOGS_SA_PATH)
+      .set('Authorization', auth)
+      .query(query)
+      .expect(expectedStatusCode);
+  }
+
   async deleteBlog(
     id: string,
     expectedStatusCode: HttpStatus,
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .delete(BLOGS_PATH + '/' + id)
+      .delete(BLOGS_SA_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
   }
@@ -90,7 +103,7 @@ export class BlogsTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .put(BLOGS_PATH + '/' + id)
+      .put(BLOGS_SA_PATH + '/' + id)
       .set('Authorization', auth)
       .send(updateDto)
       .expect(expectedStatusCode);

@@ -2,7 +2,6 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   caseInsensitiveSearch,
   deleteAllData,
-  generateNonExistingId,
   getPageOfArray,
   initApp,
   invalidBasicAuthTestValues,
@@ -275,8 +274,8 @@ describe('blogs', () => {
         expect(response.body.items).toEqual(expectedItems);
       });
 
-      it(`should return blogs in order of creation if sort field doesn't exist`, async () => {
-        const expectedItems = blogs;
+      it(`should return blogs in desc order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = blogs.toReversed();
 
         const response = await blogsTestManager.getBlogs(HttpStatus.OK, {
           sortBy: 'nonExisting',
@@ -337,6 +336,326 @@ describe('blogs', () => {
     });
   });
 
+  describe('get blogs sa', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should return empty array', async () => {
+      const response = await blogsTestManager.getBlogsSa(HttpStatus.OK);
+
+      const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+      expect(responseBody.items).toEqual([]);
+    });
+
+    it('should return blogs with default pagination and sorting', async () => {
+      const blogs = await blogsTestManager.createBlogsWithGeneratedData(2);
+
+      const response = await blogsTestManager.getBlogsSa(HttpStatus.OK);
+      const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
+      expect(responseBody.items).toEqual(blogs.toReversed());
+      expect(responseBody.totalCount).toBe(blogs.length);
+      expect(responseBody.pagesCount).toBe(1);
+      expect(responseBody.page).toBe(1);
+      expect(responseBody.pageSize).toBe(DEFAULT_BLOGS_PAGE_SIZE);
+    });
+
+    it(`shouldn't return deleted blogs`, async () => {
+      await deleteAllData(app);
+
+      const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+      await blogsTestManager.deleteBlog(blogs[0].id, HttpStatus.NO_CONTENT);
+
+      const response = await blogsTestManager.getBlogsSa(HttpStatus.OK);
+      const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+      expect(responseBody.items).toEqual([]);
+    });
+
+    describe('authentication', () => {
+      beforeAll(async () => {
+        await deleteAllData(app);
+      });
+
+      it('should forbid getting blogs for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await blogsTestManager.getBlogsSa(
+            HttpStatus.UNAUTHORIZED,
+            {},
+            invalidAuthValue,
+          );
+        }
+      });
+    });
+
+    describe('pagination', () => {
+      let blogs: BlogViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blogs = await blogsTestManager.createBlogsWithGeneratedData(12);
+      });
+
+      it('should return specified page of blogs array', async () => {
+        const pageNumber = 2;
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          pageNumber,
+        });
+        const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
+        const expectedPageSize = DEFAULT_BLOGS_PAGE_SIZE;
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          pageNumber,
+          expectedPageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(expectedPageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return specified number of blogs', async () => {
+        const pageSize = 2;
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          pageSize,
+        });
+        const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
+        const expectedPageNumber = 1;
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          expectedPageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(1);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return correct page with specified page size', async () => {
+        const pageNumber = 2;
+        const pageSize = 2;
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          pageNumber,
+          pageSize,
+        });
+        const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+
+        const expectedItems = getPageOfArray(
+          blogs.toReversed(),
+          pageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return empty array if page number exceeds total number of pages', async () => {
+        const pageNumber = 20;
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          pageNumber,
+        });
+        const responseBody: PaginatedViewDto<BlogViewDto[]> = response.body;
+        expect(responseBody.items).toEqual([]);
+      });
+    });
+
+    describe('sorting', () => {
+      let blogs: BlogViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogsData: CreateBlogInputDto[] = [
+          {
+            name: 'blog-a',
+            description: 'desc-z',
+            websiteUrl: 'https://site-1.com',
+          },
+          {
+            name: 'blog-b',
+            description: 'desc-y',
+            websiteUrl: 'https://site-3.com',
+          },
+          {
+            name: 'blog-g',
+            description: 'desc-x',
+            websiteUrl: 'https://site-2.com',
+          },
+          {
+            name: 'blog-d',
+            description: 'desc-w',
+            websiteUrl: 'https://site-4.com',
+          },
+        ];
+        blogs = await blogsTestManager.createBlogs(blogsData);
+      });
+
+      it('should return blogs sorted by creation date in desc order', async () => {
+        const expectedItems = sortArrByDateStrField(blogs, 'createdAt', 'desc');
+
+        const response1 = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.CreatedAt,
+          sortDirection: SortDirection.Desc,
+        });
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortDirection: SortDirection.Desc,
+        });
+        expect(response2.body.items).toEqual(expectedItems);
+
+        const response3 = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.CreatedAt,
+        });
+        expect(response3.body.items).toEqual(expectedItems);
+
+        const response4 = await blogsTestManager.getBlogsSa(HttpStatus.OK);
+        expect(response4.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by creation date in asc order', async () => {
+        const expectedItems = sortArrByDateStrField(blogs, 'createdAt', 'asc');
+
+        const response1 = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.CreatedAt,
+          sortDirection: SortDirection.Asc,
+        });
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortDirection: SortDirection.Asc,
+        });
+        expect(response2.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by name in desc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'name', 'desc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.Name,
+          sortDirection: SortDirection.Desc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by name in asc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'name', 'asc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.Name,
+          sortDirection: SortDirection.Asc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by description in desc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'description', 'desc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.Description,
+          sortDirection: SortDirection.Desc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by description in asc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'description', 'asc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.Description,
+          sortDirection: SortDirection.Asc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by website url in desc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'websiteUrl', 'desc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.WebsiteUrl,
+          sortDirection: SortDirection.Desc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return blogs sorted by website url in asc order', async () => {
+        const expectedItems = sortArrByStrField(blogs, 'websiteUrl', 'asc');
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: BlogsSortBy.WebsiteUrl,
+          sortDirection: SortDirection.Asc,
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it(`should return blogs in desc order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = blogs.toReversed();
+
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          sortBy: 'nonExisting',
+        });
+        expect(response.body.items).toEqual(expectedItems);
+      });
+    });
+
+    describe('filtering', () => {
+      let blogs: BlogViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blogsData: CreateBlogInputDto[] = [
+          {
+            name: 'blog-abc',
+            description: 'description',
+            websiteUrl: 'https://site.com',
+          },
+          {
+            name: 'blog-baB',
+            description: 'description',
+            websiteUrl: 'https://site.com',
+          },
+          {
+            name: 'blog-ABl',
+            description: 'description',
+            websiteUrl: 'https://site.com',
+          },
+          {
+            name: 'blog-d',
+            description: 'description',
+            websiteUrl: 'https://site.com',
+          },
+        ];
+        blogs = await blogsTestManager.createBlogs(blogsData);
+      });
+
+      it('should return blogs with name containing search name term', async () => {
+        const searchNameTerm = 'ab';
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          searchNameTerm,
+        });
+        const expectedItems = blogs
+          .filter((b) => caseInsensitiveSearch(b.name, searchNameTerm))
+          .toReversed();
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return empty array if no blog matches search name term', async () => {
+        const searchNameTerm = 'non-existing';
+        const response = await blogsTestManager.getBlogsSa(HttpStatus.OK, {
+          searchNameTerm,
+        });
+        expect(response.body.items).toEqual([]);
+      });
+    });
+  });
+
   describe('get blog', () => {
     beforeAll(async () => {
       await deleteAllData(app);
@@ -364,12 +683,17 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to get non-existing blog', async () => {
-      const nonExistingId = generateNonExistingId();
+      const nonExistingId = '-1';
       await blogsTestManager.getBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
-    it('should return 404 when blog id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
+    // it('should return 404 when blog id is not valid ObjectId', async () => {
+    //   const invalidId = 'not ObjectId';
+    //   await blogsTestManager.getBlog(invalidId, HttpStatus.NOT_FOUND);
+    // });
+
+    it('should return 404 when blog id is not a number', async () => {
+      const invalidId = 'string';
       await blogsTestManager.getBlog(invalidId, HttpStatus.NOT_FOUND);
     });
 
@@ -721,7 +1045,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to update non-existing blog', async () => {
-      const nonExistingId = generateNonExistingId();
+      const nonExistingId = '-1';
 
       await blogsTestManager.updateBlog(
         nonExistingId,
@@ -730,8 +1054,18 @@ describe('blogs', () => {
       );
     });
 
-    it('should return 404 when blog id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
+    // it('should return 404 when blog id is not valid ObjectId', async () => {
+    //   const invalidId = 'not ObjectId';
+    //
+    //   await blogsTestManager.updateBlog(
+    //     invalidId,
+    //     validInputDto,
+    //     HttpStatus.NOT_FOUND,
+    //   );
+    // });
+
+    it('should return 404 when blog id is not a number', async () => {
+      const invalidId = 'string';
 
       await blogsTestManager.updateBlog(
         invalidId,
@@ -1029,12 +1363,17 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to delete non-existing blog', async () => {
-      const nonExistingId = generateNonExistingId();
+      const nonExistingId = '-1';
       await blogsTestManager.deleteBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
-    it('should return 404 when blog id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
+    // it('should return 404 when blog id is not valid ObjectId', async () => {
+    //   const invalidId = 'not ObjectId';
+    //   await blogsTestManager.deleteBlog(invalidId, HttpStatus.NOT_FOUND);
+    // });
+
+    it('should return 404 when blog id is not a number', async () => {
+      const invalidId = 'string';
       await blogsTestManager.deleteBlog(invalidId, HttpStatus.NOT_FOUND);
     });
 

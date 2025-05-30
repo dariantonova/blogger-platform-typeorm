@@ -458,7 +458,7 @@ describe('users', () => {
 
       it('should return 404 when trying to delete non-existing user', async () => {
         // const nonExistingId = generateNonExistingId();
-        const nonExistingId = '100000';
+        const nonExistingId = '-1';
         await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
       });
 

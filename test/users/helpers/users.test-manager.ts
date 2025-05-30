@@ -4,7 +4,7 @@ import request, { Response } from 'supertest';
 import {
   DEFAULT_PAGE_SIZE,
   QueryType,
-  USERS_PATH,
+  USERS_SA_PATH,
   VALID_BASIC_AUTH_VALUE,
 } from '../../helpers/helper';
 import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/user.view-dto';
@@ -28,7 +28,7 @@ export class UsersTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .post(USERS_PATH)
+      .post(USERS_SA_PATH)
       .set('Authorization', auth)
       .send(createDto)
       .expect(expectedStatusCode);
@@ -40,7 +40,7 @@ export class UsersTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .get(USERS_PATH)
+      .get(USERS_SA_PATH)
       .query(query)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
@@ -52,7 +52,7 @@ export class UsersTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .delete(USERS_PATH + '/' + id)
+      .delete(USERS_SA_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
   }

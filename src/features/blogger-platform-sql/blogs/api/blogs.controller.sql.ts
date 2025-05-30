@@ -20,7 +20,8 @@ import { JwtAccessOptionalAuthGuardSql } from '../../../user-accounts-sql/guards
 import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
 import { GetBlogByIdOrNotFoundFailQuerySql } from '../application/queries/get-blog-by-id-or-not-found-fail.query.sql';
 
-@Controller('sql/blogs')
+// @Controller('sql/blogs')
+@Controller('blogs')
 export class BlogsControllerSql {
   constructor(
     private commandBus: CommandBus,

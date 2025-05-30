@@ -34,7 +34,8 @@ import { UpdatePostInputDtoSql } from './input-dto/update-blog-post.input-dto.sq
 import { UpdateBlogPostCommandSql } from '../../posts/application/usecases/update-blog-post.usecase.sql';
 import { DeleteBlogPostCommandSql } from '../../posts/application/usecases/delete-blog-post.usecase.sql';
 
-@Controller('sql/sa/blogs')
+// @Controller('sql/sa/blogs')
+@Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class BlogsSaControllerSql {
   constructor(

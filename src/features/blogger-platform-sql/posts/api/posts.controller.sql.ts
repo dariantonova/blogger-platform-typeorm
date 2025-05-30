@@ -17,7 +17,8 @@ import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-d
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { GetPostsQuerySql } from '../application/queries/get-posts.query.sql';
 
-@Controller('sql/posts')
+// @Controller('sql/posts')
+@Controller('posts')
 export class PostsControllerSql {
   constructor(private queryBus: QueryBus) {}
 

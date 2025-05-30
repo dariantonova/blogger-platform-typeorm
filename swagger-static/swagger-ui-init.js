@@ -309,369 +309,6 @@ window.onload = function() {
           ]
         }
       },
-      "/api/blogs": {
-        "get": {
-          "operationId": "BlogsController_getBlogs",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        },
-        "post": {
-          "operationId": "BlogsController_createBlog",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBlogInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        }
-      },
-      "/api/blogs/{id}": {
-        "get": {
-          "operationId": "BlogsController_getBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        },
-        "put": {
-          "operationId": "BlogsController_updateBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateBlogInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        },
-        "delete": {
-          "operationId": "BlogsController_deleteBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        }
-      },
-      "/api/blogs/{blogId}/posts": {
-        "get": {
-          "operationId": "BlogsController_getBlogPosts",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        },
-        "post": {
-          "operationId": "BlogsController_createBlogPost",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBlogPostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Blogs"
-          ]
-        }
-      },
-      "/api/posts": {
-        "get": {
-          "operationId": "PostsController_getPosts",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        },
-        "post": {
-          "operationId": "PostsController_createPost",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreatePostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
-      "/api/posts/{id}": {
-        "get": {
-          "operationId": "PostsController_getPost",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        },
-        "put": {
-          "operationId": "PostsController_updatePost",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdatePostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        },
-        "delete": {
-          "operationId": "PostsController_deletePost",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
-      "/api/posts/{postId}/comments": {
-        "get": {
-          "operationId": "PostsController_getPostComments",
-          "parameters": [
-            {
-              "name": "postId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        },
-        "post": {
-          "operationId": "PostsController_createPostComment",
-          "parameters": [
-            {
-              "name": "postId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreatePostCommentInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
-      "/api/posts/{postId}/like-status": {
-        "put": {
-          "operationId": "PostsController_makePostLikeOperation",
-          "parameters": [
-            {
-              "name": "postId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LikeInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Posts"
-          ]
-        }
-      },
       "/api/comments/{id}": {
         "get": {
           "operationId": "CommentsController_getComment",
@@ -780,7 +417,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/sa/blogs": {
+      "/api/sa/blogs": {
         "get": {
           "operationId": "BlogsSaControllerSql_getBlogs",
           "parameters": [],
@@ -816,7 +453,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/sa/blogs/{id}": {
+      "/api/sa/blogs/{id}": {
         "put": {
           "operationId": "BlogsSaControllerSql_updateBlog",
           "parameters": [
@@ -870,7 +507,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/sa/blogs/{blogId}/posts": {
+      "/api/sa/blogs/{blogId}/posts": {
         "get": {
           "operationId": "BlogsSaControllerSql_getBlogPosts",
           "parameters": [
@@ -924,7 +561,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/sa/blogs/{blogId}/posts/{postId}": {
+      "/api/sa/blogs/{blogId}/posts/{postId}": {
         "put": {
           "operationId": "BlogsSaControllerSql_updateBlogPost",
           "parameters": [
@@ -994,7 +631,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/blogs": {
+      "/api/blogs": {
         "get": {
           "operationId": "BlogsControllerSql_getBlogs",
           "parameters": [],
@@ -1008,7 +645,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/blogs/{blogId}/posts": {
+      "/api/blogs/{blogId}/posts": {
         "get": {
           "operationId": "BlogsControllerSql_getBlogPosts",
           "parameters": [
@@ -1031,7 +668,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/blogs/{id}": {
+      "/api/blogs/{id}": {
         "get": {
           "operationId": "BlogsControllerSql_getBlog",
           "parameters": [
@@ -1054,7 +691,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/posts": {
+      "/api/posts": {
         "get": {
           "operationId": "PostsControllerSql_getPosts",
           "parameters": [],
@@ -1068,7 +705,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/posts/{id}": {
+      "/api/posts/{id}": {
         "get": {
           "operationId": "PostsControllerSql_getPost",
           "parameters": [
@@ -1143,6 +780,14 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
+        "UpdateCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "LikeInputDto": {
+          "type": "object",
+          "properties": {}
+        },
         "CreateBlogInputDto": {
           "type": "object",
           "properties": {}
@@ -1152,26 +797,6 @@ window.onload = function() {
           "properties": {}
         },
         "CreateBlogPostInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "CreatePostInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "UpdatePostInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "CreatePostCommentInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "LikeInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "UpdateCommentInputDto": {
           "type": "object",
           "properties": {}
         },

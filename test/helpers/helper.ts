@@ -18,9 +18,10 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerGuardMock } from '../mock/throttler-guard.mock';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
+export const BLOGS_SA_PATH = `/${GLOBAL_PREFIX}/sa/blogs`;
 export const POSTS_PATH = `/${GLOBAL_PREFIX}/posts`;
 export const COMMENTS_PATH = `/${GLOBAL_PREFIX}/comments`;
-export const USERS_PATH = `/${GLOBAL_PREFIX}/sa/users`;
+export const USERS_SA_PATH = `/${GLOBAL_PREFIX}/sa/users`;
 export const AUTH_PATH = `/${GLOBAL_PREFIX}/auth`;
 export const SECURITY_DEVICES_PATH = `/${GLOBAL_PREFIX}/security/devices`;
 

@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   BLOGS_PATH,
   DEFAULT_PAGE_SIZE,
+  buildBlogPostsPath,
   POSTS_PATH,
   QueryType,
   VALID_BASIC_AUTH_VALUE,
@@ -9,6 +10,7 @@ import {
 import request, { Response } from 'supertest';
 import { CreatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { CreateBlogPostInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
 export const DEFAULT_POSTS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -111,9 +113,73 @@ export class PostsTestManager {
     auth: string = VALID_BASIC_AUTH_VALUE,
   ): Promise<Response> {
     return request(this.app.getHttpServer())
-      .post(BLOGS_PATH + '/' + blogId + '/posts')
+      .post(buildBlogPostsPath(true, blogId))
       .set('Authorization', auth)
       .send(createDto)
+      .expect(expectedStatusCode);
+  }
+
+  async createBlogPosts(
+    blogId: string,
+    inputData: CreateBlogPostInputDto[],
+  ): Promise<PostViewDto[]> {
+    const responses: Response[] = [];
+    for (const createDto of inputData) {
+      const response = await this.createBlogPost(
+        blogId,
+        createDto,
+        HttpStatus.CREATED,
+      );
+      responses.push(response);
+    }
+    return responses.map((res) => res.body as PostViewDto);
+  }
+
+  generateBlogPostsData(numberOfPosts: number): CreateBlogPostInputDto[] {
+    const postsData: CreateBlogPostInputDto[] = [];
+    for (let i = 1; i < numberOfPosts + 1; i++) {
+      const postData: CreateBlogPostInputDto = {
+        title: 'post ' + i,
+        shortDescription: 'short description ' + i,
+        content: 'content ' + i,
+      };
+      postsData.push(postData);
+    }
+    return postsData;
+  }
+
+  async createBlogPostsWithGeneratedData(
+    numberOfPosts: number,
+    blogId: string,
+  ): Promise<PostViewDto[]> {
+    const postsInputData: CreateBlogPostInputDto[] =
+      this.generateBlogPostsData(numberOfPosts);
+    return this.createBlogPosts(blogId, postsInputData);
+  }
+
+  async deleteBlogPost(
+    blogId: string,
+    postId: string,
+    expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(buildBlogPostsPath(true, blogId, postId))
+      .set('Authorization', auth)
+      .expect(expectedStatusCode);
+  }
+
+  async updateBlogPost(
+    blogId: string,
+    postId: string,
+    updateDto: any,
+    expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .put(buildBlogPostsPath(true, blogId, postId))
+      .set('Authorization', auth)
+      .send(updateDto)
       .expect(expectedStatusCode);
   }
 
@@ -123,7 +189,7 @@ export class PostsTestManager {
     query: QueryType = {},
   ) {
     return request(this.app.getHttpServer())
-      .get(BLOGS_PATH + '/' + blogId + '/posts')
+      .get(buildBlogPostsPath(false, blogId))
       .query(query)
       .expect(expectedStatusCode);
   }

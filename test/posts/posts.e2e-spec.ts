@@ -1,10 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   deleteAllData,
-  generateNonExistingId,
   getPageOfArray,
   initApp,
-  invalidBasicAuthTestValues,
   sortArrByDateStrField,
   sortArrByStrField,
 } from '../helpers/helper';
@@ -15,13 +13,11 @@ import {
 import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
-import { CreatePostInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
-import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
-import { UpdatePostInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/update-post.input-dto';
+import { CreateBlogPostInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
 describe('posts', () => {
   let app: INestApplication;
@@ -53,7 +49,7 @@ describe('posts', () => {
 
     it('should return posts with default pagination and sorting', async () => {
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      const posts = await postsTestManager.createPostsWithGeneratedData(
+      const posts = await postsTestManager.createBlogPostsWithGeneratedData(
         2,
         blog.id,
       );
@@ -72,11 +68,15 @@ describe('posts', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      const posts = await postsTestManager.createPostsWithGeneratedData(
+      const posts = await postsTestManager.createBlogPostsWithGeneratedData(
         1,
         blog.id,
       );
-      await postsTestManager.deletePost(posts[0].id, HttpStatus.NO_CONTENT);
+      await postsTestManager.deleteBlogPost(
+        blog.id,
+        posts[0].id,
+        HttpStatus.NO_CONTENT,
+      );
 
       const response = await postsTestManager.getPosts(HttpStatus.OK);
       const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
@@ -90,7 +90,7 @@ describe('posts', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        posts = await postsTestManager.createPostsWithGeneratedData(
+        posts = await postsTestManager.createBlogPostsWithGeneratedData(
           12,
           blog.id,
         );
@@ -194,33 +194,38 @@ describe('posts', () => {
         ];
         const blogs = await blogsCommonTestManager.createBlogs(blogsData);
 
-        const postsData: CreatePostInputDto[] = [
+        const postsData: CreateBlogPostInputDto[] = [
           {
             title: 'post-a',
             shortDescription: 'desc-3',
             content: 'content-d',
-            blogId: blogs[0].id,
           },
           {
             title: 'post-c',
             shortDescription: 'desc-4',
             content: 'content-c',
-            blogId: blogs[1].id,
           },
           {
             title: 'post-b',
             shortDescription: 'desc-2',
             content: 'content-b',
-            blogId: blogs[2].id,
           },
           {
             title: 'post-d',
             shortDescription: 'desc-1',
             content: 'content-a',
-            blogId: blogs[3].id,
           },
         ];
-        posts = await postsTestManager.createPosts(postsData);
+
+        posts = [];
+        for (let i = 0; i < blogs.length; i++) {
+          const createResponse = await postsTestManager.createBlogPost(
+            blogs[i].id,
+            postsData[i],
+            HttpStatus.CREATED,
+          );
+          posts.push(createResponse.body as PostViewDto);
+        }
       });
 
       it('should return posts sorted by creation date in desc order', async () => {
@@ -329,8 +334,8 @@ describe('posts', () => {
         expect(response.body.items).toEqual(expectedItems);
       });
 
-      it(`should return posts in order of creation if sort field doesn't exist`, async () => {
-        const expectedItems = posts;
+      it(`should return posts in desc order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = posts.toReversed();
 
         const response = await postsTestManager.getPosts(HttpStatus.OK, {
           sortBy: 'nonExisting',
@@ -350,7 +355,7 @@ describe('posts', () => {
     });
 
     it('should return post', async () => {
-      const posts = await postsTestManager.createPostsWithGeneratedData(
+      const posts = await postsTestManager.createBlogPostsWithGeneratedData(
         1,
         blog.id,
       );
@@ -381,972 +386,32 @@ describe('posts', () => {
     });
 
     it('should return 404 when trying to get non-existing post', async () => {
-      const nonExistingId = generateNonExistingId();
+      const nonExistingId = '-1';
       await postsTestManager.getPost(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
-    it('should return 404 when post id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
+    // it('should return 404 when post id is not valid ObjectId', async () => {
+    //   const invalidId = 'not ObjectId';
+    //   await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);
+    // });
+
+    it('should return 404 when post id is not a number', async () => {
+      const invalidId = 'string';
       await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);
     });
 
     it('should return 404 when trying to get deleted post', async () => {
-      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
-        1,
-        blog.id,
-      );
+      const createdPosts =
+        await postsTestManager.createBlogPostsWithGeneratedData(1, blog.id);
       const postToDelete = createdPosts[0];
 
-      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
-
-      await postsTestManager.getPost(postToDelete.id, HttpStatus.NOT_FOUND);
-    });
-  });
-
-  describe('create post', () => {
-    let blog: BlogViewDto;
-
-    beforeAll(async () => {
-      await deleteAllData(app);
-
-      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-    });
-
-    it('should create post', async () => {
-      const inputDto: CreatePostInputDto = {
-        title: 'post',
-        shortDescription: 'short description',
-        content: 'content',
-        blogId: blog.id,
-      };
-
-      const response = await postsTestManager.createPost(
-        inputDto,
-        HttpStatus.CREATED,
-      );
-      const createdPost: PostViewDto = response.body;
-
-      expect(createdPost.id).toEqual(expect.any(String));
-      expect(createdPost.title).toBe(inputDto.title);
-      expect(createdPost.shortDescription).toBe(inputDto.shortDescription);
-      expect(createdPost.content).toBe(inputDto.content);
-      expect(createdPost.blogId).toBe(inputDto.blogId);
-      expect(createdPost.blogName).toBe(blog.name);
-      expect(createdPost.createdAt).toEqual(expect.any(String));
-      expect(Date.parse(createdPost.createdAt)).not.toBeNaN();
-      expect(createdPost.extendedLikesInfo).toEqual({
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: LikeStatus.None,
-        newestLikes: [],
-      });
-
-      const getPostResponse = await postsTestManager.getPost(
-        createdPost.id,
-        HttpStatus.OK,
-      );
-      expect(getPostResponse.body).toEqual(createdPost);
-    });
-
-    describe('validation', () => {
-      let validInput: CreatePostInputDto;
-
-      beforeAll(async () => {
-        await deleteAllData(app);
-
-        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        validInput = {
-          title: 'post',
-          shortDescription: 'short description',
-          content: 'content',
-          blogId: blog.id,
-        };
-      });
-
-      afterEach(async () => {
-        await postsTestManager.checkPostsCount(0);
-      });
-
-      it('should return 400 if title is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: 4,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: '',
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: '  ',
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: 'a'.repeat(31),
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.createPost(
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'title',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if short description is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: 4,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: '',
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: '  ',
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: validInput.title,
-          shortDescription: 'a'.repeat(101),
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.createPost(
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'shortDescription',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if content is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: 4,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: '',
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: '  ',
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: 'a'.repeat(1001),
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.createPost(
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'content',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if blog id is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: 4,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: '',
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: '  ',
-        };
-        invalidDataCases.push(data4);
-
-        // not ObjectId
-        const data5 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: 'not ObjectId',
-        };
-        invalidDataCases.push(data5);
-
-        // non-existing id
-        const data6 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: generateNonExistingId().toString(),
-        };
-        invalidDataCases.push(data6);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.createPost(
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'blogId',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return multiple errors if multiple fields are invalid', async () => {
-        const data = {
-          title: '',
-          shortDescription: 'a'.repeat(101),
-          blogId: generateNonExistingId().toString(),
-        };
-
-        const response = await postsTestManager.createPost(
-          data,
-          HttpStatus.BAD_REQUEST,
-        );
-        expect(response.body).toEqual({
-          errorsMessages: expect.arrayContaining([
-            {
-              field: 'title',
-              message: expect.any(String),
-            },
-            {
-              field: 'shortDescription',
-              message: expect.any(String),
-            },
-            {
-              field: 'content',
-              message: expect.any(String),
-            },
-            {
-              field: 'blogId',
-              message: expect.any(String),
-            },
-          ]),
-        });
-        expect(response.body.errorsMessages).toHaveLength(4);
-      });
-    });
-
-    describe('authentication', () => {
-      let validInput: CreatePostInputDto;
-
-      beforeAll(async () => {
-        await deleteAllData(app);
-
-        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        validInput = {
-          title: 'post',
-          shortDescription: 'short description',
-          content: 'content',
-          blogId: blog.id,
-        };
-      });
-
-      afterEach(async () => {
-        await postsTestManager.checkPostsCount(0);
-      });
-
-      it('should forbid creating post for non-admin users', async () => {
-        for (const invalidAuthValue of invalidBasicAuthTestValues) {
-          await postsTestManager.createPost(
-            validInput,
-            HttpStatus.UNAUTHORIZED,
-            invalidAuthValue,
-          );
-        }
-      });
-    });
-  });
-
-  describe('update post', () => {
-    let blogs: BlogViewDto[];
-    let validInputDto: UpdatePostInputDto;
-
-    beforeAll(async () => {
-      await deleteAllData(app);
-
-      blogs = await blogsCommonTestManager.createBlogsWithGeneratedData(2);
-
-      validInputDto = {
-        title: 'post',
-        shortDescription: 'short description',
-        content: 'content',
-        blogId: blogs[0].id,
-      };
-    });
-
-    it('should update post', async () => {
-      const blogBeforeUpdate = blogs[0];
-      const blogAfterUpdate = blogs[1];
-
-      const createInputDto: CreatePostInputDto = {
-        title: 'post before update',
-        shortDescription: 'short description before update',
-        content: 'content before update',
-        blogId: blogBeforeUpdate.id,
-      };
-
-      const createResponse = await postsTestManager.createPost(
-        createInputDto,
-        HttpStatus.CREATED,
-      );
-      const createdPost: PostViewDto = createResponse.body;
-
-      const updateInputDto: UpdatePostInputDto = {
-        title: 'post after update',
-        shortDescription: 'short description after update',
-        content: 'content after update',
-        blogId: blogAfterUpdate.id,
-      };
-      await postsTestManager.updatePost(
-        createdPost.id,
-        updateInputDto,
+      await postsTestManager.deleteBlogPost(
+        blog.id,
+        postToDelete.id,
         HttpStatus.NO_CONTENT,
       );
 
-      const getPostResponse = await postsTestManager.getPost(
-        createdPost.id,
-        HttpStatus.OK,
-      );
-      const updatedPost: PostViewDto = getPostResponse.body;
-
-      expect(updatedPost.title).toBe(updateInputDto.title);
-      expect(updatedPost.shortDescription).toBe(
-        updateInputDto.shortDescription,
-      );
-      expect(updatedPost.content).toBe(updateInputDto.content);
-      expect(updatedPost.blogId).toBe(updateInputDto.blogId);
-      expect(updatedPost.blogName).toBe(blogAfterUpdate.name);
-      expect(updatedPost.id).toBe(createdPost.id);
-      expect(updatedPost.createdAt).toBe(createdPost.createdAt);
-      expect(updatedPost.extendedLikesInfo).toEqual(
-        createdPost.extendedLikesInfo,
-      );
-    });
-
-    it('should return 404 when trying to update non-existing post', async () => {
-      const nonExistingPost = generateNonExistingId();
-
-      await postsTestManager.updatePost(
-        nonExistingPost,
-        validInputDto,
-        HttpStatus.NOT_FOUND,
-      );
-    });
-
-    it('should return 404 when post id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
-
-      await postsTestManager.updatePost(
-        invalidId,
-        validInputDto,
-        HttpStatus.NOT_FOUND,
-      );
-    });
-
-    it('should return 404 when trying to update deleted post', async () => {
-      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
-        1,
-        blogs[0].id,
-      );
-      const postToDelete = createdPosts[0];
-
-      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
-
-      await postsTestManager.updatePost(
-        postToDelete.id,
-        validInputDto,
-        HttpStatus.NOT_FOUND,
-      );
-    });
-
-    describe('validation', () => {
-      let postToUpdate: PostViewDto;
-      let validInput: UpdatePostInputDto;
-
-      beforeAll(async () => {
-        await deleteAllData(app);
-
-        const blogs =
-          await blogsCommonTestManager.createBlogsWithGeneratedData(2);
-        const posts = await postsTestManager.createPostsWithGeneratedData(
-          1,
-          blogs[0].id,
-        );
-        postToUpdate = posts[0];
-
-        validInput = {
-          title: 'post',
-          shortDescription: 'short description',
-          content: 'content',
-          blogId: blogs[1].id,
-        };
-      });
-
-      it('should return 400 if title is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: 4,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: '',
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: '  ',
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: 'a'.repeat(31),
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.updatePost(
-            postToUpdate.id,
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'title',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if short description is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: 4,
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: '',
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: '  ',
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: validInput.title,
-          shortDescription: 'a'.repeat(101),
-          content: validInput.content,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.updatePost(
-            postToUpdate.id,
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'shortDescription',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if content is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: 4,
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: '',
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: '  ',
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data4);
-
-        // too long
-        const data5 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: 'a'.repeat(1001),
-          blogId: validInput.blogId,
-        };
-        invalidDataCases.push(data5);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.updatePost(
-            postToUpdate.id,
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'content',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return 400 if blog id is invalid', async () => {
-        const invalidDataCases: any[] = [];
-
-        // missing
-        const data1 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-        };
-        invalidDataCases.push(data1);
-
-        // not string
-        const data2 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: 4,
-        };
-        invalidDataCases.push(data2);
-
-        // empty string
-        const data3 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: '',
-        };
-        invalidDataCases.push(data3);
-
-        // empty string with spaces
-        const data4 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: '  ',
-        };
-        invalidDataCases.push(data4);
-
-        // not ObjectId
-        const data5 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: 'not ObjectId',
-        };
-        invalidDataCases.push(data5);
-
-        // non-existing id
-        const data6 = {
-          title: validInput.title,
-          shortDescription: validInput.shortDescription,
-          content: validInput.content,
-          blogId: generateNonExistingId().toString(),
-        };
-        invalidDataCases.push(data6);
-
-        for (const data of invalidDataCases) {
-          const response = await postsTestManager.updatePost(
-            postToUpdate.id,
-            data,
-            HttpStatus.BAD_REQUEST,
-          );
-          expect(response.body).toEqual({
-            errorsMessages: [
-              {
-                field: 'blogId',
-                message: expect.any(String),
-              },
-            ],
-          });
-        }
-      });
-
-      it('should return multiple errors if multiple fields are invalid', async () => {
-        const data = {
-          title: '',
-          shortDescription: 'a'.repeat(101),
-          blogId: generateNonExistingId().toString(),
-        };
-
-        const response = await postsTestManager.updatePost(
-          postToUpdate.id,
-          data,
-          HttpStatus.BAD_REQUEST,
-        );
-        expect(response.body).toEqual({
-          errorsMessages: expect.arrayContaining([
-            {
-              field: 'title',
-              message: expect.any(String),
-            },
-            {
-              field: 'shortDescription',
-              message: expect.any(String),
-            },
-            {
-              field: 'content',
-              message: expect.any(String),
-            },
-            {
-              field: 'blogId',
-              message: expect.any(String),
-            },
-          ]),
-        });
-        expect(response.body.errorsMessages).toHaveLength(4);
-      });
-    });
-
-    describe('authentication', () => {
-      let postToUpdate: PostViewDto;
-      let validInput: UpdatePostInputDto;
-
-      beforeAll(async () => {
-        await deleteAllData(app);
-
-        const blogs =
-          await blogsCommonTestManager.createBlogsWithGeneratedData(2);
-        const posts = await postsTestManager.createPostsWithGeneratedData(
-          1,
-          blogs[0].id,
-        );
-        postToUpdate = posts[0];
-
-        validInput = {
-          title: 'post',
-          shortDescription: 'short description',
-          content: 'content',
-          blogId: blogs[1].id,
-        };
-      });
-
-      it('should forbid updating post for non-admin users', async () => {
-        for (const invalidAuthValue of invalidBasicAuthTestValues) {
-          await postsTestManager.updatePost(
-            postToUpdate.id,
-            validInput,
-            HttpStatus.UNAUTHORIZED,
-            invalidAuthValue,
-          );
-        }
-      });
-    });
-  });
-
-  describe('delete post', () => {
-    let blog: BlogViewDto;
-
-    beforeAll(async () => {
-      await deleteAllData(app);
-
-      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-    });
-
-    it('should delete post', async () => {
-      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
-        1,
-        blog.id,
-      );
-      const postToDelete = createdPosts[0];
-
-      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
-
       await postsTestManager.getPost(postToDelete.id, HttpStatus.NOT_FOUND);
-    });
-
-    it('should return 404 when trying to delete non-existing post', async () => {
-      const nonExistingPost = generateNonExistingId();
-      await postsTestManager.deletePost(nonExistingPost, HttpStatus.NOT_FOUND);
-    });
-
-    it('should return 404 when post id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
-      await postsTestManager.deletePost(invalidId, HttpStatus.NOT_FOUND);
-    });
-
-    it('should return 404 when trying to delete already deleted post', async () => {
-      const createdPosts = await postsTestManager.createPostsWithGeneratedData(
-        1,
-        blog.id,
-      );
-      const postToDelete = createdPosts[0];
-
-      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NO_CONTENT);
-
-      await postsTestManager.deletePost(postToDelete.id, HttpStatus.NOT_FOUND);
-    });
-
-    it('should delete all blogs posts when blog is deleted', async () => {
-      await deleteAllData(app);
-
-      const blogs =
-        await blogsCommonTestManager.createBlogsWithGeneratedData(2);
-
-      const blog1Posts = await postsTestManager.createPostsWithGeneratedData(
-        2,
-        blogs[0].id,
-      );
-      await postsTestManager.createPostsWithGeneratedData(2, blogs[1].id);
-
-      await blogsCommonTestManager.deleteBlog(blogs[1].id);
-
-      const getPostsResponse = await postsTestManager.getPosts(HttpStatus.OK);
-      const responseBody: PaginatedViewDto<PostViewDto[]> =
-        getPostsResponse.body;
-      expect(responseBody.items).toEqual(blog1Posts.toReversed());
-    });
-
-    describe('authentication', () => {
-      let postToDelete: PostViewDto;
-
-      beforeAll(async () => {
-        await deleteAllData(app);
-
-        const blogs =
-          await blogsCommonTestManager.createBlogsWithGeneratedData(1);
-        const posts = await postsTestManager.createPostsWithGeneratedData(
-          1,
-          blogs[0].id,
-        );
-        postToDelete = posts[0];
-      });
-
-      afterEach(async () => {
-        await postsTestManager.checkPostsCount(1);
-      });
-
-      it('should forbid deleting post for non-admin users', async () => {
-        for (const invalidAuthValue of invalidBasicAuthTestValues) {
-          await postsTestManager.deletePost(
-            postToDelete.id,
-            HttpStatus.UNAUTHORIZED,
-            invalidAuthValue,
-          );
-        }
-      });
     });
   });
 });

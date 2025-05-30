@@ -30,7 +30,7 @@ import { GetBlogPostsQuerySql } from '../../posts/application/queries/get-blog-p
 import { CreateBlogPostInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 import { CreatePostCommandSql } from '../../posts/application/usecases/create-post.usecase.sql';
 import { GetPostByIdOrInternalFailQuerySql } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
-import { UpdatePostInputDtoSql } from './input-dto/update-blog-post.input-dto.sql';
+import { UpdateBlogPostInputDtoSql } from './input-dto/update-blog-post.input-dto.sql';
 import { UpdateBlogPostCommandSql } from '../../posts/application/usecases/update-blog-post.usecase.sql';
 import { DeleteBlogPostCommandSql } from '../../posts/application/usecases/delete-blog-post.usecase.sql';
 
@@ -140,7 +140,7 @@ export class BlogsSaControllerSql {
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
     )
     postId: number,
-    @Body() body: UpdatePostInputDtoSql,
+    @Body() body: UpdateBlogPostInputDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
       new UpdateBlogPostCommandSql(blogId, postId, body),

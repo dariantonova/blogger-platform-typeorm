@@ -1,8 +1,14 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
-import { POSTS_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
+import {
+  BLOGS_PATH,
+  buildBlogPostsPath,
+  POSTS_PATH,
+  VALID_BASIC_AUTH_VALUE,
+} from './helper';
 import { CreatePostInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { CreateBlogPostInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
 export class PostsCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -14,9 +20,26 @@ export class PostsCommonTestManager {
       .expect(HttpStatus.NO_CONTENT);
   }
 
+  async deleteBlogPost(blogId: string, postId: string): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(buildBlogPostsPath(true, blogId, postId))
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .expect(HttpStatus.NO_CONTENT);
+  }
+
   async createPost(createDto: CreatePostInputDto): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
       .post(POSTS_PATH)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .send(createDto)
+      .expect(HttpStatus.CREATED);
+
+    return response.body as PostViewDto;
+  }
+
+  async createBlogPost(blogId: string, createDto: any): Promise<PostViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .post(buildBlogPostsPath(true, blogId))
       .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .send(createDto)
       .expect(HttpStatus.CREATED);
@@ -33,9 +56,22 @@ export class PostsCommonTestManager {
     };
   }
 
+  generateBlogPostData(postNumber: number = 1): CreateBlogPostInputDto {
+    return {
+      title: 'post ' + postNumber,
+      shortDescription: 'short description ' + postNumber,
+      content: 'content ' + postNumber,
+    };
+  }
+
   async createPostWithGeneratedData(blogId: string): Promise<PostViewDto> {
     const postData = this.generatePostData(blogId);
     return this.createPost(postData);
+  }
+
+  async createBlogPostWithGeneratedData(blogId: string): Promise<PostViewDto> {
+    const postData = this.generateBlogPostData();
+    return this.createBlogPost(blogId, postData);
   }
 
   async createPostsWithGeneratedData(
@@ -47,6 +83,21 @@ export class PostsCommonTestManager {
     for (let i = 1; i <= numberOfPosts; i++) {
       const inputDto = this.generatePostData(blogId, i);
       const createdPost = await this.createPost(inputDto);
+      result.push(createdPost);
+    }
+
+    return result;
+  }
+
+  async createBlogPostsWithGeneratedData(
+    numberOfPosts: number,
+    blogId: string,
+  ): Promise<PostViewDto[]> {
+    const result: PostViewDto[] = [];
+
+    for (let i = 1; i <= numberOfPosts; i++) {
+      const inputDto = this.generateBlogPostData(i);
+      const createdPost = await this.createBlogPost(blogId, inputDto);
       result.push(createdPost);
     }
 

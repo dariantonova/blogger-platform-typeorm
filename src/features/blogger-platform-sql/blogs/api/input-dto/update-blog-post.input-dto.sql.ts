@@ -6,7 +6,7 @@ import {
 } from '../../../../blogger-platform/posts/domain/post.entity';
 import { IsNotEmpty } from 'class-validator';
 
-export class UpdatePostInputDtoSql {
+export class UpdateBlogPostInputDtoSql {
   @IsStringOfLengthWithTrim(
     titleConstraints.minLength,
     titleConstraints.maxLength,

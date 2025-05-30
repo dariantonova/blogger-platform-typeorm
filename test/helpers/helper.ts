@@ -24,6 +24,13 @@ export const COMMENTS_PATH = `/${GLOBAL_PREFIX}/comments`;
 export const USERS_SA_PATH = `/${GLOBAL_PREFIX}/sa/users`;
 export const AUTH_PATH = `/${GLOBAL_PREFIX}/auth`;
 export const SECURITY_DEVICES_PATH = `/${GLOBAL_PREFIX}/security/devices`;
+export const buildBlogPostsPath = (
+  sa: boolean,
+  blogId: string,
+  postId?: string,
+): string => {
+  return `${sa ? BLOGS_SA_PATH : BLOGS_PATH}/${blogId}/posts${postId ? '/' + postId : ''}`;
+};
 
 const basicAuthCredentials = `${process.env.HTTP_BASIC_USER}:${process.env.HTTP_BASIC_PASS}`;
 const encodedBasicAuthCredentials =

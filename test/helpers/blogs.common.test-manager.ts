@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import request, { Response } from 'supertest';
-import { BLOGS_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
+import { BLOGS_SA_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
 export class BlogsCommonTestManager {
@@ -9,7 +9,7 @@ export class BlogsCommonTestManager {
 
   async createBlog(createDto: CreateBlogInputDto): Promise<BlogViewDto> {
     const response = await request(this.app.getHttpServer())
-      .post(BLOGS_PATH)
+      .post(BLOGS_SA_PATH)
       .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .send(createDto)
       .expect(HttpStatus.CREATED);
@@ -51,7 +51,7 @@ export class BlogsCommonTestManager {
 
   async deleteBlog(id: string): Promise<Response> {
     return request(this.app.getHttpServer())
-      .delete(BLOGS_PATH + '/' + id)
+      .delete(BLOGS_SA_PATH + '/' + id)
       .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .expect(HttpStatus.NO_CONTENT);
   }

@@ -1,7 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { DeviceViewDto } from '../../../user-accounts/api/view-dto/device.view-dto';
 import { DeviceAuthSessionsQueryRepositorySql } from '../../infrastructure/query/device-auth-sessions.query-repository.sql';
-import { DeviceViewDtoSql } from '../../api/view-dto/device.view-dto.sql';
 
 export class GetUserDeviceSessionsQuerySql {
   constructor(public userId: number) {}
@@ -9,7 +8,7 @@ export class GetUserDeviceSessionsQuerySql {
 
 @QueryHandler(GetUserDeviceSessionsQuerySql)
 export class GetUserDeviceSessionsQueryHandlerSql
-  implements IQueryHandler<GetUserDeviceSessionsQuerySql, DeviceViewDtoSql[]>
+  implements IQueryHandler<GetUserDeviceSessionsQuerySql, DeviceViewDto[]>
 {
   constructor(
     private deviceAuthSessionsQueryRepository: DeviceAuthSessionsQueryRepositorySql,

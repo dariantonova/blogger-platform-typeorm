@@ -46,7 +46,7 @@ export class UsersQueryRepository {
 
     const totalCount = await this.UserModel.countDocuments(filter);
 
-    const items = users.map(UserViewDto.mapToView);
+    const items = users.map(UserViewDto.mapToViewMongo);
 
     return PaginatedViewDto.mapToView<UserViewDto[]>({
       items,
@@ -70,6 +70,6 @@ export class UsersQueryRepository {
       throw new Error('User not found');
     }
 
-    return UserViewDto.mapToView(user);
+    return UserViewDto.mapToViewMongo(user);
   }
 }

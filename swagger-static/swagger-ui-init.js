@@ -587,7 +587,7 @@ window.onload = function() {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdatePostInputDtoSql"
+                  "$ref": "#/components/schemas/UpdateBlogPostInputDtoSql"
                 }
               }
             }
@@ -800,7 +800,7 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "UpdatePostInputDtoSql": {
+        "UpdateBlogPostInputDtoSql": {
           "type": "object",
           "properties": {}
         }

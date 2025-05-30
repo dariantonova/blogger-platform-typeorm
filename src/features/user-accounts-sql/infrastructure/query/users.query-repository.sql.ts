@@ -2,13 +2,13 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
-import { UserViewDtoSql } from '../../api/view-dto/user.view-dto.sql';
 import { GetUsersQueryParams } from '../../../user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { camelCaseToSnakeCase } from '../../../../utils/camel-case-to-snake-case';
 import { UserDtoSql } from '../../dto/user.dto.sql';
 import { UsersSortBy } from '../../../user-accounts/api/input-dto/users-sort-by';
 import { mapUserRowToDto } from '../mappers/user.mapper';
 import { UsersRepositorySql } from '../users.repository.sql';
+import { UserViewDto } from '../../../user-accounts/api/view-dto/user.view-dto';
 
 @Injectable()
 export class UsersQueryRepositorySql {
@@ -19,7 +19,7 @@ export class UsersQueryRepositorySql {
 
   async findUsers(
     queryParams: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDtoSql[]>> {
+  ): Promise<PaginatedViewDto<UserViewDto[]>> {
     const whereParts = ['u.deleted_at IS NULL'];
     const orParts: string[] = [];
     const params: any[] = [];
@@ -78,9 +78,9 @@ export class UsersQueryRepositorySql {
 
     const users: UserDtoSql[] = findResult.map(mapUserRowToDto);
 
-    const items = users.map(UserViewDtoSql.mapToView);
+    const items = users.map(UserViewDto.mapToView);
 
-    return PaginatedViewDto.mapToView<UserViewDtoSql[]>({
+    return PaginatedViewDto.mapToView<UserViewDto[]>({
       items,
       totalCount,
       page: queryParams.pageNumber,
@@ -88,13 +88,13 @@ export class UsersQueryRepositorySql {
     });
   }
 
-  async findByIdOrInternalFail(id: number): Promise<UserViewDtoSql> {
+  async findByIdOrInternalFail(id: number): Promise<UserViewDto> {
     const user = await this.usersRepository.findById(id);
 
     if (!user) {
       throw new InternalServerErrorException('User not found');
     }
 
-    return UserViewDtoSql.mapToView(user);
+    return UserViewDto.mapToView(user);
   }
 }

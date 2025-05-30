@@ -1,10 +1,10 @@
 import { GetPostsQueryParams } from '../../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
-import { PostViewDtoSql } from '../../api/view-dto/post.view-dto.sql';
 import { BlogsQueryRepositorySql } from '../../../blogs/infrastructure/query/blogs.query-repository.sql';
 import { PostsQueryRepositorySql } from '../../infrastructure/query/posts.query-repository.sql';
 import { PostsQueryServiceSql } from '../posts.query-service.sql';
+import { PostViewDto } from '../../../../blogger-platform/posts/api/view-dto/posts.view-dto';
 
 export class GetBlogPostsQuerySql {
   constructor(
@@ -17,7 +17,7 @@ export class GetBlogPostsQuerySql {
 @QueryHandler(GetBlogPostsQuerySql)
 export class GetBlogPostsQueryHandlerSql
   implements
-    IQueryHandler<GetBlogPostsQuerySql, PaginatedViewDto<PostViewDtoSql[]>>
+    IQueryHandler<GetBlogPostsQuerySql, PaginatedViewDto<PostViewDto[]>>
 {
   constructor(
     private blogsQueryRepository: BlogsQueryRepositorySql,
@@ -29,7 +29,7 @@ export class GetBlogPostsQueryHandlerSql
     blogId,
     queryParams,
     currentUserId,
-  }: GetBlogPostsQuerySql): Promise<PaginatedViewDto<PostViewDtoSql[]>> {
+  }: GetBlogPostsQuerySql): Promise<PaginatedViewDto<PostViewDto[]>> {
     await this.blogsQueryRepository.findByIdOrNotFoundFail(blogId);
 
     const paginatedPosts = await this.postsQueryRepository.findBlogPosts(

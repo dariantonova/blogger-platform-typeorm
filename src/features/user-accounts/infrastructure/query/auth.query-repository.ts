@@ -11,6 +11,6 @@ export class AuthQueryRepository {
     if (!user) {
       throw new InternalServerErrorException('User not found');
     }
-    return MeViewDto.mapToView(user);
+    return MeViewDto.mapToViewMongo(user);
   }
 }

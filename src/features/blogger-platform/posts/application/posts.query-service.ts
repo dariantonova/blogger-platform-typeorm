@@ -20,7 +20,7 @@ export class PostsQueryService {
         )
       : LikeStatus.None;
 
-    return PostViewDto.mapToView(post, myStatus);
+    return PostViewDto.mapToViewMongo(post, myStatus);
   }
 
   async mapPaginatedPostsToView(

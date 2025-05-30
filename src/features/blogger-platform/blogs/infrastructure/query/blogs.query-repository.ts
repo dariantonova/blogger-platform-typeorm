@@ -39,7 +39,7 @@ export class BlogsQueryRepository {
 
     const totalCount = await this.BlogModel.countDocuments(filter);
 
-    const items = blogs.map(BlogViewDto.mapToView);
+    const items = blogs.map(BlogViewDto.mapToViewMongo);
 
     return PaginatedViewDto.mapToView<BlogViewDto[]>({
       items,
@@ -63,7 +63,7 @@ export class BlogsQueryRepository {
       throw new NotFoundException('Blog not found');
     }
 
-    return BlogViewDto.mapToView(blog);
+    return BlogViewDto.mapToViewMongo(blog);
   }
 
   async findByIdOrInternalFail(id: string): Promise<BlogViewDto> {
@@ -73,6 +73,6 @@ export class BlogsQueryRepository {
       throw new Error('Blog not found');
     }
 
-    return BlogViewDto.mapToView(blog);
+    return BlogViewDto.mapToViewMongo(blog);
   }
 }

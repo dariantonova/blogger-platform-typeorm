@@ -18,6 +18,6 @@ export class DeviceAuthSessionsQueryRepository {
       userId,
     }).sort({ _id: 1 });
 
-    return deviceAuthSessions.map(DeviceViewDto.mapToView);
+    return deviceAuthSessions.map(DeviceViewDto.mapToViewMongo);
   }
 }

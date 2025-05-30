@@ -19,7 +19,6 @@ import { AuthTokensDto } from '../../user-accounts/dto/auth-tokens.dto';
 import { LocalAuthGuardSql } from '../guards/local/local-auth.guard.sql';
 import { UserContextDtoSql } from '../guards/dto/user-context.dto.sql';
 import { LoginUserCommandSql } from '../application/usecases/login-user.usecase.sql';
-import { MeViewDtoSql } from './view-dto/user.view-dto.sql';
 import { JwtAccessAuthGuardSql } from '../guards/bearer/jwt-access-auth.guard.sql';
 import { MeQuerySql } from '../application/queries/me.query.sql';
 import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-user.input-dto';
@@ -36,6 +35,7 @@ import { JwtRefreshAuthGuardSql } from '../guards/refresh-token/jwt-refresh-auth
 import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-session-context.dto.sql';
 import { RefreshTokenCommandSql } from '../application/usecases/refresh-token.usecase.sql';
 import { LogoutUserCommandSql } from '../application/usecases/logout-user.usecase.sql';
+import { MeViewDto } from '../../user-accounts/api/view-dto/user.view-dto';
 
 @UseGuards(ThrottlerGuard)
 // @Controller('sql/auth')
@@ -81,7 +81,7 @@ export class AuthControllerSql {
   @SkipThrottle()
   async me(
     @ExtractUserFromRequest() user: UserContextDtoSql,
-  ): Promise<MeViewDtoSql> {
+  ): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQuerySql(user.id));
   }
 

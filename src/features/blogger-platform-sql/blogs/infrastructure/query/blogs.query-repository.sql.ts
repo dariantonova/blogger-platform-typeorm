@@ -7,12 +7,12 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetBlogsQueryParams } from '../../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
-import { BlogViewDtoSql } from '../../api/view-dto/blog.view-dto.sql';
 import { camelCaseToSnakeCase } from '../../../../../utils/camel-case-to-snake-case';
 import { BlogsSortBy } from '../../../../blogger-platform/blogs/api/input-dto/blogs-sort-by';
 import { mapBlogRowToDto } from '../mappers/blog.mapper';
 import { BlogDtoSql } from '../../dto/blog.dto.sql';
 import { BlogsRepositorySql } from '../blogs.repository.sql';
+import { BlogViewDto } from '../../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
 @Injectable()
 export class BlogsQueryRepositorySql {
@@ -23,7 +23,7 @@ export class BlogsQueryRepositorySql {
 
   async findBlogs(
     queryParams: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDtoSql[]>> {
+  ): Promise<PaginatedViewDto<BlogViewDto[]>> {
     const whereParts = ['b.deleted_at IS NULL'];
     const orParts: string[] = [];
     const params: any[] = [];
@@ -76,9 +76,9 @@ export class BlogsQueryRepositorySql {
 
     const blogs: BlogDtoSql[] = findResult.map(mapBlogRowToDto);
 
-    const items = blogs.map(BlogViewDtoSql.mapToView);
+    const items = blogs.map(BlogViewDto.mapToView);
 
-    return PaginatedViewDto.mapToView<BlogViewDtoSql[]>({
+    return PaginatedViewDto.mapToView<BlogViewDto[]>({
       items,
       totalCount,
       page: queryParams.pageNumber,
@@ -86,23 +86,23 @@ export class BlogsQueryRepositorySql {
     });
   }
 
-  async findByIdOrInternalFail(id: number): Promise<BlogViewDtoSql> {
+  async findByIdOrInternalFail(id: number): Promise<BlogViewDto> {
     const blog = await this.blogsRepository.findById(id);
 
     if (!blog) {
       throw new InternalServerErrorException('Blog not found');
     }
 
-    return BlogViewDtoSql.mapToView(blog);
+    return BlogViewDto.mapToView(blog);
   }
 
-  async findByIdOrNotFoundFail(id: number): Promise<BlogViewDtoSql> {
+  async findByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
     const blog = await this.blogsRepository.findById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
     }
 
-    return BlogViewDtoSql.mapToView(blog);
+    return BlogViewDto.mapToView(blog);
   }
 }

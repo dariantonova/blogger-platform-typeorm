@@ -16,7 +16,6 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
-import { BlogViewDtoSql } from './view-dto/blog.view-dto.sql';
 import { GetBlogsQuerySql } from '../application/queries/get-blogs.query.sql';
 import { CreateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import { CreateBlogCommandSql } from '../application/usecases/create-blog.usecase.sql';
@@ -25,7 +24,6 @@ import { UpdateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dt
 import { UpdateBlogCommandSql } from '../application/usecases/update-blog.usecase.sql';
 import { DeleteBlogCommandSql } from '../application/usecases/delete-blog.usecase.sql';
 import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
-import { PostViewDtoSql } from '../../posts/api/view-dto/post.view-dto.sql';
 import { GetBlogPostsQuerySql } from '../../posts/application/queries/get-blog-posts.query.sql';
 import { CreateBlogPostInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 import { CreatePostCommandSql } from '../../posts/application/usecases/create-post.usecase.sql';
@@ -33,6 +31,8 @@ import { GetPostByIdOrInternalFailQuerySql } from '../../posts/application/queri
 import { UpdateBlogPostInputDtoSql } from './input-dto/update-blog-post.input-dto.sql';
 import { UpdateBlogPostCommandSql } from '../../posts/application/usecases/update-blog-post.usecase.sql';
 import { DeleteBlogPostCommandSql } from '../../posts/application/usecases/delete-blog-post.usecase.sql';
+import { BlogViewDto } from '../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { PostViewDto } from '../../../blogger-platform/posts/api/view-dto/posts.view-dto';
 
 // @Controller('sql/sa/blogs')
 @Controller('sa/blogs')
@@ -46,12 +46,12 @@ export class BlogsSaControllerSql {
   @Get()
   async getBlogs(
     @Query() query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDtoSql[]>> {
+  ): Promise<PaginatedViewDto<BlogViewDto[]>> {
     return this.queryBus.execute(new GetBlogsQuerySql(query));
   }
 
   @Post()
-  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDtoSql> {
+  async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
     const createdBlogId = await this.commandBus.execute<
       CreateBlogCommandSql,
       number
@@ -95,7 +95,7 @@ export class BlogsSaControllerSql {
     )
     blogId: number,
     @Query() query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDtoSql[]>> {
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(
       new GetBlogPostsQuerySql(blogId, query, undefined),
     );
@@ -109,7 +109,7 @@ export class BlogsSaControllerSql {
     )
     blogId: number,
     @Body() body: CreateBlogPostInputDto,
-  ): Promise<PostViewDtoSql> {
+  ): Promise<PostViewDto> {
     const createdPostId = await this.commandBus.execute<
       CreatePostCommandSql,
       number

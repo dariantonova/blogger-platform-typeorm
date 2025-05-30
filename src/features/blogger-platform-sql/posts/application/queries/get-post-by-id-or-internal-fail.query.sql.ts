@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PostViewDtoSql } from '../../api/view-dto/post.view-dto.sql';
 import { PostsQueryRepositorySql } from '../../infrastructure/query/posts.query-repository.sql';
 import { PostsQueryServiceSql } from '../posts.query-service.sql';
+import { PostViewDto } from '../../../../blogger-platform/posts/api/view-dto/posts.view-dto';
 
 export class GetPostByIdOrInternalFailQuerySql {
   constructor(
@@ -12,7 +12,7 @@ export class GetPostByIdOrInternalFailQuerySql {
 
 @QueryHandler(GetPostByIdOrInternalFailQuerySql)
 export class GetPostByIdOrInternalFailQueryHandlerSql
-  implements IQueryHandler<GetPostByIdOrInternalFailQuerySql, PostViewDtoSql>
+  implements IQueryHandler<GetPostByIdOrInternalFailQuerySql, PostViewDto>
 {
   constructor(
     private postsQueryRepository: PostsQueryRepositorySql,
@@ -22,7 +22,7 @@ export class GetPostByIdOrInternalFailQueryHandlerSql
   async execute({
     postId,
     currentUserId,
-  }: GetPostByIdOrInternalFailQuerySql): Promise<PostViewDtoSql> {
+  }: GetPostByIdOrInternalFailQuerySql): Promise<PostViewDto> {
     const post = await this.postsQueryRepository.findByIdOrInternalFail(postId);
 
     return this.postQueryService.mapPostToView(post, currentUserId);

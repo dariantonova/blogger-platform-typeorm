@@ -66,6 +66,8 @@ import { CommentsRepositorySql } from '../blogger-platform-sql/comments/infrastr
 import { CommentsQueryRepositorySql } from '../blogger-platform-sql/comments/infrastructure/query/comments.query-repository.sql';
 import { CommentsQueryServiceSql } from '../blogger-platform-sql/comments/application/comments.query-service.sql';
 import { GetPostCommentsQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-post-comments.query.sql';
+import { CommentsControllerSql } from '../blogger-platform-sql/comments/api/comments.controller.sql';
+import { GetCommentByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-not-found-fail.query.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -98,6 +100,7 @@ const controllersSql = [
   BlogsSaControllerSql,
   BlogsControllerSql,
   PostsControllerSql,
+  CommentsControllerSql,
 ];
 const providersSql = [
   BlogsQueryRepositorySql,
@@ -119,6 +122,7 @@ const queryHandlersSql = [
   GetPostsQueryHandlerSql,
   GetCommentByIdOrInternalFailQueryHandlerSql,
   GetPostCommentsQueryHandlerSql,
+  GetCommentByIdOrNotFoundFailQueryHandlerSql,
 ];
 const commandHandlersSql = [
   CreateBlogUseCaseSql,

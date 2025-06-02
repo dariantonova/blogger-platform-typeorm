@@ -22,6 +22,10 @@ export class CommentsQueryRepositorySql {
     return this.commentsRepository.findByIdOrInternalFail(id);
   }
 
+  async findByIdOrNotFoundFail(id: number): Promise<CommentDtoSql> {
+    return this.commentsRepository.findByIdOrNotFoundFail(id);
+  }
+
   async findManyByWhereAndQuery(
     whereParts: string[],
     whereSqlParams: any[],

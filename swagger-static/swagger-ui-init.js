@@ -782,6 +782,29 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/comments/{id}": {
+        "get": {
+          "operationId": "CommentsControllerSql_getComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerSql"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",

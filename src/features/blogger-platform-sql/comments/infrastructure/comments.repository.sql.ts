@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreateCommentDtoSql } from '../dto/create-comment.dto.sql';
@@ -41,6 +45,16 @@ export class CommentsRepositorySql {
 
     if (!comment) {
       throw new InternalServerErrorException('Comment not found');
+    }
+
+    return comment;
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<CommentDtoSql> {
+    const comment = await this.findById(id);
+
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
     }
 
     return comment;

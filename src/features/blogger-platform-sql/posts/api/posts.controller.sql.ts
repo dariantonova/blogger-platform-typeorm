@@ -2,10 +2,12 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -26,6 +28,8 @@ import { CreateCommentCommandSql } from '../../comments/application/usecases/cre
 import { GetCommentByIdOrInternalFailQuerySql } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query.sql';
 import { GetCommentsQueryParams } from '../../../blogger-platform/comments/api/input-dto/get-comments-query-params.input-dto';
 import { GetPostCommentsQuerySql } from '../../comments/application/queries/get-post-comments.query.sql';
+import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
+import { MakePostLikeOperationCommandSql } from '../../likes/application/usecases/make-post-like-operation.usecase.sql';
 
 // @Controller('sql/posts')
 @Controller('posts')
@@ -99,6 +103,27 @@ export class PostsControllerSql {
 
     return this.queryBus.execute(
       new GetCommentByIdOrInternalFailQuerySql(createdCommentId, undefined),
+    );
+  }
+
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardSql)
+  async makePostLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @Param(
+      'postId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    postId: number,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakePostLikeOperationCommandSql({
+        postId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
     );
   }
 }

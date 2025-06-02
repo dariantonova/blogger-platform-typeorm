@@ -782,6 +782,39 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{postId}/like-status": {
+        "put": {
+          "operationId": "PostsControllerSql_makePostLikeOperation",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerSql"
+          ]
+        }
+      },
       "/api/sql/comments/{id}": {
         "get": {
           "operationId": "CommentsControllerSql_getComment",

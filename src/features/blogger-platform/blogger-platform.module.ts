@@ -73,6 +73,9 @@ import { DeleteCommentUseCaseSql } from '../blogger-platform-sql/comments/applic
 import { MakeCommentLikeOperationUseCaseSql } from '../blogger-platform-sql/likes/application/usecases/make-comment-like-operation.usecase.sql';
 import { CommentLikesRepositorySql } from '../blogger-platform-sql/likes/infrastructure/comment-likes.repository.sql';
 import { CommentLikesQueryRepositorySql } from '../blogger-platform-sql/likes/infrastructure/query/comment-likes.query-repository.sql';
+import { MakePostLikeOperationUseCaseSql } from '../blogger-platform-sql/likes/application/usecases/make-post-like-operation.usecase.sql';
+import { PostLikesRepositorySql } from '../blogger-platform-sql/likes/infrastructure/post-likes.repository.sql';
+import { PostLikesQueryRepositorySql } from '../blogger-platform-sql/likes/infrastructure/query/post-likes.query-repository.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -118,6 +121,8 @@ const providersSql = [
   CommentsQueryServiceSql,
   CommentLikesRepositorySql,
   CommentLikesQueryRepositorySql,
+  PostLikesRepositorySql,
+  PostLikesQueryRepositorySql,
 ];
 const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
@@ -142,6 +147,7 @@ const commandHandlersSql = [
   UpdateCommentUseCaseSql,
   DeleteCommentUseCaseSql,
   MakeCommentLikeOperationUseCaseSql,
+  MakePostLikeOperationUseCaseSql,
 ];
 
 @Module({

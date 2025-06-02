@@ -3,23 +3,22 @@ import { LikeStatus } from '../../../blogger-platform/likes/dto/like-status';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostDtoSql } from '../dto/post.dto.sql';
 import { PostViewDto } from '../../../blogger-platform/posts/api/view-dto/posts.view-dto';
+import { PostLikesQueryRepositorySql } from '../../likes/infrastructure/query/post-likes.query-repository.sql';
 
 @Injectable()
 export class PostsQueryServiceSql {
-  // constructor(private likesQueryRepository: LikesQueryRepository) {}
+  constructor(private postLikesQueryRepository: PostLikesQueryRepositorySql) {}
 
   async mapPostToView(
     post: PostDtoSql,
     currentUserId: number | undefined,
   ): Promise<PostViewDto> {
-    // const myStatus = currentUserId
-    //   ? await this.likesQueryRepository.findLikeStatus(
-    //     currentUserId,
-    //     post._id.toString(),
-    //   )
-    //   : LikeStatus.None;
-    // todo: find my status when likes feature is added
-    const myStatus = LikeStatus.None;
+    const myStatus = currentUserId
+      ? await this.postLikesQueryRepository.findPostLikeStatus(
+          post.id,
+          currentUserId,
+        )
+      : LikeStatus.None;
 
     return PostViewDto.mapToView(post, myStatus);
   }

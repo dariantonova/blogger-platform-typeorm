@@ -857,6 +857,39 @@ window.onload = function() {
           ]
         }
       },
+      "/api/sql/comments/{commentId}/like-status": {
+        "put": {
+          "operationId": "CommentsControllerSql_makeCommentLikeOperation",
+          "parameters": [
+            {
+              "name": "commentId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerSql"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",

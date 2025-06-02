@@ -21,6 +21,8 @@ import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators
 import { UpdateCommentInputDto } from '../../../blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { UpdateCommentCommandSql } from '../application/usecases/update-comment.usecase.sql';
 import { DeleteCommentCommandSql } from '../application/usecases/delete-comment.usecase.sql';
+import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
+import { MakeCommentLikeOperationCommandSql } from '../../likes/application/usecases/make-comment-like-operation.usecase.sql';
 
 @Controller('sql/comments')
 export class CommentsControllerSql {
@@ -75,20 +77,24 @@ export class CommentsControllerSql {
     await this.commandBus.execute(new DeleteCommentCommandSql(id, user.id));
   }
 
-  // @Put(':commentId/like-status')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAccessAuthGuard)
-  // async makeCommentLikeOperation(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('commentId', ObjectIdValidationPipe) commentId: string,
-  //   @Body() body: LikeInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new MakeCommentLikeOperationCommand({
-  //       commentId,
-  //       userId: user.id,
-  //       likeStatus: body.likeStatus,
-  //     }),
-  //   );
-  // }
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardSql)
+  async makeCommentLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @Param(
+      'commentId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    commentId: number,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakeCommentLikeOperationCommandSql({
+        commentId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
+    );
+  }
 }

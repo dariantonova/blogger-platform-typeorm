@@ -3,23 +3,24 @@ import { CommentViewDto } from '../../../blogger-platform/comments/api/view-dto/
 import { LikeStatus } from '../../../blogger-platform/likes/dto/like-status';
 import { CommentDtoSql } from '../dto/comment.dto.sql';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { CommentLikesQueryRepositorySql } from '../../likes/infrastructure/query/comment-likes.query-repository.sql';
 
 @Injectable()
 export class CommentsQueryServiceSql {
-  // constructor(private likesQueryRepository: LikesQueryRepository) {}
+  constructor(
+    private commentLikesQueryRepository: CommentLikesQueryRepositorySql,
+  ) {}
 
   async mapCommentToView(
     comment: CommentDtoSql,
     currentUserId: number | undefined,
   ): Promise<CommentViewDto> {
-    // const myStatus = currentUserId
-    //   ? await this.likesQueryRepository.findLikeStatus(
-    //     currentUserId,
-    //     comment._id.toString(),
-    //   )
-    //   : LikeStatus.None;
-    // todo: find my status when likes feature is added
-    const myStatus = LikeStatus.None;
+    const myStatus = currentUserId
+      ? await this.commentLikesQueryRepository.findCommentLikeStatus(
+          comment.id,
+          currentUserId,
+        )
+      : LikeStatus.None;
 
     return CommentViewDto.mapToView(comment, myStatus);
   }

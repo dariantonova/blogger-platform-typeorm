@@ -70,6 +70,9 @@ import { CommentsControllerSql } from '../blogger-platform-sql/comments/api/comm
 import { GetCommentByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-not-found-fail.query.sql';
 import { UpdateCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/update-comment.usecase.sql';
 import { DeleteCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/delete-comment.usecase.sql';
+import { MakeCommentLikeOperationUseCaseSql } from '../blogger-platform-sql/likes/application/usecases/make-comment-like-operation.usecase.sql';
+import { CommentLikesRepositorySql } from '../blogger-platform-sql/likes/infrastructure/comment-likes.repository.sql';
+import { CommentLikesQueryRepositorySql } from '../blogger-platform-sql/likes/infrastructure/query/comment-likes.query-repository.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -113,6 +116,8 @@ const providersSql = [
   CommentsRepositorySql,
   CommentsQueryRepositorySql,
   CommentsQueryServiceSql,
+  CommentLikesRepositorySql,
+  CommentLikesQueryRepositorySql,
 ];
 const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
@@ -136,6 +141,7 @@ const commandHandlersSql = [
   CreateCommentUseCaseSql,
   UpdateCommentUseCaseSql,
   DeleteCommentUseCaseSql,
+  MakeCommentLikeOperationUseCaseSql,
 ];
 
 @Module({

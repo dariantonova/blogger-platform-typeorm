@@ -69,6 +69,7 @@ import { GetPostCommentsQueryHandlerSql } from '../blogger-platform-sql/comments
 import { CommentsControllerSql } from '../blogger-platform-sql/comments/api/comments.controller.sql';
 import { GetCommentByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-not-found-fail.query.sql';
 import { UpdateCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/update-comment.usecase.sql';
+import { DeleteCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/delete-comment.usecase.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -134,6 +135,7 @@ const commandHandlersSql = [
   DeleteBlogPostUseCaseSql,
   CreateCommentUseCaseSql,
   UpdateCommentUseCaseSql,
+  DeleteCommentUseCaseSql,
 ];
 
 @Module({

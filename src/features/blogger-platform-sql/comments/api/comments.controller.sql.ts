@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -19,6 +20,7 @@ import { JwtAccessAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/
 import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { UpdateCommentInputDto } from '../../../blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { UpdateCommentCommandSql } from '../application/usecases/update-comment.usecase.sql';
+import { DeleteCommentCommandSql } from '../application/usecases/delete-comment.usecase.sql';
 
 @Controller('sql/comments')
 export class CommentsControllerSql {
@@ -59,16 +61,20 @@ export class CommentsControllerSql {
     );
   }
 
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAccessAuthGuard)
-  // async deleteComment(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('id', ObjectIdValidationPipe) id: string,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new DeleteCommentCommand(id, user.id));
-  // }
-  //
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardSql)
+  async deleteComment(
+    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeleteCommentCommandSql(id, user.id));
+  }
+
   // @Put(':commentId/like-status')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtAccessAuthGuard)

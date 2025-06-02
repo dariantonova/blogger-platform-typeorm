@@ -834,6 +834,27 @@ window.onload = function() {
           "tags": [
             "CommentsControllerSql"
           ]
+        },
+        "delete": {
+          "operationId": "CommentsControllerSql_deleteComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerSql"
+          ]
         }
       },
       "/api/testing/all-data": {

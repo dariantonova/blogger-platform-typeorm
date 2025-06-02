@@ -72,6 +72,7 @@ import { DeviceAuthSessionsQueryRepositorySql } from '../user-accounts-sql/infra
 import { GetUserDeviceSessionsQueryHandlerSql } from '../user-accounts-sql/application/queries/get-user-device-sessions.query.sql';
 import { TerminateDeviceSessionUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-device-session.usecase.sql';
 import { TerminateAllOtherUserDeviceSessionsUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
+import { UsersExternalQueryRepositorySql } from '../user-accounts-sql/infrastructure/external-query/users.external-query-repository.sql';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -126,6 +127,7 @@ const providersSql = [
   UsersServiceSql,
   JwtRefreshStrategySql,
   DeviceAuthSessionsQueryRepositorySql,
+  UsersExternalQueryRepositorySql,
 ];
 const controllersSql = [
   UsersControllerSql,
@@ -202,6 +204,6 @@ const controllersSql = [
     ...providersSql,
     ...commandHandlersSql,
   ],
-  exports: [UsersExternalQueryRepository],
+  exports: [UsersExternalQueryRepository, UsersExternalQueryRepositorySql],
 })
 export class UserAccountsModule {}

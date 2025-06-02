@@ -50,6 +50,16 @@ export class PostsRepositorySql {
     return posts[0] ? posts[0] : null;
   }
 
+  async findByIdOrNotFoundFail(id: number): Promise<PostDtoSql> {
+    const post = await this.findById(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
+  }
+
   async findByIdAndBlogId(
     id: number,
     blogId: number,

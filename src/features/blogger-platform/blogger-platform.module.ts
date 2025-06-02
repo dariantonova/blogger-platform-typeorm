@@ -60,6 +60,11 @@ import { GetBlogByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sq
 import { GetPostByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-not-found-fail.query.sql';
 import { PostsControllerSql } from '../blogger-platform-sql/posts/api/posts.controller.sql';
 import { GetPostsQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-posts.query.sql';
+import { GetCommentByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-internal-fail.query.sql';
+import { CreateCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/create-comment.usecase.sql';
+import { CommentsRepositorySql } from '../blogger-platform-sql/comments/infrastructure/comments.repository.sql';
+import { CommentsQueryRepositorySql } from '../blogger-platform-sql/comments/infrastructure/query/comments.query-repository.sql';
+import { CommentsQueryServiceSql } from '../blogger-platform-sql/comments/application/comments.query-service.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -99,6 +104,9 @@ const providersSql = [
   PostsRepositorySql,
   PostsQueryRepositorySql,
   PostsQueryServiceSql,
+  CommentsRepositorySql,
+  CommentsQueryRepositorySql,
+  CommentsQueryServiceSql,
 ];
 const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
@@ -108,6 +116,7 @@ const queryHandlersSql = [
   GetBlogByIdOrNotFoundFailQueryHandlerSql,
   GetPostByIdOrNotFoundFailQueryHandlerSql,
   GetPostsQueryHandlerSql,
+  GetCommentByIdOrInternalFailQueryHandlerSql,
 ];
 const commandHandlersSql = [
   CreateBlogUseCaseSql,
@@ -116,6 +125,7 @@ const commandHandlersSql = [
   CreatePostUseCaseSql,
   UpdateBlogPostUseCaseSql,
   DeleteBlogPostUseCaseSql,
+  CreateCommentUseCaseSql,
 ];
 
 @Module({

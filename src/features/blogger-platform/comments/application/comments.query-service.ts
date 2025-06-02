@@ -19,6 +19,6 @@ export class CommentsQueryService {
         )
       : LikeStatus.None;
 
-    return CommentViewDto.mapToView(comment, myStatus);
+    return CommentViewDto.mapToViewMongo(comment, myStatus);
   }
 }

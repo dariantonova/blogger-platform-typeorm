@@ -728,6 +728,39 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{postId}/comments": {
+        "post": {
+          "operationId": "PostsControllerSql_createPostComment",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePostCommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerSql"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",
@@ -801,6 +834,10 @@ window.onload = function() {
           "properties": {}
         },
         "UpdateBlogPostInputDtoSql": {
+          "type": "object",
+          "properties": {}
+        },
+        "CreatePostCommentInputDto": {
           "type": "object",
           "properties": {}
         }

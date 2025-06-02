@@ -42,7 +42,7 @@ export class PostViewDto {
     dto.blogId = post.blogId;
     dto.blogName = post.blogName;
     dto.createdAt = post.createdAt.toISOString();
-    dto.extendedLikesInfo = ExtendedLikesInfoViewDto.mapToView(
+    dto.extendedLikesInfo = ExtendedLikesInfoViewDto.mapToViewMongo(
       post.extendedLikesInfo,
       myStatus,
     );

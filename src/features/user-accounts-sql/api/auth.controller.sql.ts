@@ -12,7 +12,6 @@ import {
 } from '@nestjs/common';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { ExtractUserFromRequest } from '../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { Response } from 'express';
 import { LoginSuccessViewDto } from '../../user-accounts/api/view-dto/login-success.view-dto';
 import { AuthTokensDto } from '../../user-accounts/dto/auth-tokens.dto';
@@ -36,6 +35,7 @@ import { DeviceAuthSessionContextDtoSql } from '../guards/dto/device-auth-sessio
 import { RefreshTokenCommandSql } from '../application/usecases/refresh-token.usecase.sql';
 import { LogoutUserCommandSql } from '../application/usecases/logout-user.usecase.sql';
 import { MeViewDto } from '../../user-accounts/api/view-dto/user.view-dto';
+import { ExtractUserFromRequestSql } from '../guards/decorators/param/extract-user-from-request.sql';
 
 @UseGuards(ThrottlerGuard)
 // @Controller('sql/auth')
@@ -50,7 +50,7 @@ export class AuthControllerSql {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuardSql)
   async login(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Ip() ip: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
     @Res({ passthrough: true })
@@ -80,7 +80,7 @@ export class AuthControllerSql {
   @UseGuards(JwtAccessAuthGuardSql)
   @SkipThrottle()
   async me(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
   ): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQuerySql(user.id));
   }
@@ -130,7 +130,7 @@ export class AuthControllerSql {
   @UseGuards(JwtRefreshAuthGuardSql)
   @SkipThrottle()
   async refreshToken(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
     @Ip() ip: string | undefined,
     @Res({ passthrough: true })
     response: Response,
@@ -160,7 +160,7 @@ export class AuthControllerSql {
   @UseGuards(JwtRefreshAuthGuardSql)
   @SkipThrottle()
   async logout(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDtoSql,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
       new LogoutUserCommandSql({

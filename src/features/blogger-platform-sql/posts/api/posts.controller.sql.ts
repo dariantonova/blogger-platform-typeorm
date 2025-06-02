@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAccessOptionalAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-optional-auth.guard.sql';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
 import { GetPostByIdOrNotFoundFailQuerySql } from '../application/queries/get-post-by-id-or-not-found-fail.query.sql';
 import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
@@ -21,7 +20,6 @@ import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { GetPostsQuerySql } from '../application/queries/get-posts.query.sql';
 import { PostViewDto } from '../../../blogger-platform/posts/api/view-dto/posts.view-dto';
 import { CommentViewDto } from '../../../blogger-platform/comments/api/view-dto/comments.view-dto';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { CreatePostCommentInputDto } from '../../../blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
 import { JwtAccessAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-auth.guard.sql';
 import { CreateCommentCommandSql } from '../../comments/application/usecases/create-comment.usecase.sql';
@@ -30,6 +28,8 @@ import { GetCommentsQueryParams } from '../../../blogger-platform/comments/api/i
 import { GetPostCommentsQuerySql } from '../../comments/application/queries/get-post-comments.query.sql';
 import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
 import { MakePostLikeOperationCommandSql } from '../../likes/application/usecases/make-post-like-operation.usecase.sql';
+import { ExtractUserIfExistsFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-if-exists-from-request.sql';
+import { ExtractUserFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
 
 // @Controller('sql/posts')
 @Controller('posts')
@@ -43,7 +43,7 @@ export class PostsControllerSql {
   @UseGuards(JwtAccessOptionalAuthGuardSql)
   async getPosts(
     @Query() query: GetPostsQueryParams,
-    @ExtractUserIfExistsFromRequest() user: UserContextDtoSql | null,
+    @ExtractUserIfExistsFromRequestSql() user: UserContextDtoSql | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(new GetPostsQuerySql(query, user?.id));
   }
@@ -56,7 +56,7 @@ export class PostsControllerSql {
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
     )
     id: number,
-    @ExtractUserIfExistsFromRequest() user: UserContextDtoSql | null,
+    @ExtractUserIfExistsFromRequestSql() user: UserContextDtoSql | null,
   ): Promise<PostViewDto> {
     return this.queryBus.execute(
       new GetPostByIdOrNotFoundFailQuerySql(id, user?.id),
@@ -72,7 +72,7 @@ export class PostsControllerSql {
     )
     postId: number,
     @Query() query: GetCommentsQueryParams,
-    @ExtractUserIfExistsFromRequest() user: UserContextDtoSql | null,
+    @ExtractUserIfExistsFromRequestSql() user: UserContextDtoSql | null,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     return this.queryBus.execute(
       new GetPostCommentsQuerySql(postId, query, user?.id),
@@ -82,7 +82,7 @@ export class PostsControllerSql {
   @Post(':postId/comments')
   @UseGuards(JwtAccessAuthGuardSql)
   async createPostComment(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Param(
       'postId',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
@@ -110,7 +110,7 @@ export class PostsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardSql)
   async makePostLikeOperation(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Param(
       'postId',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),

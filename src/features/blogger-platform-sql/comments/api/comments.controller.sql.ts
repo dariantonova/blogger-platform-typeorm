@@ -13,16 +13,16 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAccessOptionalAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-optional-auth.guard.sql';
 import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 import { CommentViewDto } from '../../../blogger-platform/comments/api/view-dto/comments.view-dto';
 import { GetCommentByIdOrNotFoundFailQuerySql } from '../application/queries/get-comment-by-id-or-not-found-fail.query.sql';
 import { JwtAccessAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-auth.guard.sql';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { UpdateCommentInputDto } from '../../../blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { UpdateCommentCommandSql } from '../application/usecases/update-comment.usecase.sql';
 import { DeleteCommentCommandSql } from '../application/usecases/delete-comment.usecase.sql';
 import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommandSql } from '../../likes/application/usecases/make-comment-like-operation.usecase.sql';
+import { ExtractUserIfExistsFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-if-exists-from-request.sql';
+import { ExtractUserFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
 
 @Controller('sql/comments')
 export class CommentsControllerSql {
@@ -39,7 +39,7 @@ export class CommentsControllerSql {
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
     )
     id: number,
-    @ExtractUserIfExistsFromRequest() user: UserContextDtoSql | null,
+    @ExtractUserIfExistsFromRequestSql() user: UserContextDtoSql | null,
   ): Promise<CommentViewDto> {
     return this.queryBus.execute(
       new GetCommentByIdOrNotFoundFailQuerySql(id, user?.id),
@@ -50,7 +50,7 @@ export class CommentsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardSql)
   async updateComment(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Param(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
@@ -67,7 +67,7 @@ export class CommentsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardSql)
   async deleteComment(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Param(
       'id',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
@@ -81,7 +81,7 @@ export class CommentsControllerSql {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardSql)
   async makeCommentLikeOperation(
-    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Param(
       'commentId',
       new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),

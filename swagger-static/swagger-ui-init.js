@@ -729,6 +729,27 @@ window.onload = function() {
         }
       },
       "/api/posts/{postId}/comments": {
+        "get": {
+          "operationId": "PostsControllerSql_getPostComments",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerSql"
+          ]
+        },
         "post": {
           "operationId": "PostsControllerSql_createPostComment",
           "parameters": [

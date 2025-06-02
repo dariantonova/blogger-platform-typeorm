@@ -65,6 +65,7 @@ import { CreateCommentUseCaseSql } from '../blogger-platform-sql/comments/applic
 import { CommentsRepositorySql } from '../blogger-platform-sql/comments/infrastructure/comments.repository.sql';
 import { CommentsQueryRepositorySql } from '../blogger-platform-sql/comments/infrastructure/query/comments.query-repository.sql';
 import { CommentsQueryServiceSql } from '../blogger-platform-sql/comments/application/comments.query-service.sql';
+import { GetPostCommentsQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-post-comments.query.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -117,6 +118,7 @@ const queryHandlersSql = [
   GetPostByIdOrNotFoundFailQueryHandlerSql,
   GetPostsQueryHandlerSql,
   GetCommentByIdOrInternalFailQueryHandlerSql,
+  GetPostCommentsQueryHandlerSql,
 ];
 const commandHandlersSql = [
   CreateBlogUseCaseSql,

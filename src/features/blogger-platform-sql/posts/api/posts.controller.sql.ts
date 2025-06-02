@@ -24,6 +24,8 @@ import { CreatePostCommentInputDto } from '../../../blogger-platform/posts/api/i
 import { JwtAccessAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-auth.guard.sql';
 import { CreateCommentCommandSql } from '../../comments/application/usecases/create-comment.usecase.sql';
 import { GetCommentByIdOrInternalFailQuerySql } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query.sql';
+import { GetCommentsQueryParams } from '../../../blogger-platform/comments/api/input-dto/get-comments-query-params.input-dto';
+import { GetPostCommentsQuerySql } from '../../comments/application/queries/get-post-comments.query.sql';
 
 // @Controller('sql/posts')
 @Controller('posts')
@@ -57,17 +59,21 @@ export class PostsControllerSql {
     );
   }
 
-  // @Get(':postId/comments')
-  // @UseGuards(JwtAccessOptionalAuthGuard)
-  // async getPostComments(
-  //   @Param('postId', ObjectIdValidationPipe) postId: string,
-  //   @Query() query: GetCommentsQueryParams,
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  // ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-  //   return this.queryBus.execute(
-  //     new GetPostCommentsQuery(postId, query, user?.id),
-  //   );
-  // }
+  @Get(':postId/comments')
+  @UseGuards(JwtAccessOptionalAuthGuardSql)
+  async getPostComments(
+    @Param(
+      'postId',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    postId: number,
+    @Query() query: GetCommentsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDtoSql | null,
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    return this.queryBus.execute(
+      new GetPostCommentsQuerySql(postId, query, user?.id),
+    );
+  }
 
   @Post(':postId/comments')
   @UseGuards(JwtAccessAuthGuardSql)

@@ -18,6 +18,7 @@ import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { CreateBlogPostInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
+import { CoreConfig } from '../../src/core/core.config';
 
 describe('posts', () => {
   let app: INestApplication;
@@ -37,6 +38,9 @@ describe('posts', () => {
 
   describe('get posts', () => {
     beforeAll(async () => {
+      const coreConfig = app.get(CoreConfig);
+      console.log(coreConfig.pgDbName);
+
       await deleteAllData(app);
     });
 

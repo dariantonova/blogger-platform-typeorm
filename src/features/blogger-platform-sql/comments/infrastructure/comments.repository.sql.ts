@@ -9,6 +9,7 @@ import { CreateCommentDtoSql } from '../dto/create-comment.dto.sql';
 import { buildWhereClause } from '../../../../utils/sql/build-where-clause';
 import { CommentDtoSql } from '../dto/comment.dto.sql';
 import { mapCommentRowToDto } from './mappers/comment.mapper';
+import { UpdateCommentDto } from '../../../blogger-platform/comments/dto/update-comment.dto';
 
 @Injectable()
 export class CommentsRepositorySql {
@@ -58,6 +59,16 @@ export class CommentsRepositorySql {
     }
 
     return comment;
+  }
+
+  async updateComment(id: number, dto: UpdateCommentDto): Promise<void> {
+    const updateQuery = `
+    UPDATE comments
+    SET content = $1,
+        updated_at = now()
+    WHERE id = $2;
+    `;
+    await this.dataSource.query(updateQuery, [dto.content, id]);
   }
 
   getCommentLikesCountsCtePart(): string {

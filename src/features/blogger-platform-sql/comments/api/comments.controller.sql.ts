@@ -1,9 +1,12 @@
 import {
+  Body,
   Controller,
   Get,
+  HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -12,6 +15,10 @@ import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-co
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
 import { CommentViewDto } from '../../../blogger-platform/comments/api/view-dto/comments.view-dto';
 import { GetCommentByIdOrNotFoundFailQuerySql } from '../application/queries/get-comment-by-id-or-not-found-fail.query.sql';
+import { JwtAccessAuthGuardSql } from '../../../user-accounts-sql/guards/bearer/jwt-access-auth.guard.sql';
+import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
+import { UpdateCommentInputDto } from '../../../blogger-platform/comments/api/input-dto/update-comment.input-dto';
+import { UpdateCommentCommandSql } from '../application/usecases/update-comment.usecase.sql';
 
 @Controller('sql/comments')
 export class CommentsControllerSql {
@@ -35,17 +42,23 @@ export class CommentsControllerSql {
     );
   }
 
-  // @Put(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAccessAuthGuard)
-  // async updateComment(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('id', ObjectIdValidationPipe) id: string,
-  //   @Body() body: UpdateCommentInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new UpdateCommentCommand(id, body, user.id));
-  // }
-  //
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardSql)
+  async updateComment(
+    @ExtractUserFromRequest() user: UserContextDtoSql,
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    id: number,
+    @Body() body: UpdateCommentInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateCommentCommandSql(id, body, user.id),
+    );
+  }
+
   // @Delete(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtAccessAuthGuard)

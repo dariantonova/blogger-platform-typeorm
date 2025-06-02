@@ -803,6 +803,37 @@ window.onload = function() {
           "tags": [
             "CommentsControllerSql"
           ]
+        },
+        "put": {
+          "operationId": "CommentsControllerSql_updateComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerSql"
+          ]
         }
       },
       "/api/testing/all-data": {

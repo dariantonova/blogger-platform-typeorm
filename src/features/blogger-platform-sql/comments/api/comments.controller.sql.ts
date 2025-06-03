@@ -24,7 +24,8 @@ import { MakeCommentLikeOperationCommandSql } from '../../likes/application/usec
 import { ExtractUserIfExistsFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-if-exists-from-request.sql';
 import { ExtractUserFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
 
-@Controller('sql/comments')
+// @Controller('sql/comments')
+@Controller('comments')
 export class CommentsControllerSql {
   constructor(
     private queryBus: QueryBus,

@@ -7,7 +7,6 @@ import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import {
   delay,
   deleteAllData,
-  generateNonExistingId,
   getPageOfArray,
   initApp,
   sortArrByDateStrField,
@@ -90,9 +89,8 @@ describe('post comments', () => {
       });
 
       it('should return empty array if post has no comments', async () => {
-        const post = await postsCommonTestManager.createPostWithGeneratedData(
-          blog.id,
-        );
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
         const response = await commentsTestManager.getPostComments(
           post.id,
           HttpStatus.OK,
@@ -103,9 +101,8 @@ describe('post comments', () => {
       });
 
       it('should return post comments with default pagination and sorting', async () => {
-        const post = await postsCommonTestManager.createPostWithGeneratedData(
-          blog.id,
-        );
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
         const postComments =
           await commentsTestManager.createCommentsWithGeneratedData(
             2,
@@ -129,10 +126,11 @@ describe('post comments', () => {
       });
 
       it(`shouldn't return comments of other posts`, async () => {
-        const posts = await postsCommonTestManager.createPostsWithGeneratedData(
-          2,
-          blog.id,
-        );
+        const posts =
+          await postsCommonTestManager.createBlogPostsWithGeneratedData(
+            2,
+            blog.id,
+          );
         const post1Comments =
           await commentsTestManager.createCommentsWithGeneratedData(
             2,
@@ -156,9 +154,8 @@ describe('post comments', () => {
       });
 
       it(`shouldn't return deleted comments`, async () => {
-        const post = await postsCommonTestManager.createPostWithGeneratedData(
-          blog.id,
-        );
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
         const postComments =
           await commentsTestManager.createCommentsWithGeneratedData(
             1,
@@ -192,15 +189,23 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to get comments of non-existing post', async () => {
-        const nonExistingId = generateNonExistingId();
+        const nonExistingId = '-1';
         await commentsTestManager.getPostComments(
           nonExistingId,
           HttpStatus.NOT_FOUND,
         );
       });
 
-      it('should return 404 when post id is not valid ObjectId', async () => {
-        const invalidId = 'not ObjectId';
+      // it('should return 404 when post id is not valid ObjectId', async () => {
+      //   const invalidId = 'not ObjectId';
+      //   await commentsTestManager.getPostComments(
+      //     invalidId,
+      //     HttpStatus.NOT_FOUND,
+      //   );
+      // });
+
+      it('should return 404 when post id is not a number', async () => {
+        const invalidId = 'string';
         await commentsTestManager.getPostComments(
           invalidId,
           HttpStatus.NOT_FOUND,
@@ -209,8 +214,8 @@ describe('post comments', () => {
 
       it('should return 404 when trying to get comments of deleted post', async () => {
         const postToDelete =
-          await postsCommonTestManager.createPostWithGeneratedData(blog.id);
-        await postsCommonTestManager.deletePost(postToDelete.id);
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+        await postsCommonTestManager.deleteBlogPost(blog.id, postToDelete.id);
 
         await commentsTestManager.getPostComments(
           postToDelete.id,
@@ -227,7 +232,7 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
           blog.id,
         );
 
@@ -333,7 +338,7 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
           blog.id,
         );
 
@@ -415,8 +420,8 @@ describe('post comments', () => {
         expect(response2.body.items).toEqual(expectedItems);
       });
 
-      it(`should return comments in order of creation if sort field doesn't exist`, async () => {
-        const expectedItems = comments;
+      it(`should return comments in desc order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = comments.toReversed();
 
         const response = await commentsTestManager.getPostComments(
           post.id,
@@ -449,7 +454,7 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
           blog.id,
         );
 
@@ -513,7 +518,7 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to create comment of non-existing post', async () => {
-        const nonExistingId = generateNonExistingId();
+        const nonExistingId = '-1';
         await commentsTestManager.createPostComment(
           nonExistingId,
           validInputDto,
@@ -522,8 +527,18 @@ describe('post comments', () => {
         );
       });
 
-      it('should return 404 when post id is not valid ObjectId', async () => {
-        const invalidId = 'not ObjectId';
+      // it('should return 404 when post id is not valid ObjectId', async () => {
+      //   const invalidId = 'not ObjectId';
+      //   await commentsTestManager.createPostComment(
+      //     invalidId,
+      //     validInputDto,
+      //     validAuth,
+      //     HttpStatus.NOT_FOUND,
+      //   );
+      // });
+
+      it('should return 404 when post id is not a number', async () => {
+        const invalidId = 'string';
         await commentsTestManager.createPostComment(
           invalidId,
           validInputDto,
@@ -534,8 +549,8 @@ describe('post comments', () => {
 
       it('should return 404 when trying to create comment of deleted post', async () => {
         const postToDelete =
-          await postsCommonTestManager.createPostWithGeneratedData(blog.id);
-        await postsCommonTestManager.deletePost(postToDelete.id);
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+        await postsCommonTestManager.deleteBlogPost(blog.id, postToDelete.id);
 
         await commentsTestManager.createPostComment(
           postToDelete.id,
@@ -554,7 +569,7 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
           blog.id,
         );
 
@@ -629,7 +644,7 @@ describe('post comments', () => {
         await deleteAllData(app);
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-        post = await postsCommonTestManager.createPostWithGeneratedData(
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
           blog.id,
         );
 

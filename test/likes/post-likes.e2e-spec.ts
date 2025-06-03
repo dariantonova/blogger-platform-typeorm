@@ -1,10 +1,5 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import {
-  delay,
-  deleteAllData,
-  generateNonExistingId,
-  initApp,
-} from '../helpers/helper';
+import { delay, deleteAllData, initApp } from '../helpers/helper';
 import { PostLikesTestManager } from './helpers/post-likes.test-manager';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
@@ -78,7 +73,9 @@ describe('post likes', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
 
       userData = {
         login: 'user1',
@@ -153,7 +150,9 @@ describe('post likes', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
 
       validAuth = await authTestManager.getValidAuth();
     });
@@ -222,18 +221,29 @@ describe('post likes', () => {
     });
 
     it('should return 404 when trying to update like status of non-existing post', async () => {
-      const nonExistingPost = generateNonExistingId();
+      const nonExistingPostId = '-1';
 
       await postLikesTestManager.makePostLikeOperation(
-        nonExistingPost,
+        nonExistingPostId,
         inputDto,
         validAuth,
         HttpStatus.NOT_FOUND,
       );
     });
 
-    it('should return 404 when post id is not valid ObjectId', async () => {
-      const invalidId = 'not ObjectId';
+    // it('should return 404 when post id is not valid ObjectId', async () => {
+    //   const invalidId = 'not ObjectId';
+    //
+    //   await postLikesTestManager.makePostLikeOperation(
+    //     invalidId,
+    //     inputDto,
+    //     validAuth,
+    //     HttpStatus.NOT_FOUND,
+    //   );
+    // });
+
+    it('should return 404 when post id is not a number', async () => {
+      const invalidId = 'string';
 
       await postLikesTestManager.makePostLikeOperation(
         invalidId,
@@ -245,8 +255,8 @@ describe('post likes', () => {
 
     it('should return 404 when trying to update like status of deleted post', async () => {
       const postToDelete =
-        await postsCommonTestManager.createPostWithGeneratedData(blog.id);
-      await postsCommonTestManager.deletePost(postToDelete.id);
+        await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+      await postsCommonTestManager.deleteBlogPost(blog.id, postToDelete.id);
 
       await postLikesTestManager.makePostLikeOperation(
         postToDelete.id,
@@ -264,7 +274,9 @@ describe('post likes', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
     });
 
     it('should return myStatus as None for unauthorized user', async () => {
@@ -281,7 +293,9 @@ describe('post likes', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
 
       user1Auth = await authTestManager.getValidAuth();
     });
@@ -484,7 +498,7 @@ describe('post likes', () => {
     });
 
     it('should correctly count multiple likes from different users', async () => {
-      const post = await postsCommonTestManager.createPostWithGeneratedData(
+      const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
         blog.id,
       );
 
@@ -511,7 +525,7 @@ describe('post likes', () => {
     });
 
     it('should correctly count multiple dislikes from different users', async () => {
-      const post = await postsCommonTestManager.createPostWithGeneratedData(
+      const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
         blog.id,
       );
 
@@ -538,7 +552,7 @@ describe('post likes', () => {
     });
 
     it('should correctly count mixed likes and dislikes from different users', async () => {
-      const post = await postsCommonTestManager.createPostWithGeneratedData(
+      const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
         blog.id,
       );
 
@@ -583,7 +597,9 @@ describe('post likes', () => {
       await deleteAllData(app);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
-      post = await postsCommonTestManager.createPostWithGeneratedData(blog.id);
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
 
       usersData = [];
       users = [];

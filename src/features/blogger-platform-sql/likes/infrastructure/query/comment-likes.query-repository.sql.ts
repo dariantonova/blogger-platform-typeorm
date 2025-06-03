@@ -17,7 +17,7 @@ export class CommentLikesQueryRepositorySql {
     FROM comment_likes cl
     WHERE cl.comment_id = $1
     AND cl.user_id = $2
-    AND pl.deleted_at IS NULL;
+    AND cl.deleted_at IS NULL;
     `;
     const findResult = await this.dataSource.query(findQuery, [
       commentId,

@@ -6,7 +6,6 @@ import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
 import { Post, PostSchema } from './posts/domain/post.entity';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
-import { CommentsController } from './comments/api/comments.controller';
 import { Comment, CommentSchema } from './comments/domain/comment.entity';
 import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 import { CommentsRepository } from './comments/infrastructure/comments.repository';
@@ -164,7 +163,7 @@ const commandHandlersSql = [
   controllers: [
     // BlogsController,
     // PostsController,
-    CommentsController,
+    // CommentsController,
     ...controllersSql,
   ],
   providers: [

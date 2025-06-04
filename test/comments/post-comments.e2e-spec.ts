@@ -7,6 +7,8 @@ import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import {
   delay,
   deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   sortArrByDateStrField,
@@ -189,7 +191,7 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to get comments of non-existing post', async () => {
-        const nonExistingId = '-1';
+        const nonExistingId = generateNonExistingId();
         await commentsTestManager.getPostComments(
           nonExistingId,
           HttpStatus.NOT_FOUND,
@@ -205,7 +207,7 @@ describe('post comments', () => {
       // });
 
       it('should return 404 when post id is not a number', async () => {
-        const invalidId = 'string';
+        const invalidId = generateIdOfWrongType();
         await commentsTestManager.getPostComments(
           invalidId,
           HttpStatus.NOT_FOUND,
@@ -518,7 +520,7 @@ describe('post comments', () => {
       });
 
       it('should return 404 when trying to create comment of non-existing post', async () => {
-        const nonExistingId = '-1';
+        const nonExistingId = generateNonExistingId();
         await commentsTestManager.createPostComment(
           nonExistingId,
           validInputDto,
@@ -538,7 +540,7 @@ describe('post comments', () => {
       // });
 
       it('should return 404 when post id is not a number', async () => {
-        const invalidId = 'string';
+        const invalidId = generateIdOfWrongType();
         await commentsTestManager.createPostComment(
           invalidId,
           validInputDto,

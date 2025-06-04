@@ -6,7 +6,6 @@ import { Connection } from 'mongoose';
 import { getConnectionToken } from '@nestjs/mongoose';
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
-import { ObjectId } from 'mongodb';
 import * as process from 'node:process';
 import { EmailService } from '../../src/features/notifications/email.service';
 import { EmailServiceMock } from '../mock/email-service.mock';
@@ -143,9 +142,13 @@ export const caseInsensitiveSearch = (
   return new RegExp(searchStr, 'i').test(str);
 };
 
-export const generateNonExistingId = (): string => {
-  return new ObjectId().toString();
-};
+// export const generateNonExistingId = (): string => {
+//   return new ObjectId().toString();
+// };
+
+export const generateNonExistingId = (): string => '-1';
+
+export const generateIdOfWrongType = (): string => 'string';
 
 export const getPageOfArray = <T>(
   arr: T[],

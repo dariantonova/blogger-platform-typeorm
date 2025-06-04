@@ -2,6 +2,8 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   caseInsensitiveSearch,
   deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   invalidBasicAuthTestValues,
@@ -683,7 +685,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to get non-existing blog', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await blogsTestManager.getBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -693,7 +695,7 @@ describe('blogs', () => {
     // });
 
     it('should return 404 when blog id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await blogsTestManager.getBlog(invalidId, HttpStatus.NOT_FOUND);
     });
 
@@ -1045,7 +1047,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to update non-existing blog', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
 
       await blogsTestManager.updateBlog(
         nonExistingId,
@@ -1065,7 +1067,7 @@ describe('blogs', () => {
     // });
 
     it('should return 404 when blog id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
 
       await blogsTestManager.updateBlog(
         invalidId,
@@ -1363,7 +1365,7 @@ describe('blogs', () => {
     });
 
     it('should return 404 when trying to delete non-existing blog', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await blogsTestManager.deleteBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -1373,7 +1375,7 @@ describe('blogs', () => {
     // });
 
     it('should return 404 when blog id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await blogsTestManager.deleteBlog(invalidId, HttpStatus.NOT_FOUND);
     });
 

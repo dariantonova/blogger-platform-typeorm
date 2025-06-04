@@ -2,6 +2,8 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   caseInsensitiveSearch,
   deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   invalidBasicAuthTestValues,
@@ -457,8 +459,7 @@ describe('users', () => {
       });
 
       it('should return 404 when trying to delete non-existing user', async () => {
-        // const nonExistingId = generateNonExistingId();
-        const nonExistingId = '-1';
+        const nonExistingId = generateNonExistingId();
         await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
       });
 
@@ -468,7 +469,7 @@ describe('users', () => {
       // });
 
       it('should return 404 when user id is not a number', async () => {
-        const invalidId = 'string';
+        const invalidId = generateIdOfWrongType();
         await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
       });
 

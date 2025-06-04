@@ -3,7 +3,13 @@ import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  delay,
+  deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
+  initApp,
+} from '../helpers/helper';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import { CoreConfig } from '../../src/core/core.config';
@@ -260,7 +266,7 @@ describe('comment likes', () => {
     });
 
     it('should return 404 when trying to update like status of non-existing comment', async () => {
-      const nonExistingPostId = '-1';
+      const nonExistingPostId = generateNonExistingId();
 
       await commentLikesTestManager.makeCommentLikeOperation(
         nonExistingPostId,
@@ -282,7 +288,7 @@ describe('comment likes', () => {
     // });
 
     it('should return 404 when comment id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
 
       await commentLikesTestManager.makeCommentLikeOperation(
         invalidId,

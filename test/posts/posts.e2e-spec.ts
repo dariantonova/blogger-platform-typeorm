@@ -1,6 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
   deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   sortArrByDateStrField,
@@ -390,7 +392,7 @@ describe('posts', () => {
     });
 
     it('should return 404 when trying to get non-existing post', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await postsTestManager.getPost(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -400,7 +402,7 @@ describe('posts', () => {
     // });
 
     it('should return 404 when post id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);
     });
 

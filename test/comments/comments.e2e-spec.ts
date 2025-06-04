@@ -1,5 +1,11 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  delay,
+  deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
+  initApp,
+} from '../helpers/helper';
 import { CommentsTestManager } from './helpers/comments.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
@@ -101,7 +107,7 @@ describe('comments', () => {
     });
 
     it('should return 404 when trying to get non-existing comment', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await commentsTestManager.getComment(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -111,7 +117,7 @@ describe('comments', () => {
     // });
 
     it('should return 404 when comment id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await commentsTestManager.getComment(invalidId, HttpStatus.NOT_FOUND);
     });
 
@@ -184,7 +190,7 @@ describe('comments', () => {
       });
 
       it('should return 404 when trying to delete non-existing comment', async () => {
-        const nonExistingPost = '-1';
+        const nonExistingPost = generateNonExistingId();
         await commentsTestManager.deleteComment(
           nonExistingPost,
           validAuth,
@@ -202,7 +208,7 @@ describe('comments', () => {
       // });
 
       it('should return 404 when comment id is not a number', async () => {
-        const invalidId = 'string';
+        const invalidId = generateIdOfWrongType();
         await commentsTestManager.deleteComment(
           invalidId,
           validAuth,
@@ -453,7 +459,7 @@ describe('comments', () => {
       });
 
       it('should return 404 when trying to update non-existing comment', async () => {
-        const nonExistingPost = '-1';
+        const nonExistingPost = generateNonExistingId();
         await commentsTestManager.updateComment(
           nonExistingPost,
           validInputDto,
@@ -473,7 +479,7 @@ describe('comments', () => {
       // });
 
       it('should return 404 when comment id is not a number', async () => {
-        const invalidId = 'string';
+        const invalidId = generateIdOfWrongType();
         await commentsTestManager.updateComment(
           invalidId,
           validInputDto,

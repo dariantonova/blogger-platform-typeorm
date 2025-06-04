@@ -6,6 +6,8 @@ import {
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import {
   deleteAllData,
+  generateIdOfWrongType,
+  generateNonExistingId,
   getPageOfArray,
   initApp,
   invalidBasicAuthTestValues,
@@ -82,7 +84,7 @@ describe('blog posts', () => {
     });
 
     it('should return 404 when trying to create post of non-existing blog', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await postsTestManager.createBlogPost(
         nonExistingId,
         validInputDto,
@@ -100,7 +102,7 @@ describe('blog posts', () => {
     // });
 
     it('should return 404 when blog id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await postsTestManager.createBlogPost(
         invalidId,
         validInputDto,
@@ -384,7 +386,7 @@ describe('blog posts', () => {
     });
 
     it('should return 404 when trying to get posts of non-existing blog', async () => {
-      const nonExistingId = '-1';
+      const nonExistingId = generateNonExistingId();
       await postsTestManager.getBlogPosts(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
@@ -394,7 +396,7 @@ describe('blog posts', () => {
     // });
 
     it('should return 404 when blog id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await postsTestManager.getBlogPosts(invalidId, HttpStatus.NOT_FOUND);
     });
 
@@ -806,7 +808,7 @@ describe('blog posts', () => {
     });
 
     it('should return 404 when trying to update non-existing post', async () => {
-      const nonExistingPostId = '-1';
+      const nonExistingPostId = generateNonExistingId();
 
       await postsTestManager.updateBlogPost(
         blog.id,
@@ -821,7 +823,7 @@ describe('blog posts', () => {
         await postsTestManager.createBlogPostsWithGeneratedData(1, blog.id);
       const postToUpdate = createdPosts[0];
 
-      const nonExistingBlogId = '-1';
+      const nonExistingBlogId = generateNonExistingId();
 
       await postsTestManager.updateBlogPost(
         nonExistingBlogId,
@@ -860,7 +862,7 @@ describe('blog posts', () => {
     // });
 
     it('should return 404 when post id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
 
       await postsTestManager.updateBlogPost(
         blog.id,
@@ -1183,7 +1185,7 @@ describe('blog posts', () => {
     });
 
     it('should return 404 when trying to delete non-existing post', async () => {
-      const nonExistingPost = '-1';
+      const nonExistingPost = generateNonExistingId();
       await postsTestManager.deleteBlogPost(
         blog.id,
         nonExistingPost,
@@ -1196,7 +1198,7 @@ describe('blog posts', () => {
         await postsTestManager.createBlogPostsWithGeneratedData(1, blog.id);
       const postToDelete = createdPosts[0];
 
-      const nonExistingBlogId = '-1';
+      const nonExistingBlogId = generateNonExistingId();
 
       await postsTestManager.deleteBlogPost(
         nonExistingBlogId,
@@ -1228,7 +1230,7 @@ describe('blog posts', () => {
     // });
 
     it('should return 404 when post id is not a number', async () => {
-      const invalidId = 'string';
+      const invalidId = generateIdOfWrongType();
       await postsTestManager.deleteBlogPost(
         blog.id,
         invalidId,

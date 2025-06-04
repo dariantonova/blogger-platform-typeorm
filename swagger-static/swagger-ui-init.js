@@ -309,114 +309,6 @@ window.onload = function() {
           ]
         }
       },
-      "/api/comments/{id}": {
-        "get": {
-          "operationId": "CommentsController_getComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Comments"
-          ]
-        },
-        "put": {
-          "operationId": "CommentsController_updateComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateCommentInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Comments"
-          ]
-        },
-        "delete": {
-          "operationId": "CommentsController_deleteComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Comments"
-          ]
-        }
-      },
-      "/api/comments/{commentId}/like-status": {
-        "put": {
-          "operationId": "CommentsController_makeCommentLikeOperation",
-          "parameters": [
-            {
-              "name": "commentId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LikeInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "Comments"
-          ]
-        }
-      },
       "/api/sa/blogs": {
         "get": {
           "operationId": "BlogsSaControllerSql_getBlogs",
@@ -815,7 +707,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/comments/{id}": {
+      "/api/comments/{id}": {
         "get": {
           "operationId": "CommentsControllerSql_getComment",
           "parameters": [
@@ -890,7 +782,7 @@ window.onload = function() {
           ]
         }
       },
-      "/api/sql/comments/{commentId}/like-status": {
+      "/api/comments/{commentId}/like-status": {
         "put": {
           "operationId": "CommentsControllerSql_makeCommentLikeOperation",
           "parameters": [
@@ -975,14 +867,6 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "UpdateCommentInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "LikeInputDto": {
-          "type": "object",
-          "properties": {}
-        },
         "CreateBlogInputDto": {
           "type": "object",
           "properties": {}
@@ -1000,6 +884,14 @@ window.onload = function() {
           "properties": {}
         },
         "CreatePostCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "LikeInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateCommentInputDto": {
           "type": "object",
           "properties": {}
         }

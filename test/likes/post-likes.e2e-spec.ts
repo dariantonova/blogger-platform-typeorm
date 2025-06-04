@@ -1,5 +1,10 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
-import { delay, deleteAllData, initApp } from '../helpers/helper';
+import {
+  delay,
+  deleteAllData,
+  generateNonExistingId,
+  initApp,
+} from '../helpers/helper';
 import { PostLikesTestManager } from './helpers/post-likes.test-manager';
 import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
@@ -221,7 +226,7 @@ describe('post likes', () => {
     });
 
     it('should return 404 when trying to update like status of non-existing post', async () => {
-      const nonExistingPostId = '-1';
+      const nonExistingPostId = generateNonExistingId();
 
       await postLikesTestManager.makePostLikeOperation(
         nonExistingPostId,

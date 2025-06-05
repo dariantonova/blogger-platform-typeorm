@@ -25,6 +25,15 @@ import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 import { UsersTestRepositorySql } from '../helpers/repositories/users.test-repository.sql';
 import { DataSource } from 'typeorm';
+import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
+import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
+import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
+import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
+import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
+import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
+import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
+import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 
 describe('users', () => {
   let app: INestApplication;
@@ -32,6 +41,13 @@ describe('users', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
   let usersTestRepository: UsersTestRepositorySql;
+  let blogsCommonTestManager: BlogsCommonTestManager;
+  let postsCommonTestManager: PostsCommonTestManager;
+  let commentsCommonTestManager: CommentsCommonTestManager;
+  let postLikesTestManager: PostLikesTestManager;
+  let postLikesTestRepository: PostLikesTestRepositorySql;
+  let commentLikesTestManager: CommentLikesTestManager;
+  let commentLikesTestRepository: CommentLikesTestRepositorySql;
 
   beforeAll(async () => {
     app = await initApp();
@@ -39,9 +55,16 @@ describe('users', () => {
     usersTestManager = new UsersTestManager(app);
     usersCommonTestManager = new UsersCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
+    blogsCommonTestManager = new BlogsCommonTestManager(app);
+    postsCommonTestManager = new PostsCommonTestManager(app);
+    commentsCommonTestManager = new CommentsCommonTestManager(app);
+    postLikesTestManager = new PostLikesTestManager(app);
+    commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
     usersTestRepository = new UsersTestRepositorySql(dataSource);
+    postLikesTestRepository = new PostLikesTestRepositorySql(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
   });
 
   afterAll(async () => {
@@ -493,6 +516,219 @@ describe('users', () => {
             invalidAuthValue,
           );
         }
+      });
+    });
+
+    describe('relations deletion', () => {
+      let blog: BlogViewDto;
+      let userToDelete: UserViewDto;
+      let userToDeleteAuthString: string;
+      let otherUsersAuthStrings: string[];
+
+      beforeEach(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+        const createdUsers: UserViewDto[] = [];
+        const createdUsersAuthStrings: string[] = [];
+        for (let i = 1; i <= 3; i++) {
+          const userData = usersTestManager.generateUserData(i);
+          const createdUser =
+            await usersTestManager.createUserSuccess(userData);
+          const createdUserAuthString =
+            await authTestManager.getValidAuthOfExistingUser(
+              userData.login,
+              userData.password,
+            );
+
+          createdUsers.push(createdUser);
+          createdUsersAuthStrings.push(createdUserAuthString);
+        }
+
+        userToDelete = createdUsers[0];
+        userToDeleteAuthString = createdUsersAuthStrings[0];
+        otherUsersAuthStrings = createdUsersAuthStrings.slice(1);
+      });
+
+      it('should delete all related post likes', async () => {
+        const posts =
+          await postsCommonTestManager.createBlogPostsWithGeneratedData(
+            2,
+            blog.id,
+          );
+
+        await postLikesTestManager.makePostLikeOperationSuccess(
+          posts[0].id,
+          LikeStatus.Like,
+          userToDeleteAuthString,
+        );
+        await postLikesTestManager.makePostLikeOperationSuccess(
+          posts[1].id,
+          LikeStatus.Dislike,
+          userToDeleteAuthString,
+        );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await postLikesTestRepository.assertPostsHaveNoLikes(
+          posts.map((p) => p.id),
+        );
+      });
+
+      it('should delete only related post likes', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        await postLikesTestManager.makePostLikeOperationSuccess(
+          post.id,
+          LikeStatus.Like,
+          otherUsersAuthStrings[0],
+        );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await postLikesTestRepository.checkPostLikesCount(post.id, 1);
+      });
+
+      it('should delete all related comment likes', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const comments =
+          await commentsCommonTestManager.createCommentsWithGeneratedData(
+            2,
+            post.id,
+            otherUsersAuthStrings[0],
+          );
+
+        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          comments[0].id,
+          LikeStatus.Like,
+          userToDeleteAuthString,
+        );
+        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          comments[1].id,
+          LikeStatus.Dislike,
+          userToDeleteAuthString,
+        );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentLikesTestRepository.assertCommentsHaveNoLikes(
+          comments.map((c) => c.id),
+        );
+      });
+
+      it('should delete only related comment likes', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const comment =
+          await commentsCommonTestManager.createCommentWithGeneratedData(
+            post.id,
+            otherUsersAuthStrings[0],
+          );
+
+        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          comment.id,
+          LikeStatus.Like,
+          otherUsersAuthStrings[1],
+        );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentLikesTestRepository.checkCommentLikesCount(comment.id, 1);
+      });
+
+      it('should delete all related comments', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const relatedComments =
+          await commentsCommonTestManager.createCommentsWithGeneratedData(
+            2,
+            post.id,
+            userToDeleteAuthString,
+          );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentsCommonTestManager.assertCommentsAreDeleted(
+          relatedComments.map((c) => c.id),
+        );
+      });
+
+      it('should delete only related comments', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const anotherUserComment =
+          await commentsCommonTestManager.createCommentWithGeneratedData(
+            post.id,
+            otherUsersAuthStrings[0],
+          );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentsCommonTestManager.getCommentSuccess(
+          anotherUserComment.id,
+        );
+      });
+
+      it('should delete all likes of related comments', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const relatedComments =
+          await commentsCommonTestManager.createCommentsWithGeneratedData(
+            2,
+            post.id,
+            userToDeleteAuthString,
+          );
+
+        for (const relatedComment of relatedComments) {
+          await commentLikesTestManager.makeCommentLikeOperationSuccess(
+            relatedComment.id,
+            LikeStatus.Like,
+            otherUsersAuthStrings[0],
+          );
+          await commentLikesTestManager.makeCommentLikeOperationSuccess(
+            relatedComment.id,
+            LikeStatus.Dislike,
+            otherUsersAuthStrings[1],
+          );
+        }
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentLikesTestRepository.assertCommentsHaveNoLikes(
+          relatedComments.map((c) => c.id),
+        );
+      });
+
+      it('should delete only likes of related comments', async () => {
+        const post =
+          await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
+
+        const anotherUserComment =
+          await commentsCommonTestManager.createCommentWithGeneratedData(
+            post.id,
+            otherUsersAuthStrings[0],
+          );
+
+        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          anotherUserComment.id,
+          LikeStatus.Like,
+          otherUsersAuthStrings[1],
+        );
+
+        await usersTestManager.deleteUserSuccess(userToDelete.id);
+
+        await commentLikesTestRepository.checkCommentLikesCount(
+          anotherUserComment.id,
+          1,
+        );
       });
     });
   });

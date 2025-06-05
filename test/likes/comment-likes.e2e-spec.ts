@@ -175,8 +175,10 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const user1Auth = await authTestManager.getValidAuth(1);
-      const user2Auth = await authTestManager.getValidAuth(2);
+      const user1Auth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser(1);
+      const user2Auth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
@@ -251,8 +253,10 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const user1Auth = await authTestManager.getValidAuth(1);
-      const user2Auth = await authTestManager.getValidAuth(2);
+      const user1Auth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser(1);
+      const user2Auth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
@@ -324,7 +328,8 @@ describe('comment likes', () => {
       const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
         blog.id,
       );
-      const commentAuthorAuth = await authTestManager.getValidAuth();
+      const commentAuthorAuth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser();
       comment = await commentsCommonTestManager.createCommentWithGeneratedData(
         post.id,
         commentAuthorAuth,
@@ -346,8 +351,9 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const user1Auth = await authTestManager.getValidAuth(1);
-      user2Auth = await authTestManager.getValidAuth(2);
+      const user1Auth =
+        await authTestManager.getValidAuthOfNewlyRegisteredUser(1);
+      user2Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(2);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       const post = await postsCommonTestManager.createBlogPostWithGeneratedData(
@@ -550,10 +556,10 @@ describe('comment likes', () => {
     beforeAll(async () => {
       await deleteAllData(app);
 
-      user1Auth = await authTestManager.getValidAuth(1);
-      user2Auth = await authTestManager.getValidAuth(2);
-      user3Auth = await authTestManager.getValidAuth(3);
-      user4Auth = await authTestManager.getValidAuth(4);
+      user1Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(1);
+      user2Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(2);
+      user3Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(3);
+      user4Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(4);
 
       const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       post = await postsCommonTestManager.createBlogPostWithGeneratedData(

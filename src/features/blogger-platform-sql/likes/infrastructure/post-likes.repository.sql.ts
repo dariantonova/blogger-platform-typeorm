@@ -51,4 +51,14 @@ export class PostLikesRepositorySql {
     `;
     await this.dataSource.query(updateQuery, [postId]);
   }
+
+  async softDeleteByUserId(userId: number): Promise<void> {
+    const updateQuery = `
+    UPDATE post_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND user_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [userId]);
+  }
 }

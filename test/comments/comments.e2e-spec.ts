@@ -78,7 +78,7 @@ describe('comments', () => {
         blog.id,
       );
 
-      validAuth = await authTestManager.getValidAuth();
+      validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
     });
 
     it('should return comment', async () => {
@@ -160,7 +160,7 @@ describe('comments', () => {
         const post =
           await postsCommonTestManager.createBlogPostWithGeneratedData(blog.id);
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
         comment = await commentsTestManager.createCommentWithGeneratedData(
           post.id,
           validAuth,
@@ -185,7 +185,7 @@ describe('comments', () => {
       beforeAll(async () => {
         await deleteAllData(app);
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         post = await postsCommonTestManager.createBlogPostWithGeneratedData(
@@ -399,7 +399,8 @@ describe('comments', () => {
 
         usersAuthStrings = [];
         for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
+          const authString =
+            await authTestManager.getValidAuthOfNewlyRegisteredUser(i);
           usersAuthStrings.push(authString);
         }
         userAuthOfCommentToDelete = usersAuthStrings[0];
@@ -471,7 +472,7 @@ describe('comments', () => {
           blog.id,
         );
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
       });
 
       it('should successfully update comment', async () => {
@@ -520,7 +521,7 @@ describe('comments', () => {
       beforeAll(async () => {
         await deleteAllData(app);
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
 
         const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
         post = await postsCommonTestManager.createBlogPostWithGeneratedData(
@@ -593,7 +594,7 @@ describe('comments', () => {
           blog.id,
         );
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
 
         comment = await commentsTestManager.createCommentWithGeneratedData(
           post.id,

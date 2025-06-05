@@ -162,7 +162,7 @@ describe('post likes', () => {
         blog.id,
       );
 
-      validAuth = await authTestManager.getValidAuth();
+      validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
     });
 
     afterEach(async () => {
@@ -228,7 +228,7 @@ describe('post likes', () => {
 
       blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
-      validAuth = await authTestManager.getValidAuth();
+      validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
     });
 
     it('should return 404 when trying to update like status of non-existing post', async () => {
@@ -308,7 +308,7 @@ describe('post likes', () => {
         blog.id,
       );
 
-      user1Auth = await authTestManager.getValidAuth();
+      user1Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
     });
 
     it('should like post', async () => {
@@ -503,9 +503,9 @@ describe('post likes', () => {
 
       blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
-      user1Auth = await authTestManager.getValidAuth(1);
-      user2Auth = await authTestManager.getValidAuth(2);
-      user3Auth = await authTestManager.getValidAuth(3);
+      user1Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(1);
+      user2Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(2);
+      user3Auth = await authTestManager.getValidAuthOfNewlyRegisteredUser(3);
     });
 
     it('should correctly count multiple likes from different users', async () => {

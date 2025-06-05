@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UsersService } from './application/users.service';
 import { UsersQueryRepository } from './infrastructure/query/users.query-repository';
 import { UsersRepository } from './infrastructure/users.repository';
@@ -73,6 +73,7 @@ import { GetUserDeviceSessionsQueryHandlerSql } from '../user-accounts-sql/appli
 import { TerminateDeviceSessionUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-device-session.usecase.sql';
 import { TerminateAllOtherUserDeviceSessionsUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
 import { UsersExternalQueryRepositorySql } from '../user-accounts-sql/infrastructure/external-query/users.external-query-repository.sql';
+import { BloggerPlatformModule } from '../blogger-platform/blogger-platform.module';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -152,6 +153,7 @@ const controllersSql = [
         },
       ],
     }),
+    forwardRef(() => BloggerPlatformModule),
   ],
   controllers: [
     // UsersController,

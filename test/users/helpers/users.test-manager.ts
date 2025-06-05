@@ -8,6 +8,7 @@ import {
   VALID_BASIC_AUTH_VALUE,
 } from '../../helpers/helper';
 import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/user.view-dto';
+import { CreateUserInputDto } from '../../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 
 export const DEFAULT_USERS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
@@ -24,6 +25,19 @@ export class UsersTestManager {
       .set('Authorization', auth)
       .send(createDto)
       .expect(expectedStatusCode);
+  }
+
+  async createUserSuccess(
+    createDto: CreateUserInputDto,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<UserViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .post(USERS_SA_PATH)
+      .set('Authorization', auth)
+      .send(createDto)
+      .expect(HttpStatus.CREATED);
+
+    return response.body as UserViewDto;
   }
 
   async getUsers(
@@ -47,6 +61,13 @@ export class UsersTestManager {
       .delete(USERS_SA_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
+  }
+
+  async deleteUserSuccess(id: string): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(USERS_SA_PATH + '/' + id)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .expect(HttpStatus.NO_CONTENT);
   }
 
   generateUserData(userNumber: number = 1): CreateUserDto {

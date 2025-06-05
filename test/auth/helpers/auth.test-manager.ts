@@ -39,7 +39,9 @@ export class AuthTestManager {
    * @param {number} [userNumber=1] - A number used to generate a unique login and email (e.g., "user2", "user2@example.com").
    * @returns {Promise<string>} - The authorization header string in the format "Bearer <accessToken>".
    */
-  async getValidAuth(userNumber: number = 1): Promise<string> {
+  async getValidAuthOfNewlyRegisteredUser(
+    userNumber: number = 1,
+  ): Promise<string> {
     const userData = {
       login: 'user' + userNumber,
       email: 'user' + userNumber + '@example.com',
@@ -49,6 +51,17 @@ export class AuthTestManager {
     const userAccessToken = await this.getNewAccessToken(
       userData.login,
       userData.password,
+    );
+    return 'Bearer ' + userAccessToken;
+  }
+
+  async getValidAuthOfExistingUser(
+    loginOrEmail: string,
+    password: string,
+  ): Promise<string> {
+    const userAccessToken = await this.getNewAccessToken(
+      loginOrEmail,
+      password,
     );
     return 'Bearer ' + userAccessToken;
   }

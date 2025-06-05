@@ -1339,7 +1339,8 @@ describe('blog posts', () => {
 
         usersAuthStrings = [];
         for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
+          const authString =
+            await authTestManager.getValidAuthOfNewlyRegisteredUser(i);
           usersAuthStrings.push(authString);
         }
       });

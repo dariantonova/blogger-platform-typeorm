@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Blog, BlogSchema } from './blogs/domain/blog.entity';
 import { BlogsQueryRepository } from './blogs/infrastructure/query/blogs.query-repository';
@@ -75,6 +75,7 @@ import { CommentLikesQueryRepositorySql } from '../blogger-platform-sql/likes/in
 import { MakePostLikeOperationUseCaseSql } from '../blogger-platform-sql/likes/application/usecases/make-post-like-operation.usecase.sql';
 import { PostLikesRepositorySql } from '../blogger-platform-sql/likes/infrastructure/post-likes.repository.sql';
 import { PostLikesQueryRepositorySql } from '../blogger-platform-sql/likes/infrastructure/query/post-likes.query-repository.sql';
+import { BloggerPlatformExternalServiceSql } from '../blogger-platform-sql/common/infrastructure/external/blogger-platform.external-service.sql';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -122,6 +123,7 @@ const providersSql = [
   CommentLikesQueryRepositorySql,
   PostLikesRepositorySql,
   PostLikesQueryRepositorySql,
+  BloggerPlatformExternalServiceSql,
 ];
 const queryHandlersSql = [
   GetBlogsQueryHandlerSql,
@@ -158,7 +160,7 @@ const commandHandlersSql = [
       { name: Like.name, schema: LikeSchema },
     ]),
     CqrsModule.forRoot(),
-    UserAccountsModule,
+    forwardRef(() => UserAccountsModule),
   ],
   controllers: [
     // BlogsController,
@@ -184,5 +186,6 @@ const commandHandlersSql = [
     ...queryHandlersSql,
     ...commandHandlersSql,
   ],
+  exports: [BloggerPlatformExternalServiceSql],
 })
 export class BloggerPlatformModule {}

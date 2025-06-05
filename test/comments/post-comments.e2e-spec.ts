@@ -84,7 +84,7 @@ describe('post comments', () => {
 
         blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
       });
 
       it('should return empty array if post has no comments', async () => {
@@ -235,7 +235,8 @@ describe('post comments', () => {
           blog.id,
         );
 
-        const validAuth = await authTestManager.getValidAuth();
+        const validAuth =
+          await authTestManager.getValidAuthOfNewlyRegisteredUser();
 
         postComments =
           await commentsTestManager.createCommentsWithGeneratedData(
@@ -341,7 +342,8 @@ describe('post comments', () => {
           blog.id,
         );
 
-        const validAuth = await authTestManager.getValidAuth();
+        const validAuth =
+          await authTestManager.getValidAuthOfNewlyRegisteredUser();
 
         comments = await commentsTestManager.createCommentsWithGeneratedData(
           4,
@@ -513,7 +515,7 @@ describe('post comments', () => {
 
         blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
       });
 
       it('should return 404 when trying to create comment of non-existing post', async () => {
@@ -572,7 +574,7 @@ describe('post comments', () => {
           blog.id,
         );
 
-        validAuth = await authTestManager.getValidAuth();
+        validAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
       });
 
       afterEach(async () => {

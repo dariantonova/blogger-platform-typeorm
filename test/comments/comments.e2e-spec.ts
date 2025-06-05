@@ -20,6 +20,9 @@ import { CommentViewDto } from '../../src/features/blogger-platform/comments/api
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { millisecondsToSeconds } from 'date-fns';
+import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
+import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
+import { DataSource } from 'typeorm';
 
 describe('comments', () => {
   let app: INestApplication;
@@ -28,6 +31,8 @@ describe('comments', () => {
   let postsCommonTestManager: PostsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  let commentLikesTestManager: CommentLikesTestManager;
+  let commentLikesTestRepository: CommentLikesTestRepositorySql;
   const accessTokenExpInMs = 2000;
 
   beforeAll(async () => {
@@ -49,10 +54,12 @@ describe('comments', () => {
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
-
     usersCommonTestManager = new UsersCommonTestManager(app);
-
     commentsTestManager = new CommentsTestManager(app);
+    commentLikesTestManager = new CommentLikesTestManager(app);
+
+    const dataSource = app.get(DataSource);
+    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
   });
 
   afterAll(async () => {
@@ -373,6 +380,72 @@ describe('comments', () => {
         );
 
         await commentsTestManager.checkPostCommentsCount(post.id, 1);
+      });
+    });
+
+    describe('relations deletion', () => {
+      let post: PostViewDto;
+      let usersAuthStrings: string[];
+      let userAuthOfCommentToDelete: string;
+      let commentToDelete: CommentViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+          blog.id,
+        );
+
+        usersAuthStrings = [];
+        for (let i = 1; i <= 3; i++) {
+          const authString = await authTestManager.getValidAuth(i);
+          usersAuthStrings.push(authString);
+        }
+        userAuthOfCommentToDelete = usersAuthStrings[0];
+      });
+
+      beforeEach(async () => {
+        commentToDelete =
+          await commentsTestManager.createCommentWithGeneratedData(
+            post.id,
+            userAuthOfCommentToDelete,
+          );
+      });
+
+      it('should delete all likes of deleted comment', async () => {
+        await commentLikesTestManager.addLikesWithAllStatusesToComment(
+          commentToDelete.id,
+          usersAuthStrings.slice(0, 3),
+        );
+
+        await commentsTestManager.deleteCommentSuccess(
+          commentToDelete.id,
+          userAuthOfCommentToDelete,
+        );
+      });
+
+      it('should delete only likes of deleted comment', async () => {
+        const anotherComment =
+          await commentsTestManager.createCommentWithGeneratedData(
+            post.id,
+            usersAuthStrings[0],
+          );
+
+        await commentLikesTestManager.addLikesWithAllStatusesToComment(
+          anotherComment.id,
+          usersAuthStrings.slice(0, 3),
+        );
+
+        await commentsTestManager.deleteCommentSuccess(
+          commentToDelete.id,
+          userAuthOfCommentToDelete,
+        );
+
+        await commentLikesTestRepository.checkCommentLikesCount(
+          anotherComment.id,
+          3,
+        );
       });
     });
   });

@@ -101,6 +101,13 @@ export class CommentsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async deleteCommentSuccess(id: string, auth: string): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(COMMENTS_PATH + '/' + id)
+      .set('Authorization', auth)
+      .expect(HttpStatus.NO_CONTENT);
+  }
+
   async updateComment(
     commentId: string,
     dto: any,

@@ -1334,6 +1334,7 @@ describe('blog posts', () => {
 
       beforeAll(async () => {
         await deleteAllData(app);
+
         blog = await blogsCommonTestManager.createBlogWithGeneratedData();
 
         usersAuthStrings = [];
@@ -1350,20 +1351,9 @@ describe('blog posts', () => {
       });
 
       it('should delete all likes of deleted post', async () => {
-        await postLikesTestManager.makePostLikeOperationSuccess(
+        await postLikesTestManager.addLikesWithAllStatusesToPost(
           postToDelete.id,
-          LikeStatus.Like,
-          usersAuthStrings[0],
-        );
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          postToDelete.id,
-          LikeStatus.Dislike,
-          usersAuthStrings[1],
-        );
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          postToDelete.id,
-          LikeStatus.None,
-          usersAuthStrings[2],
+          usersAuthStrings.slice(0, 3),
         );
 
         await postsTestManager.deleteBlogPostSuccess(blog.id, postToDelete.id);
@@ -1375,20 +1365,9 @@ describe('blog posts', () => {
         const anotherPost =
           await postsTestManager.createBlogPostWithGeneratedData(blog.id);
 
-        await postLikesTestManager.makePostLikeOperationSuccess(
+        await postLikesTestManager.addLikesWithAllStatusesToPost(
           anotherPost.id,
-          LikeStatus.Like,
-          usersAuthStrings[0],
-        );
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          anotherPost.id,
-          LikeStatus.Dislike,
-          usersAuthStrings[1],
-        );
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          anotherPost.id,
-          LikeStatus.None,
-          usersAuthStrings[2],
+          usersAuthStrings.slice(0, 3),
         );
 
         await postsTestManager.deleteBlogPostSuccess(blog.id, postToDelete.id);
@@ -1444,20 +1423,9 @@ describe('blog posts', () => {
         relatedComments.push(comment1, comment2);
 
         for (const relatedComment of relatedComments) {
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          await commentLikesTestManager.addLikesWithAllStatusesToComment(
             relatedComment.id,
-            LikeStatus.Like,
-            usersAuthStrings[1],
-          );
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
-            relatedComment.id,
-            LikeStatus.Dislike,
-            usersAuthStrings[2],
-          );
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
-            relatedComment.id,
-            LikeStatus.None,
-            usersAuthStrings[0],
+            usersAuthStrings.slice(0, 3),
           );
         }
 
@@ -1478,20 +1446,9 @@ describe('blog posts', () => {
             usersAuthStrings[0],
           );
 
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+        await commentLikesTestManager.addLikesWithAllStatusesToComment(
           anotherPostComment.id,
-          LikeStatus.Like,
-          usersAuthStrings[1],
-        );
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
-          anotherPostComment.id,
-          LikeStatus.Dislike,
-          usersAuthStrings[2],
-        );
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
-          anotherPostComment.id,
-          LikeStatus.None,
-          usersAuthStrings[0],
+          usersAuthStrings.slice(0, 3),
         );
 
         await postsTestManager.deleteBlogPostSuccess(blog.id, postToDelete.id);

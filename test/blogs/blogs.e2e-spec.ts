@@ -28,7 +28,6 @@ import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-man
 import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
 import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
 import { DataSource } from 'typeorm';
-import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 
 describe('blogs', () => {
@@ -1494,22 +1493,9 @@ describe('blogs', () => {
           );
 
         for (const blogPost of blogPosts) {
-          await postLikesTestManager.makePostLikeOperationSuccess(
+          await postLikesTestManager.addLikesWithAllStatusesToPost(
             blogPost.id,
-            LikeStatus.Like,
-            usersAuthStrings[0],
-          );
-
-          await postLikesTestManager.makePostLikeOperationSuccess(
-            blogPost.id,
-            LikeStatus.Dislike,
-            usersAuthStrings[1],
-          );
-
-          await postLikesTestManager.makePostLikeOperationSuccess(
-            blogPost.id,
-            LikeStatus.None,
-            usersAuthStrings[2],
+            usersAuthStrings.slice(0, 3),
           );
         }
 
@@ -1528,22 +1514,9 @@ describe('blogs', () => {
             anotherBlog.id,
           );
 
-        await postLikesTestManager.makePostLikeOperationSuccess(
+        await postLikesTestManager.addLikesWithAllStatusesToPost(
           postOfAnotherBlog.id,
-          LikeStatus.Like,
-          usersAuthStrings[0],
-        );
-
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          postOfAnotherBlog.id,
-          LikeStatus.Dislike,
-          usersAuthStrings[1],
-        );
-
-        await postLikesTestManager.makePostLikeOperationSuccess(
-          postOfAnotherBlog.id,
-          LikeStatus.None,
-          usersAuthStrings[2],
+          usersAuthStrings.slice(0, 3),
         );
 
         await blogsTestManager.deleteBlogSuccess(blogToDelete.id);
@@ -1624,20 +1597,9 @@ describe('blogs', () => {
         }
 
         for (const relatedComment of relatedComments) {
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
+          await commentLikesTestManager.addLikesWithAllStatusesToComment(
             relatedComment.id,
-            LikeStatus.Like,
-            usersAuthStrings[1],
-          );
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
-            relatedComment.id,
-            LikeStatus.Dislike,
-            usersAuthStrings[2],
-          );
-          await commentLikesTestManager.makeCommentLikeOperationSuccess(
-            relatedComment.id,
-            LikeStatus.None,
-            usersAuthStrings[0],
+            usersAuthStrings.slice(0, 3),
           );
         }
 
@@ -1662,20 +1624,9 @@ describe('blogs', () => {
             usersAuthStrings[0],
           );
 
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
+        await commentLikesTestManager.addLikesWithAllStatusesToComment(
           anotherBlogComment.id,
-          LikeStatus.Like,
-          usersAuthStrings[1],
-        );
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
-          anotherBlogComment.id,
-          LikeStatus.Dislike,
-          usersAuthStrings[2],
-        );
-        await commentLikesTestManager.makeCommentLikeOperationSuccess(
-          anotherBlogComment.id,
-          LikeStatus.None,
-          usersAuthStrings[0],
+          usersAuthStrings.slice(0, 3),
         );
 
         await blogsTestManager.deleteBlogSuccess(blogToDelete.id);

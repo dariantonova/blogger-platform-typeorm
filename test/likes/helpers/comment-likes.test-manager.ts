@@ -42,4 +42,25 @@ export class CommentLikesTestManager {
       .send({ likeStatus })
       .expect(HttpStatus.NO_CONTENT);
   }
+
+  async addLikesWithAllStatusesToComment(
+    commentId: string,
+    usersAuthStrings: string[],
+  ): Promise<void> {
+    await this.makeCommentLikeOperationSuccess(
+      commentId,
+      LikeStatus.Like,
+      usersAuthStrings[0],
+    );
+    await this.makeCommentLikeOperationSuccess(
+      commentId,
+      LikeStatus.Dislike,
+      usersAuthStrings[1],
+    );
+    await this.makeCommentLikeOperationSuccess(
+      commentId,
+      LikeStatus.None,
+      usersAuthStrings[2],
+    );
+  }
 }

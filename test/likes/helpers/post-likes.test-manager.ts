@@ -42,4 +42,25 @@ export class PostLikesTestManager {
       .send({ likeStatus })
       .expect(HttpStatus.NO_CONTENT);
   }
+
+  async addLikesWithAllStatusesToPost(
+    postId: string,
+    usersAuthStrings: string[],
+  ): Promise<void> {
+    await this.makePostLikeOperationSuccess(
+      postId,
+      LikeStatus.Like,
+      usersAuthStrings[0],
+    );
+    await this.makePostLikeOperationSuccess(
+      postId,
+      LikeStatus.Dislike,
+      usersAuthStrings[1],
+    );
+    await this.makePostLikeOperationSuccess(
+      postId,
+      LikeStatus.None,
+      usersAuthStrings[2],
+    );
+  }
 }

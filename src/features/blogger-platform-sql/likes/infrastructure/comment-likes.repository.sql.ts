@@ -60,4 +60,14 @@ export class CommentLikesRepositorySql {
     `;
     await this.dataSource.query(updateQuery, [postId]);
   }
+
+  async softDeleteByCommentId(commentId: number): Promise<void> {
+    const updateQuery = `
+    UPDATE comment_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND comment_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [commentId]);
+  }
 }

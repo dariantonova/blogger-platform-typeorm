@@ -14,9 +14,6 @@ import { TestingModuleBuilder } from '@nestjs/testing';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
-import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
-import { getModelToken } from '@nestjs/mongoose';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import { CommentLikesTestManager } from './helpers/comment-likes.test-manager';
 import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
@@ -25,6 +22,8 @@ import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-s
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
+import { DataSource } from 'typeorm';
+import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -34,6 +33,7 @@ describe('comment likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  let commentLikesTestRepository: CommentLikesTestRepositorySql;
   const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
@@ -52,16 +52,16 @@ describe('comment likes', () => {
     };
     app = await initApp({ customBuilderSetup });
 
-    const LikeModel = app.get<LikeModelType>(getModelToken('Like'));
-    commentLikesTestManager = new CommentLikesTestManager(app, LikeModel);
+    commentLikesTestManager = new CommentLikesTestManager(app);
+
+    const dataSource = app.get(DataSource);
+    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
     commentsCommonTestManager = new CommentsCommonTestManager(app);
-
-    const UserModel = app.get<UserModelType>(getModelToken('User'));
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
   });
 
   afterAll(async () => {
@@ -109,7 +109,10 @@ describe('comment likes', () => {
     });
 
     afterEach(async () => {
-      await commentLikesTestManager.checkCommentLikesCount(comment.id, 0);
+      await commentLikesTestRepository.checkCommentLikesWithLikeStatusCount(
+        comment.id,
+        0,
+      );
     });
 
     // missing
@@ -188,7 +191,10 @@ describe('comment likes', () => {
     });
 
     afterEach(async () => {
-      await commentLikesTestManager.checkCommentLikesCount(comment.id, 0);
+      await commentLikesTestRepository.checkCommentLikesWithLikeStatusCount(
+        comment.id,
+        0,
+      );
     });
 
     it('should return 400 if like status is invalid', async () => {
@@ -326,7 +332,7 @@ describe('comment likes', () => {
     });
 
     it('should return myStatus as None for unauthorized user', async () => {
-      const returnedPost = await commentsCommonTestManager.getComment(
+      const returnedPost = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
       );
       expect(returnedPost.likesInfo.myStatus).toBe(LikeStatus.None);
@@ -364,7 +370,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -384,7 +390,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -404,7 +410,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -424,7 +430,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -444,7 +450,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -464,7 +470,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -484,7 +490,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -504,7 +510,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -524,7 +530,7 @@ describe('comment likes', () => {
         user2Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
         user2Auth,
       );
@@ -579,7 +585,7 @@ describe('comment likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
       );
       expect(updatedComment.likesInfo.likesCount).toBe(2);
@@ -610,7 +616,7 @@ describe('comment likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
       );
       expect(updatedComment.likesInfo.likesCount).toBe(0);
@@ -649,7 +655,7 @@ describe('comment likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedComment = await commentsCommonTestManager.getComment(
+      const updatedComment = await commentsCommonTestManager.getCommentSuccess(
         comment.id,
       );
       expect(updatedComment.likesInfo.likesCount).toBe(2);

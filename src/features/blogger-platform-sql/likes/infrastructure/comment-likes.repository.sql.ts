@@ -23,4 +23,23 @@ export class CommentLikesRepositorySql {
       dto.likeStatus,
     ]);
   }
+
+  async softDeleteLikesOfCommentsWithBlogId(blogId: number): Promise<void> {
+    const commentIdsCte = `
+    SELECT c.id
+    FROM comments c
+    JOIN posts p ON c.post_id = p.id
+    WHERE p.blog_id = $1
+    `;
+
+    const updateQuery = `
+    WITH comment_ids AS (${commentIdsCte})
+    UPDATE comment_likes
+    SET deleted_at = now()
+    FROM comment_ids ci
+    WHERE deleted_at IS NULL
+    AND comment_id IN (ci.id);
+    `;
+    await this.dataSource.query(updateQuery, [blogId]);
+  }
 }

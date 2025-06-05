@@ -1,7 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
 import {
   delay,
   deleteAllData,
@@ -12,7 +11,6 @@ import { TestingModuleBuilder } from '@nestjs/testing';
 import { REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/features/user-accounts/constants/auth-tokens.inject-constants';
 import { CoreConfig } from '../../src/core/core.config';
 import { JwtService } from '@nestjs/jwt';
-import { getModelToken } from '@nestjs/mongoose';
 import { SecurityDevicesTestManager } from './helpers/security-devices.test-manager';
 import request from 'supertest';
 import { DeviceViewDto } from '../../src/features/user-accounts/api/view-dto/device.view-dto';
@@ -23,7 +21,6 @@ import { millisecondsToSeconds } from 'date-fns';
 
 describe('security devices', () => {
   let app: INestApplication;
-  let UserModel: UserModelType;
   let authTestManager: AuthTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let securityDevicesTestManager: SecurityDevicesTestManager;
@@ -47,10 +44,8 @@ describe('security devices', () => {
     };
     app = await initApp({ customBuilderSetup });
 
-    UserModel = app.get<UserModelType>(getModelToken('User'));
-
     authTestManager = new AuthTestManager(app);
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
     securityDevicesTestManager = new SecurityDevicesTestManager(app);
     securityDevicesCommonTestManager = new SecurityDevicesCommonTestManager(
       app,

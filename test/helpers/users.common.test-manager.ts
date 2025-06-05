@@ -3,19 +3,10 @@ import { QueryType, USERS_SA_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
 import request, { Response } from 'supertest';
 import { UserViewDto } from '../../src/features/user-accounts/api/view-dto/user.view-dto';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
-import { ObjectId } from 'mongodb';
-import {
-  UserDocument,
-  UserModelType,
-} from '../../src/features/user-accounts/domain/user.entity';
-import { add } from 'date-fns';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
 
 export class UsersCommonTestManager {
-  constructor(
-    private app: INestApplication,
-    private UserModel: UserModelType,
-  ) {}
+  constructor(private app: INestApplication) {}
 
   async createUser(createDto: any): Promise<UserViewDto> {
     const response = await request(this.app.getHttpServer())
@@ -63,64 +54,64 @@ export class UsersCommonTestManager {
     return userToDeleteData;
   }
 
-  async findUserById(id: string): Promise<UserDocument> {
-    const user = await this.UserModel.findOne({
-      _id: new ObjectId(id),
-    });
-    expect(user).not.toBeNull();
+  // async findUserById(id: string): Promise<UserDocument> {
+  //   const user = await this.UserModel.findOne({
+  //     _id: new ObjectId(id),
+  //   });
+  //   expect(user).not.toBeNull();
+  //
+  //   return user as UserDocument;
+  // }
 
-    return user as UserDocument;
-  }
-
-  async getConfirmationCodeOfLastCreatedUser(): Promise<string> {
-    const getUsersResponse = await this.getUsers();
-    const lastCreatedUser = getUsersResponse.body.items[0] as UserViewDto;
-
-    const dbUnconfirmedUser = await this.findUserById(lastCreatedUser.id);
-    return dbUnconfirmedUser.confirmationInfo.confirmationCode;
-  }
+  // async getConfirmationCodeOfLastCreatedUser(): Promise<string> {
+  //   const getUsersResponse = await this.getUsers();
+  //   const lastCreatedUser = getUsersResponse.body.items[0] as UserViewDto;
+  //
+  //   const dbUnconfirmedUser = await this.findUserById(lastCreatedUser.id);
+  //   return dbUnconfirmedUser.confirmationInfo.confirmationCode;
+  // }
 
   async checkUsersCount(count: number): Promise<void> {
     const getUsersResponse = await this.getUsers();
     expect(getUsersResponse.body.totalCount).toBe(count);
   }
 
-  async setUserPasswordRecoveryCodeHash(
-    userId: string,
-    recoveryCodeHash: string,
-  ): Promise<void> {
-    await this.UserModel.updateOne(
-      {
-        _id: new ObjectId(userId),
-      },
-      {
-        passwordRecoveryInfo: {
-          recoveryCodeHash,
-          expirationDate: add(new Date(), { hours: 2 }),
-        },
-      },
-    );
-  }
+  // async setUserPasswordRecoveryCodeHash(
+  //   userId: string,
+  //   recoveryCodeHash: string,
+  // ): Promise<void> {
+  //   await this.UserModel.updateOne(
+  //     {
+  //       _id: new ObjectId(userId),
+  //     },
+  //     {
+  //       passwordRecoveryInfo: {
+  //         recoveryCodeHash,
+  //         expirationDate: add(new Date(), { hours: 2 }),
+  //       },
+  //     },
+  //   );
+  // }
 
-  async setUserPasswordRecoveryExpirationDate(
-    userId: string,
-    expirationDate: Date,
-  ): Promise<void> {
-    await this.UserModel.updateOne(
-      {
-        _id: new ObjectId(userId),
-      },
-      {
-        'passwordRecoveryInfo.expirationDate': expirationDate,
-      },
-    );
-  }
+  // async setUserPasswordRecoveryExpirationDate(
+  //   userId: string,
+  //   expirationDate: Date,
+  // ): Promise<void> {
+  //   await this.UserModel.updateOne(
+  //     {
+  //       _id: new ObjectId(userId),
+  //     },
+  //     {
+  //       'passwordRecoveryInfo.expirationDate': expirationDate,
+  //     },
+  //   );
+  // }
 
   async getLoginInputOfGeneratedUsers(
     numberOfUsers: number,
   ): Promise<LoginInputDto[]> {
     const usersData: CreateUserDto[] = [];
-    for (let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= numberOfUsers; i++) {
       usersData.push({
         login: 'user' + i,
         email: 'user' + i + '@example.com',

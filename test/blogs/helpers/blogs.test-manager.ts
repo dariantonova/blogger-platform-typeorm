@@ -27,6 +27,16 @@ export class BlogsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async createBlogSuccess(createDto: CreateBlogInputDto): Promise<BlogViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .post(BLOGS_SA_PATH)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .send(createDto)
+      .expect(HttpStatus.CREATED);
+
+    return response.body as BlogViewDto;
+  }
+
   async createBlogs(inputData: CreateBlogInputDto[]): Promise<BlogViewDto[]> {
     const responses: Response[] = [];
     for (const createDto of inputData) {
@@ -34,6 +44,14 @@ export class BlogsTestManager {
       responses.push(response);
     }
     return responses.map((res) => res.body as BlogViewDto);
+  }
+
+  generateBlogData(blogNumber: number = 1): CreateBlogInputDto {
+    return {
+      name: 'blog ' + blogNumber,
+      description: 'superblog ' + blogNumber,
+      websiteUrl: 'https://superblog.com/' + blogNumber,
+    };
   }
 
   generateBlogsData(numberOfBlogs: number): CreateBlogInputDto[] {
@@ -47,6 +65,11 @@ export class BlogsTestManager {
       blogsData.push(blogData);
     }
     return blogsData;
+  }
+
+  async createBlogWithGeneratedData(): Promise<BlogViewDto> {
+    const blogData = this.generateBlogData();
+    return this.createBlogSuccess(blogData);
   }
 
   async createBlogsWithGeneratedData(
@@ -88,6 +111,13 @@ export class BlogsTestManager {
       .delete(BLOGS_SA_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(expectedStatusCode);
+  }
+
+  async deleteBlogSuccess(id: string): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(BLOGS_SA_PATH + '/' + id)
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .expect(HttpStatus.NO_CONTENT);
   }
 
   async getBlog(id: string, expectedStatusCode: HttpStatus): Promise<Response> {

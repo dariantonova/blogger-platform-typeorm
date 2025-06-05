@@ -38,7 +38,7 @@ import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { UsersTestRepositorySql } from '../helpers/users.test-repository.sql';
+import { UsersTestRepositorySql } from '../helpers/repositories/users.test-repository.sql';
 
 describe('auth', () => {
   let app: INestApplication;

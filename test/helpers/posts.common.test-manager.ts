@@ -102,11 +102,31 @@ export class PostsCommonTestManager {
     return result;
   }
 
-  async getPost(id: string, auth: string = ''): Promise<PostViewDto> {
+  async getPost(
+    id: string,
+    expectedStatusCode: number,
+    auth: string = '',
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .get(POSTS_PATH + '/' + id)
+      .set('Authorization', auth)
+      .expect(expectedStatusCode);
+  }
+
+  async getPostSuccess(id: string, auth: string = ''): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + id)
       .set('Authorization', auth)
       .expect(HttpStatus.OK);
     return response.body as PostViewDto;
+  }
+
+  async assertPostsAreDeleted(postIds: string[]): Promise<void> {
+    const promises: any[] = [];
+    for (const postId of postIds) {
+      const getPostPromise = this.getPost(postId, HttpStatus.NOT_FOUND);
+      promises.push(getPostPromise);
+    }
+    await Promise.all(promises);
   }
 }

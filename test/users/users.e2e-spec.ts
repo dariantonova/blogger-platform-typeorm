@@ -20,29 +20,24 @@ import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersSortBy } from '../../src/features/user-accounts/api/input-dto/users-sort-by';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
-import { getModelToken } from '@nestjs/mongoose';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
-import { UsersTestRepositorySql } from '../helpers/users.test-repository.sql';
+import { UsersTestRepositorySql } from '../helpers/repositories/users.test-repository.sql';
 import { DataSource } from 'typeorm';
 
 describe('users', () => {
   let app: INestApplication;
   let usersTestManager: UsersTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
-  let UserModel: UserModelType;
   let authTestManager: AuthTestManager;
   let usersTestRepository: UsersTestRepositorySql;
 
   beforeAll(async () => {
     app = await initApp();
 
-    UserModel = app.get<UserModelType>(getModelToken('User'));
-
-    usersTestManager = new UsersTestManager(app, UserModel);
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersTestManager = new UsersTestManager(app);
+    usersCommonTestManager = new UsersCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
 
     const dataSource = app.get(DataSource);

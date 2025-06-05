@@ -8,19 +8,11 @@ import {
   VALID_BASIC_AUTH_VALUE,
 } from '../../helpers/helper';
 import { UserViewDto } from '../../../src/features/user-accounts/api/view-dto/user.view-dto';
-import {
-  UserDocument,
-  UserModelType,
-} from '../../../src/features/user-accounts/domain/user.entity';
-import { ObjectId } from 'mongodb';
 
 export const DEFAULT_USERS_PAGE_SIZE = DEFAULT_PAGE_SIZE;
 
 export class UsersTestManager {
-  constructor(
-    private app: INestApplication,
-    private UserModel: UserModelType,
-  ) {}
+  constructor(private app: INestApplication) {}
 
   async createUser(
     createDto: any,
@@ -95,12 +87,12 @@ export class UsersTestManager {
     expect(Date.parse(createdUser.createdAt)).not.toBeNaN();
   }
 
-  async findUserById(id: string): Promise<UserDocument> {
-    const user = await this.UserModel.findOne({
-      _id: new ObjectId(id),
-    });
-    expect(user).not.toBeNull();
-
-    return user as UserDocument;
-  }
+  // async findUserById(id: string): Promise<UserDocument> {
+  //   const user = await this.UserModel.findOne({
+  //     _id: new ObjectId(id),
+  //   });
+  //   expect(user).not.toBeNull();
+  //
+  //   return user as UserDocument;
+  // }
 }

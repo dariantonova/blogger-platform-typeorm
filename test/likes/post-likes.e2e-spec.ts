@@ -17,15 +17,14 @@ import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
-import { getModelToken } from '@nestjs/mongoose';
-import { LikeModelType } from '../../src/features/blogger-platform/likes/domain/like.entity';
 import { LikeInputDto } from '../../src/features/blogger-platform/likes/api/input-dto/like.input-dto';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { LikeDetailsViewDto } from '../../src/features/blogger-platform/common/dto/like-details.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
+import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
+import { DataSource } from 'typeorm';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -34,6 +33,7 @@ describe('post likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
+  let postLikesTestRepository: PostLikesTestRepositorySql;
   const accessTokenExpInMs = 4000;
 
   beforeAll(async () => {
@@ -52,15 +52,15 @@ describe('post likes', () => {
     };
     app = await initApp({ customBuilderSetup });
 
-    const LikeModel = app.get<LikeModelType>(getModelToken('Like'));
-    postLikesTestManager = new PostLikesTestManager(app, LikeModel);
+    postLikesTestManager = new PostLikesTestManager(app);
+
+    const dataSource = app.get(DataSource);
+    postLikesTestRepository = new PostLikesTestRepositorySql(dataSource);
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
-
-    const UserModel = app.get<UserModelType>(getModelToken('User'));
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
   });
 
   afterAll(async () => {
@@ -91,7 +91,10 @@ describe('post likes', () => {
     });
 
     afterEach(async () => {
-      await postLikesTestManager.checkPostLikesCount(post.id, 0);
+      await postLikesTestRepository.checkPostLikesWithLikeStatusCount(
+        post.id,
+        0,
+      );
     });
 
     // missing
@@ -163,7 +166,10 @@ describe('post likes', () => {
     });
 
     afterEach(async () => {
-      await postLikesTestManager.checkPostLikesCount(post.id, 0);
+      await postLikesTestRepository.checkPostLikesWithLikeStatusCount(
+        post.id,
+        0,
+      );
     });
 
     it('should return 400 if like status is invalid', async () => {
@@ -285,7 +291,7 @@ describe('post likes', () => {
     });
 
     it('should return myStatus as None for unauthorized user', async () => {
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
     });
   });
@@ -316,7 +322,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -336,7 +342,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -356,7 +362,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -376,7 +382,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -396,7 +402,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -416,7 +422,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -436,7 +442,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -456,7 +462,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -476,7 +482,7 @@ describe('post likes', () => {
         user1Auth,
         HttpStatus.NO_CONTENT,
       );
-      const updatedPost = await postsCommonTestManager.getPost(
+      const updatedPost = await postsCommonTestManager.getPostSuccess(
         post.id,
         user1Auth,
       );
@@ -524,7 +530,7 @@ describe('post likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      const updatedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(updatedPost.extendedLikesInfo.likesCount).toBe(2);
       expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(0);
     });
@@ -551,7 +557,7 @@ describe('post likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      const updatedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(updatedPost.extendedLikesInfo.likesCount).toBe(0);
       expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(2);
     });
@@ -586,7 +592,7 @@ describe('post likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const updatedPost = await postsCommonTestManager.getPost(post.id);
+      const updatedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(updatedPost.extendedLikesInfo.likesCount).toBe(2);
       expect(updatedPost.extendedLikesInfo.dislikesCount).toBe(1);
     });
@@ -648,7 +654,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -688,7 +694,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -722,7 +728,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -756,7 +762,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -796,7 +802,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -830,7 +836,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -870,7 +876,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -899,7 +905,7 @@ describe('post likes', () => {
         },
       ];
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual(expected);
     });
 
@@ -921,7 +927,7 @@ describe('post likes', () => {
         HttpStatus.NO_CONTENT,
       );
 
-      const returnedPost = await postsCommonTestManager.getPost(post.id);
+      const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual([]);
     });
   });

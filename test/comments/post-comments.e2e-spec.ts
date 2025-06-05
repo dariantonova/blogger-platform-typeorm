@@ -19,8 +19,6 @@ import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
-import { getModelToken } from '@nestjs/mongoose';
 import { CreateUserDto } from '../../src/features/user-accounts/dto/create-user.dto';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { CreatePostCommentInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
@@ -63,8 +61,7 @@ describe('post comments', () => {
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
 
-    const UserModel = app.get<UserModelType>(getModelToken('User'));
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
 
     commentsTestManager = new CommentsTestManager(app);
   });

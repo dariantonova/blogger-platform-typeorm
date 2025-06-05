@@ -81,6 +81,24 @@ export class CommentsRepositorySql {
     await this.dataSource.query(updateQuery, [id]);
   }
 
+  async softDeleteCommentsOfPostsWithBlogId(blogId: number): Promise<void> {
+    const postIdsCte = `
+    SELECT p.id
+    FROM posts p
+    WHERE p.blog_id = $1
+    `;
+
+    const updateQuery = `
+    WITH post_ids AS (${postIdsCte})
+    UPDATE comments
+    SET deleted_at = now()
+    FROM post_ids pi
+    WHERE deleted_at IS NULL
+    AND post_id IN (pi.id);
+    `;
+    await this.dataSource.query(updateQuery, [blogId]);
+  }
+
   getCommentLikesCountsCtePart(): string {
     const commentLikesCountsQuery = `
     SELECT

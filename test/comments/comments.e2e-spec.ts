@@ -9,8 +9,6 @@ import {
 import { CommentsTestManager } from './helpers/comments.test-manager';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
-import { getModelToken } from '@nestjs/mongoose';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
@@ -52,8 +50,7 @@ describe('comments', () => {
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
 
-    const UserModel = app.get<UserModelType>(getModelToken('User'));
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
 
     commentsTestManager = new CommentsTestManager(app);
   });

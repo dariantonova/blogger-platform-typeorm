@@ -111,15 +111,14 @@ export class PostsRepositorySql {
     ]);
   }
 
-  async softDeleteByIdAndBlogId(id: number, blogId: number): Promise<void> {
+  async softDeleteById(id: number): Promise<void> {
     const updateQuery = `
     UPDATE posts
     SET deleted_at = now()
     WHERE deleted_at IS NULL
-    AND id = $1
-    AND blog_id = $2;
+    AND id = $1;
     `;
-    await this.dataSource.query(updateQuery, [id, blogId]);
+    await this.dataSource.query(updateQuery, [id]);
   }
 
   getPostLikesCteParts(): string[] {

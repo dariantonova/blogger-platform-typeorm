@@ -1443,9 +1443,19 @@ describe('blogs', () => {
 
     describe('relations deletion', () => {
       let blogToDelete: BlogViewDto;
+      let usersAuthStrings: string[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        usersAuthStrings = [];
+        for (let i = 1; i <= 3; i++) {
+          const authString = await authTestManager.getValidAuth(i);
+          usersAuthStrings.push(authString);
+        }
+      });
 
       beforeEach(async () => {
-        await deleteAllData(app);
         blogToDelete = await blogsTestManager.createBlogWithGeneratedData();
       });
 
@@ -1464,10 +1474,6 @@ describe('blogs', () => {
       });
 
       it('should delete only related posts', async () => {
-        // await postsCommonTestManager.createBlogPostWithGeneratedData(
-        //   blogToDelete.id,
-        // );
-
         const anotherBlog =
           await blogsTestManager.createBlogWithGeneratedData();
         const anotherBlogPost =
@@ -1486,12 +1492,6 @@ describe('blogs', () => {
             2,
             blogToDelete.id,
           );
-
-        const usersAuthStrings: string[] = [];
-        for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
-          usersAuthStrings.push(authString);
-        }
 
         for (const blogPost of blogPosts) {
           await postLikesTestManager.makePostLikeOperationSuccess(
@@ -1521,43 +1521,12 @@ describe('blogs', () => {
       });
 
       it('should delete only likes of related posts', async () => {
-        // const postOfBlogToBeDeleted =
-        //   await postsCommonTestManager.createBlogPostWithGeneratedData(
-        //     blogToDelete.id,
-        //   );
-
         const anotherBlog =
           await blogsTestManager.createBlogWithGeneratedData();
         const postOfAnotherBlog =
           await postsCommonTestManager.createBlogPostWithGeneratedData(
             anotherBlog.id,
           );
-
-        const usersAuthStrings: string[] = [];
-        for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
-          usersAuthStrings.push(authString);
-        }
-
-        // for (const blogPost of [postOfBlogToBeDeleted, postOfAnotherBlog]) {
-        //   await postLikesTestManager.makePostLikeOperationSuccess(
-        //     blogPost.id,
-        //     LikeStatus.Like,
-        //     usersAuthStrings[0],
-        //   );
-        //
-        //   await postLikesTestManager.makePostLikeOperationSuccess(
-        //     blogPost.id,
-        //     LikeStatus.Dislike,
-        //     usersAuthStrings[1],
-        //   );
-        //
-        //   await postLikesTestManager.makePostLikeOperationSuccess(
-        //     blogPost.id,
-        //     LikeStatus.None,
-        //     usersAuthStrings[2],
-        //   );
-        // }
 
         await postLikesTestManager.makePostLikeOperationSuccess(
           postOfAnotherBlog.id,
@@ -1592,14 +1561,13 @@ describe('blogs', () => {
             blogToDelete.id,
           );
 
-        const authString = await authTestManager.getValidAuth();
         const relatedComments: CommentViewDto[] = [];
         for (const blogPost of blogPosts) {
           const comments =
             await commentsCommonTestManager.createCommentsWithGeneratedData(
               2,
               blogPost.id,
-              authString,
+              usersAuthStrings[0],
             );
           relatedComments.push(...comments);
         }
@@ -1612,11 +1580,6 @@ describe('blogs', () => {
       });
 
       it('should delete only related comments', async () => {
-        // const blogPost =
-        //   await postsCommonTestManager.createBlogPostWithGeneratedData(
-        //     blogToDelete.id,
-        //   );
-
         const anotherBlog =
           await blogsTestManager.createBlogWithGeneratedData();
         const anotherBlogPost =
@@ -1624,15 +1587,10 @@ describe('blogs', () => {
             anotherBlog.id,
           );
 
-        const authString = await authTestManager.getValidAuth();
-        // await commentsCommonTestManager.createCommentWithGeneratedData(
-        //   blogPost.id,
-        //   authString,
-        // );
         const anotherBlogComment =
           await commentsCommonTestManager.createCommentWithGeneratedData(
             anotherBlogPost.id,
-            authString,
+            usersAuthStrings[0],
           );
 
         await blogsTestManager.deleteBlogSuccess(blogToDelete.id);
@@ -1648,12 +1606,6 @@ describe('blogs', () => {
             2,
             blogToDelete.id,
           );
-
-        const usersAuthStrings: string[] = [];
-        for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
-          usersAuthStrings.push(authString);
-        }
 
         const relatedComments: CommentViewDto[] = [];
         for (const blogPost of blogPosts) {
@@ -1697,11 +1649,6 @@ describe('blogs', () => {
       });
 
       it('should delete only likes of related comments', async () => {
-        // const blogPost =
-        //   await postsCommonTestManager.createBlogPostWithGeneratedData(
-        //     blogToDelete.id,
-        //   );
-
         const anotherBlog =
           await blogsTestManager.createBlogWithGeneratedData();
         const anotherBlogPost =
@@ -1709,40 +1656,11 @@ describe('blogs', () => {
             anotherBlog.id,
           );
 
-        const usersAuthStrings: string[] = [];
-        for (let i = 1; i <= 3; i++) {
-          const authString = await authTestManager.getValidAuth(i);
-          usersAuthStrings.push(authString);
-        }
-
-        // const blogComment =
-        //   await commentsCommonTestManager.createCommentWithGeneratedData(
-        //     blogPost.id,
-        //     usersAuthStrings[0],
-        //   );
         const anotherBlogComment =
           await commentsCommonTestManager.createCommentWithGeneratedData(
             anotherBlogPost.id,
             usersAuthStrings[0],
           );
-
-        // for (const comment of [blogComment, anotherBlogComment]) {
-        //   await commentLikesTestManager.makeCommentLikeOperationSuccess(
-        //     comment.id,
-        //     LikeStatus.Like,
-        //     usersAuthStrings[1],
-        //   );
-        //   await commentLikesTestManager.makeCommentLikeOperationSuccess(
-        //     comment.id,
-        //     LikeStatus.Dislike,
-        //     usersAuthStrings[2],
-        //   );
-        //   await commentLikesTestManager.makeCommentLikeOperationSuccess(
-        //     comment.id,
-        //     LikeStatus.None,
-        //     usersAuthStrings[0],
-        //   );
-        // }
 
         await commentLikesTestManager.makeCommentLikeOperationSuccess(
           anotherBlogComment.id,

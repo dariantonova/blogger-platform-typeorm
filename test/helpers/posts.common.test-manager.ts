@@ -35,7 +35,10 @@ export class PostsCommonTestManager {
   //   return response.body as PostViewDto;
   // }
 
-  async createBlogPost(blogId: string, createDto: any): Promise<PostViewDto> {
+  async createBlogPost(
+    blogId: string,
+    createDto: CreateBlogPostInputDto,
+  ): Promise<PostViewDto> {
     const response = await request(this.app.getHttpServer())
       .post(buildBlogPostsPath(true, blogId))
       .set('Authorization', VALID_BASIC_AUTH_VALUE)

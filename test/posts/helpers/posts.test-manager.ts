@@ -1,8 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import {
-  BLOGS_PATH,
-  DEFAULT_PAGE_SIZE,
   buildBlogPostsPath,
+  DEFAULT_PAGE_SIZE,
   POSTS_PATH,
   QueryType,
   VALID_BASIC_AUTH_VALUE,
@@ -119,6 +118,19 @@ export class PostsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async createBlogPostSuccess(
+    blogId: string,
+    createDto: CreateBlogPostInputDto,
+  ): Promise<PostViewDto> {
+    const response = await request(this.app.getHttpServer())
+      .post(buildBlogPostsPath(true, blogId))
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .send(createDto)
+      .expect(HttpStatus.CREATED);
+
+    return response.body as PostViewDto;
+  }
+
   async createBlogPosts(
     blogId: string,
     inputData: CreateBlogPostInputDto[],
@@ -135,6 +147,14 @@ export class PostsTestManager {
     return responses.map((res) => res.body as PostViewDto);
   }
 
+  generateBlogPostData(postNumber: number = 1): CreateBlogPostInputDto {
+    return {
+      title: 'post ' + postNumber,
+      shortDescription: 'short description ' + postNumber,
+      content: 'content ' + postNumber,
+    };
+  }
+
   generateBlogPostsData(numberOfPosts: number): CreateBlogPostInputDto[] {
     const postsData: CreateBlogPostInputDto[] = [];
     for (let i = 1; i < numberOfPosts + 1; i++) {
@@ -146,6 +166,11 @@ export class PostsTestManager {
       postsData.push(postData);
     }
     return postsData;
+  }
+
+  async createBlogPostWithGeneratedData(blogId: string): Promise<PostViewDto> {
+    const postData = this.generateBlogPostData();
+    return this.createBlogPostSuccess(blogId, postData);
   }
 
   async createBlogPostsWithGeneratedData(
@@ -167,6 +192,17 @@ export class PostsTestManager {
       .delete(buildBlogPostsPath(true, blogId, postId))
       .set('Authorization', auth)
       .expect(expectedStatusCode);
+  }
+
+  async deleteBlogPostSuccess(
+    blogId: string,
+    postId: string,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .delete(buildBlogPostsPath(true, blogId, postId))
+      .set('Authorization', auth)
+      .expect(HttpStatus.NO_CONTENT);
   }
 
   async updateBlogPost(

@@ -223,7 +223,7 @@ export class PostsTestManager {
     blogId: string,
     expectedStatusCode: HttpStatus,
     query: QueryType = {},
-  ) {
+  ): Promise<Response> {
     return request(this.app.getHttpServer())
       .get(buildBlogPostsPath(false, blogId))
       .query(query)

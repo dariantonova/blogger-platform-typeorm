@@ -3,10 +3,12 @@ import request, { Response } from 'supertest';
 import {
   buildBlogPostsPath,
   POSTS_PATH,
+  QueryType,
   VALID_BASIC_AUTH_VALUE,
 } from './helper';
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { CreateBlogPostInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
+import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 
 export class PostsCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -131,5 +133,28 @@ export class PostsCommonTestManager {
       promises.push(getPostPromise);
     }
     await Promise.all(promises);
+  }
+
+  async getPosts(
+    query: QueryType = {},
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const response = await request(this.app.getHttpServer())
+      .get(POSTS_PATH)
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    return response.body;
+  }
+
+  async getBlogPosts(
+    blogId: string,
+    query: QueryType = {},
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const response = await request(this.app.getHttpServer())
+      .get(buildBlogPostsPath(false, blogId))
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    return response.body;
   }
 }

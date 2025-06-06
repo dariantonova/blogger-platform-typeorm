@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { POSTS_PATH } from '../../helpers/helper';
 import { LikeStatus } from '../../../src/features/blogger-platform/likes/dto/like-status';
+import { LikeDetailsViewDto } from '../../../src/features/blogger-platform/common/dto/like-details.view-dto';
 
 export class PostLikesTestManager {
   constructor(private app: INestApplication) {}
@@ -62,5 +63,13 @@ export class PostLikesTestManager {
       LikeStatus.None,
       usersAuthStrings[2],
     );
+  }
+
+  assertNewestLikesAreSortedByDateDesc(newestLikes: LikeDetailsViewDto[]) {
+    for (let i = 1; i < newestLikes.length; i++) {
+      const prev = new Date(newestLikes[i - 1].addedAt).getTime();
+      const curr = new Date(newestLikes[i].addedAt).getTime();
+      expect(curr).toBeLessThan(prev);
+    }
   }
 }

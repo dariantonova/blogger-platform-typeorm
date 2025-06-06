@@ -25,6 +25,8 @@ import { LikeDetailsViewDto } from '../../src/features/blogger-platform/common/d
 import { millisecondsToSeconds } from 'date-fns';
 import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
 import { DataSource } from 'typeorm';
+import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
+import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -929,6 +931,148 @@ describe('post likes', () => {
 
       const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.newestLikes).toEqual([]);
+    });
+  });
+
+  describe('likesInfo of paginated posts', () => {
+    let blog: BlogViewDto;
+    let posts: PostViewDto[];
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      posts = await postsCommonTestManager.createBlogPostsWithGeneratedData(
+        3,
+        blog.id,
+      );
+
+      const usersAuthStrings: string[] = [];
+      for (let i = 1; i <= 3; i++) {
+        const authString =
+          await authTestManager.getValidAuthOfNewlyRegisteredUser(i);
+        usersAuthStrings.push(authString);
+      }
+
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[0].id,
+        LikeStatus.Like,
+        usersAuthStrings[0],
+      );
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[0].id,
+        LikeStatus.Like,
+        usersAuthStrings[1],
+      );
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[0].id,
+        LikeStatus.Like,
+        usersAuthStrings[2],
+      );
+
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[1].id,
+        LikeStatus.Like,
+        usersAuthStrings[0],
+      );
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[1].id,
+        LikeStatus.Dislike,
+        usersAuthStrings[1],
+      );
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        posts[1].id,
+        LikeStatus.Like,
+        usersAuthStrings[2],
+      );
+    });
+
+    describe('posts', () => {
+      it('should not duplicate posts when paginating liked posts', async () => {
+        const pageNumber = 1;
+        const pageSize = 2;
+        const sortDirection = SortDirection.Asc;
+        const sortBy = PostsSortBy.CreatedAt;
+        const paginatedPosts = await postsCommonTestManager.getPosts({
+          pageNumber,
+          pageSize,
+          sortDirection,
+          sortBy,
+        });
+
+        expect(paginatedPosts.items.map((p) => p.id)).toEqual(
+          posts.slice(0, pageSize).map((p) => p.id),
+        );
+        expect(
+          paginatedPosts.items[0].extendedLikesInfo.newestLikes.length,
+        ).toBe(3);
+        expect(
+          paginatedPosts.items[1].extendedLikesInfo.newestLikes.length,
+        ).toBe(2);
+      });
+
+      it('should return newest likes in correct order when posts are sorted', async () => {
+        const sortDirection = SortDirection.Asc;
+        const sortBy = PostsSortBy.CreatedAt;
+        const paginatedPosts = await postsCommonTestManager.getPosts({
+          sortDirection,
+          sortBy,
+        });
+
+        for (const post of paginatedPosts.items) {
+          const newestLikes = post.extendedLikesInfo.newestLikes;
+          postLikesTestManager.assertNewestLikesAreSortedByDateDesc(
+            newestLikes,
+          );
+        }
+      });
+    });
+
+    describe('blog posts', () => {
+      it('should not duplicate posts when paginating liked posts', async () => {
+        const pageNumber = 1;
+        const pageSize = 2;
+        const sortDirection = SortDirection.Asc;
+        const sortBy = PostsSortBy.CreatedAt;
+        const paginatedPosts = await postsCommonTestManager.getBlogPosts(
+          blog.id,
+          {
+            pageNumber,
+            pageSize,
+            sortDirection,
+            sortBy,
+          },
+        );
+
+        expect(paginatedPosts.items.map((p) => p.id)).toEqual(
+          posts.slice(0, pageSize).map((p) => p.id),
+        );
+        expect(
+          paginatedPosts.items[0].extendedLikesInfo.newestLikes.length,
+        ).toBe(3);
+        expect(
+          paginatedPosts.items[1].extendedLikesInfo.newestLikes.length,
+        ).toBe(2);
+      });
+
+      it('should return newest likes in correct order when posts are sorted', async () => {
+        const sortDirection = SortDirection.Asc;
+        const sortBy = PostsSortBy.CreatedAt;
+        const paginatedPosts = await postsCommonTestManager.getBlogPosts(
+          blog.id,
+          {
+            sortDirection,
+            sortBy,
+          },
+        );
+
+        for (const post of paginatedPosts.items) {
+          const newestLikes = post.extendedLikesInfo.newestLikes;
+          postLikesTestManager.assertNewestLikesAreSortedByDateDesc(
+            newestLikes,
+          );
+        }
+      });
     });
   });
 });

@@ -19,8 +19,6 @@ import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../../src/features/notifications/email.service';
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { UsersTestManager } from '../users/helpers/users.test-manager';
-import { UserModelType } from '../../src/features/user-accounts/domain/user.entity';
-import { getModelToken } from '@nestjs/mongoose';
 import { RegistrationConfirmationCodeInputDto } from '../../src/features/user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 import { RegistrationEmailResendingInputDto } from '../../src/features/user-accounts/api/input-dto/registration-email-resending.input-dto';
 import { PasswordRecoveryInputDto } from '../../src/features/user-accounts/api/input-dto/password-recovery.input-dto';
@@ -45,7 +43,6 @@ describe('auth', () => {
   let authTestManager: AuthTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let usersTestManager: UsersTestManager;
-  let UserModel: UserModelType;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
   let usersTestRepository: UsersTestRepositorySql;
@@ -96,11 +93,9 @@ describe('auth', () => {
     };
     app = await initApp({ customBuilderSetup });
 
-    UserModel = app.get<UserModelType>(getModelToken('User'));
-
     authTestManager = new AuthTestManager(app);
-    usersCommonTestManager = new UsersCommonTestManager(app, UserModel);
-    usersTestManager = new UsersTestManager(app, UserModel);
+    usersCommonTestManager = new UsersCommonTestManager(app);
+    usersTestManager = new UsersTestManager(app);
     securityDevicesCommonTestManager = new SecurityDevicesCommonTestManager(
       app,
     );

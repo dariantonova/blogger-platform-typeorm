@@ -3,7 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CreatePostRepoDto } from './dto/create-post.repo-dto';
 import { PostDtoSql } from '../dto/post.dto.sql';
-import { buildWhereClause } from '../../../../utils/sql/build-where-clause';
+import { buildWhereClause } from '../../../../common/utils/sql/build-where-clause';
 import { mapPostRowsToDtos } from './mappers/post.mapper';
 import { UpdateBlogPostRepoDto } from './dto/update-blog-post.repo-dto';
 

@@ -37,7 +37,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/require-await': 'off',
       'no-useless-escape': 'off',
-      "@typescript-eslint/unbound-method": 'off',
+      '@typescript-eslint/unbound-method': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
     },
   },
 );

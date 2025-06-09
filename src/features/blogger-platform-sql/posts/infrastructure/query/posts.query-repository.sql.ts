@@ -8,11 +8,11 @@ import { DataSource } from 'typeorm';
 import { GetPostsQueryParams } from '../../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { PostDtoSql } from '../../dto/post.dto.sql';
-import { camelCaseToSnakeCase } from '../../../../../utils/camel-case-to-snake-case';
+import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
 import { PostsSortBy } from '../../../../blogger-platform/posts/api/input-dto/posts-sort-by';
 import { mapPostRowsToDtos } from '../mappers/post.mapper';
-import { buildWhereClause } from '../../../../../utils/sql/build-where-clause';
-import { buildPaginationClause } from '../../../../../utils/sql/build-pagination-clause';
+import { buildWhereClause } from '../../../../../common/utils/sql/build-where-clause';
+import { buildPaginationClause } from '../../../../../common/utils/sql/build-pagination-clause';
 import { PostsRepositorySql } from '../posts.repository.sql';
 
 @Injectable()

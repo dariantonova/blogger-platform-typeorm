@@ -7,7 +7,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GetBlogsQueryParams } from '../../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
-import { camelCaseToSnakeCase } from '../../../../../utils/camel-case-to-snake-case';
+import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
 import { BlogsSortBy } from '../../../../blogger-platform/blogs/api/input-dto/blogs-sort-by';
 import { mapBlogRowToDto } from '../mappers/blog.mapper';
 import { BlogDtoSql } from '../../dto/blog.dto.sql';

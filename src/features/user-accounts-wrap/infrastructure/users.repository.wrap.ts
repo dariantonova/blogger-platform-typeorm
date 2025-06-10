@@ -23,17 +23,10 @@ export class UsersRepositoryWrap {
     } else {
       if (isUpdateNeeded(user)) {
         await this.updateUser(user);
-        user.completeUpdate();
       }
 
       if (isUpdateNeeded(user.confirmationInfo)) {
         await this.updateUserConfirmation(+user.id, user.confirmationInfo);
-        user.confirmationInfo.completeUpdate();
-      }
-
-      if (user.passwordRecoveryInfo && user.passwordRecoveryInfo.isNew) {
-        await this.createPasswordRecovery(+user.id, user.passwordRecoveryInfo);
-        user.passwordRecoveryInfo.removeNewFlag();
       }
 
       if (
@@ -41,8 +34,11 @@ export class UsersRepositoryWrap {
         isUpdateNeeded(user.passwordRecoveryInfo)
       ) {
         await this.updatePasswordRecovery(+user.id, user.passwordRecoveryInfo);
-        user.passwordRecoveryInfo.completeUpdate();
       }
+    }
+
+    if (user.passwordRecoveryInfo && user.passwordRecoveryInfo.isNew) {
+      await this.createPasswordRecovery(+user.id, user.passwordRecoveryInfo);
     }
 
     return user;
@@ -207,6 +203,8 @@ export class UsersRepositoryWrap {
     `;
     await this.dataSource.query(updateQuery, [...newValues, id]);
 
+    user.completeUpdate();
+
     return user;
   }
 
@@ -224,6 +222,8 @@ export class UsersRepositoryWrap {
     WHERE user_id = ${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, userId]);
+
+    confirmation.completeUpdate();
 
     return confirmation;
   }
@@ -243,6 +243,8 @@ export class UsersRepositoryWrap {
       passwordRecovery.expirationDate,
     ]);
 
+    passwordRecovery.removeNewFlag();
+
     return passwordRecovery;
   }
 
@@ -260,6 +262,8 @@ export class UsersRepositoryWrap {
     WHERE user_id = ${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, userId]);
+
+    passwordRecovery.completeUpdate();
 
     return passwordRecovery;
   }

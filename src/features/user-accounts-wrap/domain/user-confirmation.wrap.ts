@@ -8,14 +8,12 @@ export class UserConfirmationWrap {
   expirationDate: Date | null;
   isConfirmed: boolean;
 
-  dtoToUpdate: Partial<RemoveMethods<UserConfirmationWrap>>;
+  dtoToUpdate: Partial<RemoveMethods<UserConfirmationWrap>> = {};
 
   static createInstance(
     dto: CreateUserConfirmationDomainDto,
   ): UserConfirmationWrap {
     const userConfirmation = new UserConfirmationWrap();
-
-    userConfirmation.dtoToUpdate = {};
 
     userConfirmation.confirmationCode = dto.confirmationCode;
     userConfirmation.expirationDate = dto.expirationDate;
@@ -26,8 +24,6 @@ export class UserConfirmationWrap {
 
   static reconstitute(row: UserConfirmationRowWrap): UserConfirmationWrap {
     const userConfirmation = new UserConfirmationWrap();
-
-    userConfirmation.dtoToUpdate = {};
 
     userConfirmation.confirmationCode = row.confirmation_code;
     userConfirmation.expirationDate = row.confirmation_expiration_date;

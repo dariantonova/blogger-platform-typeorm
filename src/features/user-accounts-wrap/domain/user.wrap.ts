@@ -15,15 +15,13 @@ export class UserWrap {
   confirmationInfo: UserConfirmationWrap;
   passwordRecoveryInfo: PasswordRecoveryWrap | null;
 
-  dtoToUpdate: Partial<RemoveMethods<UserWrap>>;
+  dtoToUpdate: Partial<RemoveMethods<UserWrap>> = {};
 
   static createInstance(
     dto: CreateUserDomainDto,
     isConfirmed: boolean,
   ): UserWrap {
     const user = new UserWrap();
-
-    user.dtoToUpdate = {};
 
     user.login = dto.login;
     user.email = dto.email;
@@ -43,8 +41,6 @@ export class UserWrap {
 
   static reconstitute(row: UserRowWrap): UserWrap {
     const user = new UserWrap();
-
-    user.dtoToUpdate = {};
 
     user.id = row.id.toString();
     user.login = row.login;

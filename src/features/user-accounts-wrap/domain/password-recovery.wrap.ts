@@ -8,7 +8,7 @@ export class PasswordRecoveryWrap {
   expirationDate: Date;
 
   isNew: boolean;
-  dtoToUpdate: Partial<RemoveMethods<PasswordRecoveryWrap>>;
+  dtoToUpdate: Partial<RemoveMethods<PasswordRecoveryWrap>> = {};
 
   static createInstance(
     dto: CreatePasswordRecoveryDomainDto,
@@ -16,7 +16,6 @@ export class PasswordRecoveryWrap {
     const passwordRecovery = new PasswordRecoveryWrap();
 
     passwordRecovery.isNew = true;
-    passwordRecovery.dtoToUpdate = {};
 
     passwordRecovery.setRecoveryCodeHash(
       dto.recoveryCodeHash,
@@ -30,7 +29,6 @@ export class PasswordRecoveryWrap {
     const passwordRecovery = new PasswordRecoveryWrap();
 
     passwordRecovery.isNew = false;
-    passwordRecovery.dtoToUpdate = {};
 
     passwordRecovery.recoveryCodeHash = row.password_recovery_code_hash;
     passwordRecovery.expirationDate = row.password_recovery_expiration_date;

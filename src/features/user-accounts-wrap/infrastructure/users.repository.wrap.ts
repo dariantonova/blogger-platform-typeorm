@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserWrap } from '../domain/user.wrap';
@@ -42,6 +46,113 @@ export class UsersRepositoryWrap {
     }
 
     return user;
+  }
+
+  async findById(id: string): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND u.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [+id]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByIdOrNotFoundFail(id: string): Promise<UserWrap> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
+
+  async findByIdOrInternalFail(id: string): Promise<UserWrap> {
+    const user = await this.findById(id);
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
+    }
+
+    return user;
+  }
+
+  async findByLogin(login: string): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND u.login = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [login]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByEmail(email: string): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND u.email = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [email]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByLoginOrEmail(loginOrEmail: string): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND (u.login = $1 OR u.email = $1);
+    `;
+    const findResult = await this.dataSource.query(findQuery, [loginOrEmail]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND uc.confirmation_code = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [
+      confirmationCode,
+    ]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByPasswordRecoveryCodeHash(
+    recoveryCodeHash: string,
+  ): Promise<UserWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND pr.recovery_code_hash = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [
+      recoveryCodeHash,
+    ]);
+
+    return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
+  }
+
+  private buildSelectFromClause(): string {
+    return `
+    SELECT
+    u.id, u.login, u.email, u.password_hash, u.created_at, u.updated_at, u.deleted_at,
+    uc.confirmation_code, uc.expiration_date as confirmation_expiration_date, uc.is_confirmed,
+    pr.recovery_code_hash as password_recovery_code_hash, 
+    pr.expiration_date as password_recovery_expiration_date
+    FROM users u
+    LEFT JOIN user_confirmations uc ON u.id = uc.user_id
+    LEFT JOIN password_recoveries pr ON u.id = pr.user_id
+    `;
   }
 
   private async createUser(user: UserWrap): Promise<UserWrap> {

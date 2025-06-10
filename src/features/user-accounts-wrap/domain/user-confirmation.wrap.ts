@@ -1,6 +1,7 @@
 import { CreateUserConfirmationDomainDto } from './dto/create-user-confirmation.domain-dto';
 import { add } from 'date-fns';
 import { RemoveMethods } from '../../../common/types/remove-methods.type';
+import { UserConfirmationRowWrap } from '../infrastructure/dto/user-confirmation.row.wrap';
 
 export class UserConfirmationWrap {
   confirmationCode: string | null;
@@ -14,9 +15,23 @@ export class UserConfirmationWrap {
   ): UserConfirmationWrap {
     const userConfirmation = new UserConfirmationWrap();
 
+    userConfirmation.dtoToUpdate = {};
+
     userConfirmation.confirmationCode = dto.confirmationCode;
     userConfirmation.expirationDate = dto.expirationDate;
     userConfirmation.isConfirmed = dto.isConfirmed;
+
+    return userConfirmation;
+  }
+
+  static reconstitute(row: UserConfirmationRowWrap): UserConfirmationWrap {
+    const userConfirmation = new UserConfirmationWrap();
+
+    userConfirmation.dtoToUpdate = {};
+
+    userConfirmation.confirmationCode = row.confirmation_code;
+    userConfirmation.expirationDate = row.confirmation_expiration_date;
+    userConfirmation.isConfirmed = row.is_confirmed;
 
     return userConfirmation;
   }

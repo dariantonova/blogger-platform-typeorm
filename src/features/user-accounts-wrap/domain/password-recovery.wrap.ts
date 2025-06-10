@@ -1,6 +1,7 @@
 import { CreatePasswordRecoveryDomainDto } from './dto/create-password-recovery.domain-dto';
 import { add } from 'date-fns';
 import { RemoveMethods } from '../../../common/types/remove-methods.type';
+import { PasswordRecoveryRowWrap } from '../infrastructure/dto/password-recovery.row.wrap';
 
 export class PasswordRecoveryWrap {
   recoveryCodeHash: string;
@@ -15,10 +16,24 @@ export class PasswordRecoveryWrap {
     const passwordRecovery = new PasswordRecoveryWrap();
 
     passwordRecovery.isNew = true;
+    passwordRecovery.dtoToUpdate = {};
+
     passwordRecovery.setRecoveryCodeHash(
       dto.recoveryCodeHash,
       dto.recoveryCodeLifetimeInSeconds,
     );
+
+    return passwordRecovery;
+  }
+
+  static reconstitute(row: PasswordRecoveryRowWrap): PasswordRecoveryWrap {
+    const passwordRecovery = new PasswordRecoveryWrap();
+
+    passwordRecovery.isNew = false;
+    passwordRecovery.dtoToUpdate = {};
+
+    passwordRecovery.recoveryCodeHash = row.password_recovery_code_hash;
+    passwordRecovery.expirationDate = row.password_recovery_expiration_date;
 
     return passwordRecovery;
   }

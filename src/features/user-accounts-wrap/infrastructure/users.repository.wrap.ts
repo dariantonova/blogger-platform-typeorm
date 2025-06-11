@@ -199,7 +199,7 @@ export class UsersRepositoryWrap {
     const updateQuery = `
     UPDATE users
     ${updateSetClause}
-    WHERE id = ${newValues.length + 1};
+    WHERE id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, id]);
 
@@ -219,7 +219,7 @@ export class UsersRepositoryWrap {
     const updateQuery = `
     UPDATE user_confirmations
     ${updateSetClause}
-    WHERE user_id = ${newValues.length + 1};
+    WHERE user_id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, userId]);
 
@@ -259,7 +259,7 @@ export class UsersRepositoryWrap {
     const updateQuery = `
     UPDATE password_recoveries
     ${updateSetClause}
-    WHERE user_id = ${newValues.length + 1};
+    WHERE user_id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, userId]);
 

@@ -143,7 +143,7 @@ export class DeviceAuthSessionsRepositoryWrap {
     const updateQuery = `
     UPDATE device_auth_sessions
     ${updateSetClause}
-    WHERE id = ${newValues.length + 1};
+    WHERE id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, id]);
 

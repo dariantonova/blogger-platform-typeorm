@@ -74,6 +74,35 @@ import { TerminateDeviceSessionUseCaseSql } from '../user-accounts-sql/applicati
 import { TerminateAllOtherUserDeviceSessionsUseCaseSql } from '../user-accounts-sql/application/usecases/terminate-all-other-user-device-sessions.usecase.sql';
 import { UsersExternalQueryRepositorySql } from '../user-accounts-sql/infrastructure/external-query/users.external-query-repository.sql';
 import { BloggerPlatformModule } from '../blogger-platform/blogger-platform.module';
+import { UsersControllerWrap } from '../user-accounts-wrap/api/users.controller.wrap';
+import { AuthControllerWrap } from '../user-accounts-wrap/api/auth.controller.wrap';
+import { SecurityDevicesControllerWrap } from '../user-accounts-wrap/api/security-devices.controller.wrap';
+import { GetUserByIdOrInternalFailQueryHandlerWrap } from '../user-accounts-wrap/application/queries/get-user-by-id-or-internal-fail.query.wrap';
+import { GetUserDeviceSessionsQueryHandlerWrap } from '../user-accounts-wrap/application/queries/get-user-device-sessions.query.wrap';
+import { GetUsersQueryHandlerWrap } from '../user-accounts-wrap/application/queries/get-users.query.wrap';
+import { MeQueryHandlerWrap } from '../user-accounts-wrap/application/queries/me.query.wrap';
+import { ConfirmRegistrationUseCaseWrap } from '../user-accounts-wrap/application/usecases/confirm-registration.usecase.wrap';
+import { CreateUserUseCaseWrap } from '../user-accounts-wrap/application/usecases/create-user.usecase.wrap';
+import { DeleteUserUseCaseWrap } from '../user-accounts-wrap/application/usecases/delete-user.usecase.wrap';
+import { LoginUserUseCaseWrap } from '../user-accounts-wrap/application/usecases/login-user.usecase.wrap';
+import { LogoutUserUseCaseWrap } from '../user-accounts-wrap/application/usecases/logout-user.usecase.wrap';
+import { RecoverPasswordUseCaseWrap } from '../user-accounts-wrap/application/usecases/recover-password.usecase.wrap';
+import { RefreshTokenUseCaseWrap } from '../user-accounts-wrap/application/usecases/refresh-token.usecase.wrap';
+import { RegisterUserUseCaseWrap } from '../user-accounts-wrap/application/usecases/register-user.usecase.wrap';
+import { ResendRegistrationEmailUseCaseWrap } from '../user-accounts-wrap/application/usecases/resend-registration-email.usecase.wrap';
+import { SetNewPasswordUseCaseWrap } from '../user-accounts-wrap/application/usecases/set-new-password.usecase.wrap';
+import { TerminateAllOtherUserDeviceSessionsUseCaseWrap } from '../user-accounts-wrap/application/usecases/terminate-all-other-device-sessions.usecase.wrap';
+import { TerminateDeviceSessionUseCaseWrap } from '../user-accounts-wrap/application/usecases/terminate-device-session.usecase.wrap';
+import { AuthServiceWrap } from '../user-accounts-wrap/application/auth.service.wrap';
+import { UsersServiceWrap } from '../user-accounts-wrap/application/users.service.wrap';
+import { JwtAccessStrategyWrap } from '../user-accounts-wrap/guards/bearer/jwt-access.strategy.wrap';
+import { LocalStrategyWrap } from '../user-accounts-wrap/guards/local/local.strategy.wrap';
+import { JwtRefreshStrategyWrap } from '../user-accounts-wrap/guards/refresh-token/jwt-refresh.strategy.wrap';
+import { UsersRepositoryWrap } from '../user-accounts-wrap/infrastructure/users.repository.wrap';
+import { DeviceAuthSessionsRepositoryWrap } from '../user-accounts-wrap/infrastructure/device-auth-sessions.repository.wrap';
+import { UsersQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/users.query-repository.wrap';
+import { DeviceAuthSessionsQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/device-auth-sessions.query-repository.wrap';
+import { AuthQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/auth.query-repository.wrap';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -136,6 +165,44 @@ const controllersSql = [
   SecurityDevicesControllerSql,
 ];
 
+const controllersWrap = [
+  UsersControllerWrap,
+  AuthControllerWrap,
+  SecurityDevicesControllerWrap,
+];
+const providersWrap = [
+  AuthServiceWrap,
+  UsersServiceWrap,
+  JwtAccessStrategyWrap,
+  LocalStrategyWrap,
+  JwtRefreshStrategyWrap,
+  UsersRepositoryWrap,
+  DeviceAuthSessionsRepositoryWrap,
+  UsersQueryRepositoryWrap,
+  DeviceAuthSessionsQueryRepositoryWrap,
+  AuthQueryRepositoryWrap,
+];
+const queryHandlersWrap = [
+  GetUserByIdOrInternalFailQueryHandlerWrap,
+  GetUserDeviceSessionsQueryHandlerWrap,
+  GetUsersQueryHandlerWrap,
+  MeQueryHandlerWrap,
+];
+const commandHandlersWrap = [
+  ConfirmRegistrationUseCaseWrap,
+  CreateUserUseCaseWrap,
+  DeleteUserUseCaseWrap,
+  LoginUserUseCaseWrap,
+  LogoutUserUseCaseWrap,
+  RecoverPasswordUseCaseWrap,
+  RefreshTokenUseCaseWrap,
+  RegisterUserUseCaseWrap,
+  ResendRegistrationEmailUseCaseWrap,
+  SetNewPasswordUseCaseWrap,
+  TerminateAllOtherUserDeviceSessionsUseCaseWrap,
+  TerminateDeviceSessionUseCaseWrap,
+];
+
 @Module({
   imports: [
     JwtModule,
@@ -159,7 +226,8 @@ const controllersSql = [
     // UsersController,
     // AuthController,
     // SecurityDevicesController,
-    ...controllersSql,
+    // ...controllersSql,
+    ...controllersWrap,
   ],
   providers: [
     {
@@ -205,6 +273,9 @@ const controllersSql = [
     ...queryHandlersSql,
     ...providersSql,
     ...commandHandlersSql,
+    ...providersWrap,
+    ...queryHandlersWrap,
+    ...commandHandlersWrap,
   ],
   exports: [UsersExternalQueryRepository, UsersExternalQueryRepositorySql],
 })

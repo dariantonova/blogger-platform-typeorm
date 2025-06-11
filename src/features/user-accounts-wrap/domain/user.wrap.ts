@@ -1,7 +1,6 @@
 import { UserConfirmationWrap } from './user-confirmation.wrap';
 import { PasswordRecoveryWrap } from './password-recovery.wrap';
 import { CreateUserDomainDto } from '../../user-accounts/domain/dto/create-user.domain.dto';
-import { RemoveMethods } from '../../../common/types/remove-methods.type';
 import { UserRowWrap } from '../infrastructure/dto/user.row.wrap';
 
 export class UserWrap {
@@ -14,8 +13,6 @@ export class UserWrap {
   deletedAt: Date | null;
   confirmationInfo: UserConfirmationWrap;
   passwordRecoveryInfo: PasswordRecoveryWrap | null;
-
-  dtoToUpdate: Partial<RemoveMethods<UserWrap>> = {};
 
   static createInstance(
     dto: CreateUserDomainDto,
@@ -75,8 +72,6 @@ export class UserWrap {
       throw new Error('User is already deleted');
     }
     this.deletedAt = new Date();
-
-    this.dtoToUpdate.deletedAt = this.deletedAt;
   }
 
   setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
@@ -87,31 +82,28 @@ export class UserWrap {
     this.confirmationInfo.makeConfirmed();
   }
 
-  setPasswordRecoveryCodeHash(codeHash: string, codeLifetimeInSeconds: number) {
+  setPasswordRecoveryCodeHash(
+    recoveryCodeHash: string,
+    recoveryCodeLifetimeInSeconds: number,
+  ) {
     if (!this.passwordRecoveryInfo) {
       this.passwordRecoveryInfo = PasswordRecoveryWrap.createInstance({
-        recoveryCodeHash: codeHash,
-        recoveryCodeLifetimeInSeconds: codeLifetimeInSeconds,
+        recoveryCodeHash,
+        recoveryCodeLifetimeInSeconds,
       });
     } else {
       this.passwordRecoveryInfo.setRecoveryCodeHash(
-        codeHash,
-        codeLifetimeInSeconds,
+        recoveryCodeHash,
+        recoveryCodeLifetimeInSeconds,
       );
     }
   }
 
   resetPasswordRecoveryInfo() {
-    this.passwordRecoveryInfo?.makeExpired();
+    this.passwordRecoveryInfo?.revoke();
   }
 
   setPasswordHash(passwordHash: string) {
     this.passwordHash = passwordHash;
-
-    this.dtoToUpdate.passwordHash = this.passwordHash;
-  }
-
-  completeUpdate() {
-    this.dtoToUpdate = {};
   }
 }

@@ -7,10 +7,10 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { UserWrap } from '../domain/user.wrap';
 import { UserConfirmationWrap } from '../domain/user-confirmation.wrap';
-import { isUpdateNeeded } from '../../wrap/utils/is-update-needed';
-import { getNewValuesFromDtoToUpdate } from '../../wrap/utils/get-new-values-from-dto-to-update';
+import { getValuesFromDtoToUpdate } from '../../wrap/utils/get-values-from-dto-to-update';
 import { buildUpdateSetClause } from '../../wrap/utils/build-update-set-clause';
 import { PasswordRecoveryWrap } from '../domain/password-recovery.wrap';
+import { RemoveMethods } from '../../../common/types/remove-methods.type';
 
 @Injectable()
 export class UsersRepositoryWrap {
@@ -21,24 +21,18 @@ export class UsersRepositoryWrap {
       await this.createUser(user);
       await this.createUserConfirmation(+user.id, user.confirmationInfo);
     } else {
-      if (isUpdateNeeded(user)) {
-        await this.updateUser(user);
-      }
+      const { id, confirmationInfo, passwordRecoveryInfo, ...dtoToUpdate } =
+        user;
 
-      if (isUpdateNeeded(user.confirmationInfo)) {
-        await this.updateUserConfirmation(+user.id, user.confirmationInfo);
-      }
+      await this.updateUser(+id, dtoToUpdate);
 
-      if (
-        user.passwordRecoveryInfo &&
-        isUpdateNeeded(user.passwordRecoveryInfo)
-      ) {
-        await this.updatePasswordRecovery(+user.id, user.passwordRecoveryInfo);
-      }
+      const { ...confirmationDtoToUpdate } = confirmationInfo;
+      await this.updateUserConfirmation(+id, confirmationDtoToUpdate);
     }
 
-    if (user.passwordRecoveryInfo && user.passwordRecoveryInfo.isNew) {
-      await this.createPasswordRecovery(+user.id, user.passwordRecoveryInfo);
+    if (user.passwordRecoveryInfo) {
+      const { ...passwordRecoveryDto } = user.passwordRecoveryInfo;
+      await this.createOrUpdatePasswordRecovery(+user.id, passwordRecoveryDto);
     }
 
     return user;
@@ -191,9 +185,11 @@ export class UsersRepositoryWrap {
     return confirmation;
   }
 
-  private async updateUser(user: UserWrap): Promise<UserWrap> {
-    const { id, dtoToUpdate } = user;
-    const newValues = getNewValuesFromDtoToUpdate(dtoToUpdate);
+  private async updateUser(
+    id: number,
+    dtoToUpdate: Partial<UserWrap>,
+  ): Promise<void> {
+    const newValues = getValuesFromDtoToUpdate(dtoToUpdate);
     const updateSetClause = buildUpdateSetClause(dtoToUpdate);
 
     const updateQuery = `
@@ -202,18 +198,13 @@ export class UsersRepositoryWrap {
     WHERE id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, id]);
-
-    user.completeUpdate();
-
-    return user;
   }
 
   private async updateUserConfirmation(
     userId: number,
-    confirmation: UserConfirmationWrap,
-  ): Promise<UserConfirmationWrap> {
-    const { dtoToUpdate } = confirmation;
-    const newValues = getNewValuesFromDtoToUpdate(dtoToUpdate);
+    dtoToUpdate: Partial<UserConfirmationWrap>,
+  ): Promise<void> {
+    const newValues = getValuesFromDtoToUpdate(dtoToUpdate);
     const updateSetClause = buildUpdateSetClause(dtoToUpdate);
 
     const updateQuery = `
@@ -222,49 +213,25 @@ export class UsersRepositoryWrap {
     WHERE user_id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, userId]);
-
-    confirmation.completeUpdate();
-
-    return confirmation;
   }
 
-  private async createPasswordRecovery(
+  private async createOrUpdatePasswordRecovery(
     userId: number,
-    passwordRecovery: PasswordRecoveryWrap,
-  ): Promise<PasswordRecoveryWrap> {
-    const createQuery = `
+    dto: RemoveMethods<PasswordRecoveryWrap>,
+  ): Promise<void> {
+    const createOrUpdateQuery = `
     INSERT INTO password_recoveries
     (user_id, recovery_code_hash, expiration_date)
     VALUES ($1, $2, $3)
+    ON CONFLICT (user_id)
+    DO UPDATE SET
+    recovery_code_hash = EXCLUDED.recovery_code_hash,
+    expiration_date = EXCLUDED.expiration_date;
     `;
-    await this.dataSource.query(createQuery, [
+    await this.dataSource.query(createOrUpdateQuery, [
       userId,
-      passwordRecovery.recoveryCodeHash,
-      passwordRecovery.expirationDate,
+      dto.recoveryCodeHash,
+      dto.expirationDate,
     ]);
-
-    passwordRecovery.removeNewFlag();
-
-    return passwordRecovery;
-  }
-
-  private async updatePasswordRecovery(
-    userId: number,
-    passwordRecovery: PasswordRecoveryWrap,
-  ): Promise<PasswordRecoveryWrap> {
-    const { dtoToUpdate } = passwordRecovery;
-    const newValues = getNewValuesFromDtoToUpdate(dtoToUpdate);
-    const updateSetClause = buildUpdateSetClause(dtoToUpdate);
-
-    const updateQuery = `
-    UPDATE password_recoveries
-    ${updateSetClause}
-    WHERE user_id = $${newValues.length + 1};
-    `;
-    await this.dataSource.query(updateQuery, [...newValues, userId]);
-
-    passwordRecovery.completeUpdate();
-
-    return passwordRecovery;
   }
 }

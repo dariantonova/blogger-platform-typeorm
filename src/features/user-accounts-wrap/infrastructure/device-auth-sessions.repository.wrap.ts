@@ -3,7 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DeviceAuthSessionWrap } from '../domain/device-auth-session.wrap';
 import { isUpdateNeeded } from '../../wrap/utils/is-update-needed';
-import { getNewValuesFromDtoToUpdate } from '../../wrap/utils/get-new-values-from-dto-to-update';
+import { getValuesFromDtoToUpdate } from '../../wrap/utils/get-values-from-dto-to-update';
 import { buildUpdateSetClause } from '../../wrap/utils/build-update-set-clause';
 
 @Injectable()
@@ -137,7 +137,7 @@ export class DeviceAuthSessionsRepositoryWrap {
     session: DeviceAuthSessionWrap,
   ): Promise<DeviceAuthSessionWrap> {
     const { id, dtoToUpdate } = session;
-    const newValues = getNewValuesFromDtoToUpdate(dtoToUpdate);
+    const newValues = getValuesFromDtoToUpdate(dtoToUpdate);
     const updateSetClause = buildUpdateSetClause(dtoToUpdate);
 
     const updateQuery = `

@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DeviceAuthSessionWrap } from '../domain/device-auth-session.wrap';
-import { isUpdateNeeded } from '../../wrap/utils/is-update-needed';
 import { getValuesFromDtoToUpdate } from '../../wrap/utils/get-values-from-dto-to-update';
 import { buildUpdateSetClause } from '../../wrap/utils/build-update-set-clause';
 
@@ -13,8 +12,9 @@ export class DeviceAuthSessionsRepositoryWrap {
   async save(session: DeviceAuthSessionWrap): Promise<DeviceAuthSessionWrap> {
     if (!session.id) {
       await this.createDeviceAuthSession(session);
-    } else if (isUpdateNeeded(session)) {
-      await this.updateDeviceAuthSession(session);
+    } else {
+      const { id, ...dtoToUpdate } = session;
+      await this.updateDeviceAuthSession(+id, dtoToUpdate);
     }
 
     return session;
@@ -112,7 +112,7 @@ export class DeviceAuthSessionsRepositoryWrap {
 
   private async createDeviceAuthSession(
     session: DeviceAuthSessionWrap,
-  ): Promise<DeviceAuthSessionWrap> {
+  ): Promise<void> {
     const createQuery = `
     INSERT INTO device_auth_sessions
     (device_id, user_id, exp, iat, device_name, ip)
@@ -129,14 +129,12 @@ export class DeviceAuthSessionsRepositoryWrap {
     ]);
 
     session.id = createResult[0].id.toString();
-
-    return session;
   }
 
   private async updateDeviceAuthSession(
-    session: DeviceAuthSessionWrap,
-  ): Promise<DeviceAuthSessionWrap> {
-    const { id, dtoToUpdate } = session;
+    id: number,
+    dtoToUpdate: Partial<DeviceAuthSessionWrap>,
+  ): Promise<void> {
     const newValues = getValuesFromDtoToUpdate(dtoToUpdate);
     const updateSetClause = buildUpdateSetClause(dtoToUpdate);
 
@@ -146,9 +144,5 @@ export class DeviceAuthSessionsRepositoryWrap {
     WHERE id = $${newValues.length + 1};
     `;
     await this.dataSource.query(updateQuery, [...newValues, id]);
-
-    session.completeUpdate();
-
-    return session;
   }
 }

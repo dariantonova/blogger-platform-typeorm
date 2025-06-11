@@ -145,7 +145,7 @@ export class UsersRepositoryWrap {
     `;
   }
 
-  private async createUser(user: UserWrap): Promise<UserWrap> {
+  private async createUser(user: UserWrap): Promise<void> {
     const createQuery = `
     INSERT INTO users
     (login, email, password_hash, created_at, updated_at, deleted_at)
@@ -162,14 +162,12 @@ export class UsersRepositoryWrap {
     ]);
 
     user.id = createResult[0].id.toString();
-
-    return user;
   }
 
   private async createUserConfirmation(
     userId: number,
     confirmation: UserConfirmationWrap,
-  ): Promise<UserConfirmationWrap> {
+  ): Promise<void> {
     const createQuery = `
     INSERT INTO user_confirmations
     (user_id, confirmation_code, expiration_date, is_confirmed)
@@ -181,8 +179,6 @@ export class UsersRepositoryWrap {
       confirmation.expirationDate,
       confirmation.isConfirmed,
     ]);
-
-    return confirmation;
   }
 
   private async updateUser(

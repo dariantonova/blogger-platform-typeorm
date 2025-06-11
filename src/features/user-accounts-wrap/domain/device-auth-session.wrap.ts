@@ -1,4 +1,3 @@
-import { RemoveMethods } from '../../../common/types/remove-methods.type';
 import { CreateDeviceAuthSessionDomainDto } from '../../user-accounts/domain/dto/create-device-auth-session.domain.dto';
 import { UpdateDeviceAuthSessionDomainDto } from '../../user-accounts/domain/dto/update-device-auth-session.domain.dto';
 import { DeviceAuthSessionRowWrap } from '../infrastructure/dto/device-auth-session.row.wrap';
@@ -11,8 +10,6 @@ export class DeviceAuthSessionWrap {
   iat: Date;
   deviceName: string;
   ip: string;
-
-  dtoToUpdate: Partial<RemoveMethods<DeviceAuthSessionWrap>> = {};
 
   static createInstance(
     dto: CreateDeviceAuthSessionDomainDto,
@@ -47,13 +44,5 @@ export class DeviceAuthSessionWrap {
     this.exp = dto.exp;
     this.iat = dto.iat;
     this.ip = dto.ip;
-
-    this.dtoToUpdate.exp = this.exp;
-    this.dtoToUpdate.iat = this.iat;
-    this.dtoToUpdate.ip = this.ip;
-  }
-
-  completeUpdate() {
-    this.dtoToUpdate = {};
   }
 }

@@ -76,10 +76,12 @@ export class UserWrap {
 
   setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
     this.confirmationInfo.setConfirmationCode(code, codeLifetimeInSeconds);
+    this.updatedAt = new Date();
   }
 
   makeConfirmed() {
     this.confirmationInfo.makeConfirmed();
+    this.updatedAt = new Date();
   }
 
   setPasswordRecoveryCodeHash(
@@ -97,13 +99,17 @@ export class UserWrap {
         recoveryCodeLifetimeInSeconds,
       );
     }
+
+    this.updatedAt = new Date();
   }
 
   resetPasswordRecoveryInfo() {
     this.passwordRecoveryInfo?.revoke();
+    this.updatedAt = new Date();
   }
 
   setPasswordHash(passwordHash: string) {
     this.passwordHash = passwordHash;
+    this.updatedAt = new Date();
   }
 }

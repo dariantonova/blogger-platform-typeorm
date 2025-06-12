@@ -25,6 +25,15 @@ import { GetBlogByIdOrInternalFailQueryWrap } from '../application/queries/get-b
 import { UpdateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/update-blog.input-dto';
 import { UpdateBlogCommandWrap } from '../application/usecases/update-blog.usecase.wrap';
 import { DeleteBlogCommandWrap } from '../application/usecases/delete-blog.usecase.wrap';
+import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { PostViewDto } from '../../../blogger-platform/posts/api/view-dto/posts.view-dto';
+import { GetBlogPostsQueryWrap } from '../../posts/application/queries/get-blog-posts.query.wrap';
+import { CreateBlogPostInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
+import { CreatePostCommandWrap } from '../../posts/application/usecases/create-post.usecase.wrap';
+import { GetPostByIdOrInternalFailQueryWrap } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.wrap';
+import { UpdateBlogPostCommandWrap } from '../../posts/application/usecases/update-blog-post.usecase.wrap';
+import { DeleteBlogPostCommandWrap } from '../../posts/application/usecases/delete-blog-post.usecase.wrap';
+import { UpdateBlogPostInputDtoWrap } from './input-dto/update-blog-post.input-dto.sql';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -75,38 +84,62 @@ export class BlogsSaControllerWrap {
     await this.commandBus.execute(new DeleteBlogCommandWrap(id));
   }
 
-  // @Get(':blogId/posts')
-  // @UseGuards(JwtAccessOptionalAuthGuard)
-  // async getBlogPosts(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Query() query: GetPostsQueryParams,
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  // ): Promise<PaginatedViewDto<PostViewDto[]>> {
-  //   return this.queryBus.execute(
-  //     new GetBlogPostsQuery(blogId, query, user?.id),
-  //   );
-  // }
-  //
-  // @Post(':blogId/posts')
-  // @UseGuards(BasicAuthGuard)
-  // async createBlogPost(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Body() body: CreateBlogPostInputDto,
-  // ): Promise<PostViewDto> {
-  //   const createdPostId = await this.commandBus.execute<
-  //     CreatePostCommand,
-  //     string
-  //   >(
-  //     new CreatePostCommand({
-  //       title: body.title,
-  //       shortDescription: body.shortDescription,
-  //       content: body.content,
-  //       blogId,
-  //     }),
-  //   );
-  //
-  //   return this.queryBus.execute(
-  //     new GetPostByIdOrInternalFailQuery(createdPostId, undefined),
-  //   );
-  // }
+  @Get(':blogId/posts')
+  async getBlogPosts(
+    @Param('blogId', IntValidationPipe) blogId: string,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    return this.queryBus.execute(
+      new GetBlogPostsQueryWrap(blogId, query, undefined),
+    );
+  }
+
+  @Post(':blogId/posts')
+  async createBlogPost(
+    @Param('blogId', IntValidationPipe) blogId: string,
+    @Body() body: CreateBlogPostInputDto,
+  ): Promise<PostViewDto> {
+    const createdPostId = await this.commandBus.execute<
+      CreatePostCommandWrap,
+      string
+    >(
+      new CreatePostCommandWrap({
+        title: body.title,
+        shortDescription: body.shortDescription,
+        content: body.content,
+        blogId,
+      }),
+    );
+
+    return this.queryBus.execute(
+      new GetPostByIdOrInternalFailQueryWrap(createdPostId, undefined),
+    );
+  }
+
+  @Put(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlogPost(
+    @Param('blogId', IntValidationPipe)
+    blogId: string,
+    @Param('postId', IntValidationPipe)
+    postId: string,
+    @Body() body: UpdateBlogPostInputDtoWrap,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new UpdateBlogPostCommandWrap(blogId, postId, body),
+    );
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlogPost(
+    @Param('blogId', IntValidationPipe)
+    blogId: string,
+    @Param('postId', IntValidationPipe)
+    postId: string,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteBlogPostCommandWrap(blogId, postId),
+    );
+  }
 }

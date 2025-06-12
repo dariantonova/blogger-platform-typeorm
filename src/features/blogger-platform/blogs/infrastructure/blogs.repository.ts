@@ -1,5 +1,9 @@
 import { ObjectId } from 'mongodb';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
 import { InjectModel } from '@nestjs/mongoose';
 
@@ -31,7 +35,7 @@ export class BlogsRepository {
     const blog = await this.findById(id);
 
     if (!blog) {
-      throw new Error('Blog not found');
+      throw new InternalServerErrorException('Blog not found');
     }
 
     return blog;

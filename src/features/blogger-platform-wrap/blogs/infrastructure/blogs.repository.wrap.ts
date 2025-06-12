@@ -30,7 +30,7 @@ export class BlogsRepositoryWrap {
     WHERE b.deleted_at IS NULL
     AND b.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [id]);
+    const findResult = await this.dataSource.query(findQuery, [+id]);
 
     return findResult[0] ? BlogWrap.reconstitute(findResult[0]) : null;
   }

@@ -29,10 +29,11 @@ export class PostWrap {
   static reconstitute(row: PostRowWrap): PostWrap {
     const post = new PostWrap();
 
+    post.id = row.id.toString();
     post.title = row.title;
     post.shortDescription = row.short_description;
     post.content = row.content;
-    post.blogId = row.blog_id;
+    post.blogId = row.blog_id.toString();
     post.createdAt = row.created_at;
     post.updatedAt = row.updated_at;
     post.deletedAt = row.deleted_at;

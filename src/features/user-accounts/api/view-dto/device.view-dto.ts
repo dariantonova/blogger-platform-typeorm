@@ -32,15 +32,13 @@ export class DeviceViewDto {
     return dto;
   }
 
-  static mapToViewWrap(
-    deviceAuthSession: DeviceAuthSessionViewRowWrap,
-  ): DeviceViewDto {
+  static mapToViewWrap(row: DeviceAuthSessionViewRowWrap): DeviceViewDto {
     const dto = new DeviceViewDto();
 
-    dto.ip = deviceAuthSession.ip;
-    dto.title = deviceAuthSession.device_name;
-    dto.lastActiveDate = deviceAuthSession.iat.toISOString();
-    dto.deviceId = deviceAuthSession.device_id;
+    dto.ip = row.ip;
+    dto.title = row.device_name;
+    dto.lastActiveDate = row.iat.toISOString();
+    dto.deviceId = row.device_id;
 
     return dto;
   }

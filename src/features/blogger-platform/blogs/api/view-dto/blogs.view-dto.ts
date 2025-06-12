@@ -36,15 +36,15 @@ export class BlogViewDto {
     return dto;
   }
 
-  static mapToViewWrap(blog: BlogViewRowWrap): BlogViewDto {
+  static mapToViewWrap(row: BlogViewRowWrap): BlogViewDto {
     const dto = new BlogViewDto();
 
-    dto.id = blog.id.toString();
-    dto.name = blog.name;
-    dto.description = blog.description;
-    dto.websiteUrl = blog.website_url;
-    dto.createdAt = blog.created_at.toISOString();
-    dto.isMembership = blog.is_membership;
+    dto.id = row.id.toString();
+    dto.name = row.name;
+    dto.description = row.description;
+    dto.websiteUrl = row.website_url;
+    dto.createdAt = row.created_at.toISOString();
+    dto.isMembership = row.is_membership;
 
     return dto;
   }

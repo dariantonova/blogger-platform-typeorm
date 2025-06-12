@@ -31,13 +31,13 @@ export class UserViewDto {
     return dto;
   }
 
-  static mapToViewWrap(user: UserViewRowWrap): UserViewDto {
+  static mapToViewWrap(row: UserViewRowWrap): UserViewDto {
     const dto = new UserViewDto();
 
-    dto.id = user.id.toString();
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.createdAt = user.created_at.toISOString();
+    dto.id = row.id.toString();
+    dto.login = row.login;
+    dto.email = row.email;
+    dto.createdAt = row.created_at.toISOString();
 
     return dto;
   }
@@ -69,12 +69,12 @@ export class MeViewDto extends OmitType(UserViewDto, [
     return dto;
   }
 
-  static mapToViewWrap(user: UserViewRowWrap): MeViewDto {
+  static mapToViewWrap(row: UserViewRowWrap): MeViewDto {
     const dto = new MeViewDto();
 
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.userId = user.id.toString();
+    dto.login = row.login;
+    dto.email = row.email;
+    dto.userId = row.id.toString();
 
     return dto;
   }

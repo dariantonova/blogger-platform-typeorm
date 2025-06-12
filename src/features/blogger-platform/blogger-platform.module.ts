@@ -38,7 +38,6 @@ import { MakeCommentLikeOperationUseCase } from './comments/application/usecases
 import { LikesQueryRepository } from './likes/infrastructure/query/likes.query-repository';
 import { CommentsQueryService } from './comments/application/comments.query-service';
 import { PostsQueryService } from './posts/application/posts.query-service';
-import { BlogsSaControllerSql } from '../blogger-platform-sql/blogs/api/blogs-sa.controller.sql';
 import { GetBlogsQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blogs.query.sql';
 import { BlogsQueryRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/query/blogs.query-repository.sql';
 import { BlogsRepositorySql } from '../blogger-platform-sql/blogs/infrastructure/blogs.repository.sql';
@@ -54,7 +53,6 @@ import { CreatePostUseCaseSql } from '../blogger-platform-sql/posts/application/
 import { GetPostByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-internal-fail.query.sql';
 import { UpdateBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/update-blog-post.usecase.sql';
 import { DeleteBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/delete-blog-post.usecase.sql';
-import { BlogsControllerSql } from '../blogger-platform-sql/blogs/api/blogs.controller.sql';
 import { GetBlogByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-not-found-fail.query.sql';
 import { GetPostByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-not-found-fail.query.sql';
 import { PostsControllerSql } from '../blogger-platform-sql/posts/api/posts.controller.sql';
@@ -76,6 +74,16 @@ import { MakePostLikeOperationUseCaseSql } from '../blogger-platform-sql/likes/a
 import { PostLikesRepositorySql } from '../blogger-platform-sql/likes/infrastructure/post-likes.repository.sql';
 import { PostLikesQueryRepositorySql } from '../blogger-platform-sql/likes/infrastructure/query/post-likes.query-repository.sql';
 import { BloggerPlatformExternalServiceSql } from '../blogger-platform-sql/common/infrastructure/external/blogger-platform.external-service.sql';
+import { BlogsControllerWrap } from '../blogger-platform-wrap/blogs/api/blogs.controller.wrap';
+import { BlogsSaControllerWrap } from '../blogger-platform-wrap/blogs/api/blogs-sa.controller.wrap';
+import { GetBlogByIdOrInternalFailQueryHandlerWrap } from '../blogger-platform-wrap/blogs/application/queries/get-blog-by-id-or-internal-fail.query.wrap';
+import { GetBlogByIdOrNotFoundFailQueryHandlerWrap } from '../blogger-platform-wrap/blogs/application/queries/get-blog-by-id-or-not-found-fail.query.wrap';
+import { GetBlogsQueryHandlerWrap } from '../blogger-platform-wrap/blogs/application/queries/get-blogs.query.wrap';
+import { CreateBlogUseCaseWrap } from '../blogger-platform-wrap/blogs/application/usecases/create-blog.usecase.wrap';
+import { DeleteBlogUseCaseWrap } from '../blogger-platform-wrap/blogs/application/usecases/delete-blog.usecase.wrap';
+import { UpdateBlogUseCaseWrap } from '../blogger-platform-wrap/blogs/application/usecases/update-blog.usecase.wrap';
+import { BlogsRepositoryWrap } from '../blogger-platform-wrap/blogs/infrastructure/blogs.repository.wrap';
+import { BlogsQueryRepositoryWrap } from '../blogger-platform-wrap/blogs/infrastructure/query/blogs.query-repository.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -105,8 +113,8 @@ const queryHandlers = [
 ];
 
 const controllersSql = [
-  BlogsSaControllerSql,
-  BlogsControllerSql,
+  // BlogsSaControllerSql,
+  // BlogsControllerSql,
   PostsControllerSql,
   CommentsControllerSql,
 ];
@@ -151,6 +159,19 @@ const commandHandlersSql = [
   MakePostLikeOperationUseCaseSql,
 ];
 
+const controllersWrap = [BlogsControllerWrap, BlogsSaControllerWrap];
+const providersWrap = [BlogsRepositoryWrap, BlogsQueryRepositoryWrap];
+const queryHandlersWrap = [
+  GetBlogByIdOrInternalFailQueryHandlerWrap,
+  GetBlogByIdOrNotFoundFailQueryHandlerWrap,
+  GetBlogsQueryHandlerWrap,
+];
+const commandHandlersWrap = [
+  CreateBlogUseCaseWrap,
+  DeleteBlogUseCaseWrap,
+  UpdateBlogUseCaseWrap,
+];
+
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -167,6 +188,7 @@ const commandHandlersSql = [
     // PostsController,
     // CommentsController,
     ...controllersSql,
+    ...controllersWrap,
   ],
   providers: [
     BlogsQueryRepository,
@@ -185,6 +207,9 @@ const commandHandlersSql = [
     ...providersSql,
     ...queryHandlersSql,
     ...commandHandlersSql,
+    ...providersWrap,
+    ...queryHandlersWrap,
+    ...commandHandlersWrap,
   ],
   exports: [BloggerPlatformExternalServiceSql],
 })

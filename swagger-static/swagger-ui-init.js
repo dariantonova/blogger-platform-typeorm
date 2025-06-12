@@ -27,7 +27,7 @@ window.onload = function() {
       },
       "/api/sa/users": {
         "get": {
-          "operationId": "UsersControllerSql_getUsers",
+          "operationId": "UsersControllerWrap_getUsers",
           "parameters": [],
           "responses": {
             "200": {
@@ -35,11 +35,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerSql"
+            "UsersControllerWrap"
           ]
         },
         "post": {
-          "operationId": "UsersControllerSql_createUser",
+          "operationId": "UsersControllerWrap_createUser",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -57,20 +57,20 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerSql"
+            "UsersControllerWrap"
           ]
         }
       },
       "/api/sa/users/{id}": {
         "delete": {
-          "operationId": "UsersControllerSql_deleteUser",
+          "operationId": "UsersControllerWrap_deleteUser",
           "parameters": [
             {
               "name": "id",
               "required": true,
               "in": "path",
               "schema": {
-                "type": "number"
+                "type": "string"
               }
             }
           ],
@@ -80,13 +80,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerSql"
+            "UsersControllerWrap"
           ]
         }
       },
       "/api/auth/login": {
         "post": {
-          "operationId": "AuthControllerSql_login",
+          "operationId": "AuthControllerWrap_login",
           "parameters": [],
           "responses": {
             "200": {
@@ -94,13 +94,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/me": {
         "get": {
-          "operationId": "AuthControllerSql_me",
+          "operationId": "AuthControllerWrap_me",
           "parameters": [],
           "responses": {
             "200": {
@@ -108,13 +108,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/registration": {
         "post": {
-          "operationId": "AuthControllerSql_register",
+          "operationId": "AuthControllerWrap_register",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -132,13 +132,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/registration-email-resending": {
         "post": {
-          "operationId": "AuthControllerSql_resendRegistrationEmail",
+          "operationId": "AuthControllerWrap_resendRegistrationEmail",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -156,13 +156,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/registration-confirmation": {
         "post": {
-          "operationId": "AuthControllerSql_confirmRegistration",
+          "operationId": "AuthControllerWrap_confirmRegistration",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -180,13 +180,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/password-recovery": {
         "post": {
-          "operationId": "AuthControllerSql_recoverPassword",
+          "operationId": "AuthControllerWrap_recoverPassword",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -204,13 +204,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/new-password": {
         "post": {
-          "operationId": "AuthControllerSql_setNewPassword",
+          "operationId": "AuthControllerWrap_setNewPassword",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -228,13 +228,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/refresh-token": {
         "post": {
-          "operationId": "AuthControllerSql_refreshToken",
+          "operationId": "AuthControllerWrap_refreshToken",
           "parameters": [],
           "responses": {
             "200": {
@@ -242,13 +242,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/auth/logout": {
         "post": {
-          "operationId": "AuthControllerSql_logout",
+          "operationId": "AuthControllerWrap_logout",
           "parameters": [],
           "responses": {
             "204": {
@@ -256,13 +256,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerSql"
+            "AuthControllerWrap"
           ]
         }
       },
       "/api/security/devices": {
         "get": {
-          "operationId": "SecurityDevicesControllerSql_getUserDeviceSessions",
+          "operationId": "SecurityDevicesControllerWrap_getUserDeviceSessions",
           "parameters": [],
           "responses": {
             "200": {
@@ -270,11 +270,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerSql"
+            "SecurityDevicesControllerWrap"
           ]
         },
         "delete": {
-          "operationId": "SecurityDevicesControllerSql_terminateAllOtherUserDeviceSessions",
+          "operationId": "SecurityDevicesControllerWrap_terminateAllOtherUserDeviceSessions",
           "parameters": [],
           "responses": {
             "204": {
@@ -282,13 +282,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerSql"
+            "SecurityDevicesControllerWrap"
           ]
         }
       },
       "/api/security/devices/{deviceId}": {
         "delete": {
-          "operationId": "SecurityDevicesControllerSql_terminateDeviceSession",
+          "operationId": "SecurityDevicesControllerWrap_terminateDeviceSession",
           "parameters": [
             {
               "name": "deviceId",
@@ -305,281 +305,7 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerSql"
-          ]
-        }
-      },
-      "/api/sa/blogs": {
-        "get": {
-          "operationId": "BlogsSaControllerSql_getBlogs",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        },
-        "post": {
-          "operationId": "BlogsSaControllerSql_createBlog",
-          "parameters": [],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBlogInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        }
-      },
-      "/api/sa/blogs/{id}": {
-        "put": {
-          "operationId": "BlogsSaControllerSql_updateBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateBlogInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        },
-        "delete": {
-          "operationId": "BlogsSaControllerSql_deleteBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        }
-      },
-      "/api/sa/blogs/{blogId}/posts": {
-        "get": {
-          "operationId": "BlogsSaControllerSql_getBlogPosts",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        },
-        "post": {
-          "operationId": "BlogsSaControllerSql_createBlogPost",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBlogPostInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "201": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        }
-      },
-      "/api/sa/blogs/{blogId}/posts/{postId}": {
-        "put": {
-          "operationId": "BlogsSaControllerSql_updateBlogPost",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            },
-            {
-              "name": "postId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateBlogPostInputDtoSql"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        },
-        "delete": {
-          "operationId": "BlogsSaControllerSql_deleteBlogPost",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            },
-            {
-              "name": "postId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsSaControllerSql"
-          ]
-        }
-      },
-      "/api/blogs": {
-        "get": {
-          "operationId": "BlogsControllerSql_getBlogs",
-          "parameters": [],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsControllerSql"
-          ]
-        }
-      },
-      "/api/blogs/{blogId}/posts": {
-        "get": {
-          "operationId": "BlogsControllerSql_getBlogPosts",
-          "parameters": [
-            {
-              "name": "blogId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsControllerSql"
-          ]
-        }
-      },
-      "/api/blogs/{id}": {
-        "get": {
-          "operationId": "BlogsControllerSql_getBlog",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "BlogsControllerSql"
+            "SecurityDevicesControllerWrap"
           ]
         }
       },
@@ -815,6 +541,154 @@ window.onload = function() {
           ]
         }
       },
+      "/api/blogs": {
+        "get": {
+          "operationId": "BlogsControllerWrap_getBlogs",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerWrap"
+          ]
+        }
+      },
+      "/api/blogs/{id}": {
+        "get": {
+          "operationId": "BlogsControllerWrap_getBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerWrap"
+          ]
+        }
+      },
+      "/api/sa/blogs": {
+        "get": {
+          "operationId": "BlogsSaControllerWrap_getBlogs",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSaControllerWrap"
+          ]
+        },
+        "post": {
+          "operationId": "BlogsSaControllerWrap_createBlog",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlogInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSaControllerWrap"
+          ]
+        }
+      },
+      "/api/sa/blogs/{id}": {
+        "get": {
+          "operationId": "BlogsSaControllerWrap_getBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSaControllerWrap"
+          ]
+        },
+        "put": {
+          "operationId": "BlogsSaControllerWrap_updateBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateBlogInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSaControllerWrap"
+          ]
+        },
+        "delete": {
+          "operationId": "BlogsSaControllerWrap_deleteBlog",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsSaControllerWrap"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",
@@ -867,22 +741,6 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "CreateBlogInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "UpdateBlogInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "CreateBlogPostInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "UpdateBlogPostInputDtoSql": {
-          "type": "object",
-          "properties": {}
-        },
         "CreatePostCommentInputDto": {
           "type": "object",
           "properties": {}
@@ -892,6 +750,14 @@ window.onload = function() {
           "properties": {}
         },
         "UpdateCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "CreateBlogInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateBlogInputDto": {
           "type": "object",
           "properties": {}
         }

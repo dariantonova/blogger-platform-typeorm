@@ -45,7 +45,8 @@ export class UsersQueryRepositoryWrap {
   async findById(id: string): Promise<UserViewRowWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
-    WHERE u.id = $1;
+    WHERE u.deleted_at IS NULL
+    AND u.id = $1;
     `;
     const findResult = await this.dataSource.query(findQuery, [+id]);
 

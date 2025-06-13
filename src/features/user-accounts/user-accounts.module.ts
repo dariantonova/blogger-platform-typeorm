@@ -103,6 +103,7 @@ import { DeviceAuthSessionsRepositoryWrap } from '../user-accounts-wrap/infrastr
 import { UsersQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/users.query-repository.wrap';
 import { DeviceAuthSessionsQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/device-auth-sessions.query-repository.wrap';
 import { AuthQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/query/auth.query-repository.wrap';
+import { UsersExternalQueryRepositoryWrap } from '../user-accounts-wrap/infrastructure/external-query/users.external-query-repository.wrap';
 
 const commandHandlers = [
   CreateUserUseCase,
@@ -181,6 +182,7 @@ const providersWrap = [
   UsersQueryRepositoryWrap,
   DeviceAuthSessionsQueryRepositoryWrap,
   AuthQueryRepositoryWrap,
+  UsersExternalQueryRepositoryWrap,
 ];
 const queryHandlersWrap = [
   GetUserByIdOrInternalFailQueryHandlerWrap,
@@ -277,6 +279,10 @@ const commandHandlersWrap = [
     ...queryHandlersWrap,
     ...commandHandlersWrap,
   ],
-  exports: [UsersExternalQueryRepository, UsersExternalQueryRepositorySql],
+  exports: [
+    UsersExternalQueryRepository,
+    UsersExternalQueryRepositorySql,
+    UsersExternalQueryRepositoryWrap,
+  ],
 })
 export class UserAccountsModule {}

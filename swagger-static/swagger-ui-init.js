@@ -309,114 +309,6 @@ window.onload = function() {
           ]
         }
       },
-      "/api/comments/{id}": {
-        "get": {
-          "operationId": "CommentsControllerSql_getComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "CommentsControllerSql"
-          ]
-        },
-        "put": {
-          "operationId": "CommentsControllerSql_updateComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UpdateCommentInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "CommentsControllerSql"
-          ]
-        },
-        "delete": {
-          "operationId": "CommentsControllerSql_deleteComment",
-          "parameters": [
-            {
-              "name": "id",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "CommentsControllerSql"
-          ]
-        }
-      },
-      "/api/comments/{commentId}/like-status": {
-        "put": {
-          "operationId": "CommentsControllerSql_makeCommentLikeOperation",
-          "parameters": [
-            {
-              "name": "commentId",
-              "required": true,
-              "in": "path",
-              "schema": {
-                "type": "number"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LikeInputDto"
-                }
-              }
-            }
-          },
-          "responses": {
-            "204": {
-              "description": ""
-            }
-          },
-          "tags": [
-            "CommentsControllerSql"
-          ]
-        }
-      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsControllerWrap_getBlogs",
@@ -437,6 +329,29 @@ window.onload = function() {
           "parameters": [
             {
               "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "BlogsControllerWrap"
+          ]
+        }
+      },
+      "/api/blogs/{blogId}/posts": {
+        "get": {
+          "operationId": "BlogsControllerWrap_getBlogPosts",
+          "parameters": [
+            {
+              "name": "blogId",
               "required": true,
               "in": "path",
               "schema": {
@@ -726,6 +641,135 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{postId}/comments": {
+        "get": {
+          "operationId": "PostsControllerWrap_getPostComments",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerWrap"
+          ]
+        },
+        "post": {
+          "operationId": "PostsControllerWrap_createPostComment",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePostCommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerWrap"
+          ]
+        }
+      },
+      "/api/comments/{id}": {
+        "get": {
+          "operationId": "CommentsControllerWrap_getComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerWrap"
+          ]
+        },
+        "put": {
+          "operationId": "CommentsControllerWrap_updateComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateCommentInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerWrap"
+          ]
+        },
+        "delete": {
+          "operationId": "CommentsControllerWrap_deleteComment",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerWrap"
+          ]
+        }
+      },
       "/api/testing/all-data": {
         "delete": {
           "operationId": "TestingController_deleteAll",
@@ -778,14 +822,6 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "UpdateCommentInputDto": {
-          "type": "object",
-          "properties": {}
-        },
-        "LikeInputDto": {
-          "type": "object",
-          "properties": {}
-        },
         "CreateBlogInputDto": {
           "type": "object",
           "properties": {}
@@ -799,6 +835,14 @@ window.onload = function() {
           "properties": {}
         },
         "UpdateBlogPostInputDtoWrap": {
+          "type": "object",
+          "properties": {}
+        },
+        "CreatePostCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "UpdateCommentInputDto": {
           "type": "object",
           "properties": {}
         }

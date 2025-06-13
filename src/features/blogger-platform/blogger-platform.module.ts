@@ -93,6 +93,15 @@ import { DeleteBlogPostUseCaseWrap } from '../blogger-platform-wrap/posts/applic
 import { UpdateBlogPostUseCaseWrap } from '../blogger-platform-wrap/posts/application/usecases/update-blog-post.usecase.wrap';
 import { PostsRepositoryWrap } from '../blogger-platform-wrap/posts/infrastructure/posts.repository.wrap';
 import { PostsQueryRepositoryWrap } from '../blogger-platform-wrap/posts/infrastructure/query/posts.query-repository.wrap';
+import { CommentsControllerWrap } from '../blogger-platform-wrap/comments/api/comments.controller.wrap';
+import { GetCommentByIdOrInternalFailQueryHandlerWrap } from '../blogger-platform-wrap/comments/application/queries/get-comment-by-id-or-internal-fail.query.wrap';
+import { GetCommentByIdOrNotFoundFailQueryHandlerWrap } from '../blogger-platform-wrap/comments/application/queries/get-comment-by-id-or-not-found-fail.query.wrap';
+import { GetPostCommentsQueryHandlerWrap } from '../blogger-platform-wrap/comments/application/queries/get-post-comments.query.wrap';
+import { CreateCommentUseCaseWrap } from '../blogger-platform-wrap/comments/application/usecases/create-comment.usecase.wrap';
+import { DeleteCommentUseCaseWrap } from '../blogger-platform-wrap/comments/application/usecases/delete-comment.usecase.wrap';
+import { UpdateCommentUseCaseWrap } from '../blogger-platform-wrap/comments/application/usecases/update-comment.usecase.wrap';
+import { CommentsRepositoryWrap } from '../blogger-platform-wrap/comments/infrastructure/comments.repository.wrap';
+import { CommentsQueryRepositoryWrap } from '../blogger-platform-wrap/comments/infrastructure/query/comments.query-repository.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -125,7 +134,7 @@ const controllersSql = [
   // BlogsSaControllerSql,
   // BlogsControllerSql,
   // PostsControllerSql,
-  CommentsControllerSql,
+  // CommentsControllerSql,
 ];
 const providersSql = [
   BlogsQueryRepositorySql,
@@ -172,12 +181,15 @@ const controllersWrap = [
   BlogsControllerWrap,
   BlogsSaControllerWrap,
   PostsControllerWrap,
+  CommentsControllerWrap,
 ];
 const providersWrap = [
   BlogsRepositoryWrap,
   BlogsQueryRepositoryWrap,
   PostsRepositoryWrap,
   PostsQueryRepositoryWrap,
+  CommentsRepositoryWrap,
+  CommentsQueryRepositoryWrap,
 ];
 const queryHandlersWrap = [
   GetBlogByIdOrInternalFailQueryHandlerWrap,
@@ -187,6 +199,9 @@ const queryHandlersWrap = [
   GetPostByIdOrInternalFailQueryHandlerWrap,
   GetPostByIdOrNotFoundFailQueryHandlerWrap,
   GetPostsQueryHandlerWrap,
+  GetCommentByIdOrInternalFailQueryHandlerWrap,
+  GetCommentByIdOrNotFoundFailQueryHandlerWrap,
+  GetPostCommentsQueryHandlerWrap,
 ];
 const commandHandlersWrap = [
   CreateBlogUseCaseWrap,
@@ -195,6 +210,9 @@ const commandHandlersWrap = [
   CreatePostUseCaseWrap,
   DeleteBlogPostUseCaseWrap,
   UpdateBlogPostUseCaseWrap,
+  CreateCommentUseCaseWrap,
+  DeleteCommentUseCaseWrap,
+  UpdateCommentUseCaseWrap,
 ];
 
 @Module({

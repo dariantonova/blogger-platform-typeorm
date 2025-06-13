@@ -21,6 +21,8 @@ import { IntValidationPipe } from '../../../../core/pipes/int-validation-pipe';
 import { GetCommentByIdOrNotFoundFailQueryWrap } from '../application/queries/get-comment-by-id-or-not-found-fail.query.wrap';
 import { UpdateCommentCommandWrap } from '../application/usecases/update-comment.usecase.wrap';
 import { DeleteCommentCommandWrap } from '../application/usecases/delete-comment.usecase.wrap';
+import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
+import { MakeCommentLikeOperationCommandWrap } from '../../likes/application/usecases/make-comment-like-operation.usecase.wrap';
 
 @Controller('comments')
 export class CommentsControllerWrap {
@@ -63,20 +65,20 @@ export class CommentsControllerWrap {
     await this.commandBus.execute(new DeleteCommentCommandWrap(id, user.id));
   }
 
-  // @Put(':commentId/like-status')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAccessAuthGuard)
-  // async makeCommentLikeOperation(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('commentId', ObjectIdValidationPipe) commentId: string,
-  //   @Body() body: LikeInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new MakeCommentLikeOperationCommand({
-  //       commentId,
-  //       userId: user.id,
-  //       likeStatus: body.likeStatus,
-  //     }),
-  //   );
-  // }
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardWrap)
+  async makeCommentLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('commentId', IntValidationPipe) commentId: string,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakeCommentLikeOperationCommandWrap({
+        commentId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
+    );
+  }
 }

@@ -103,6 +103,8 @@ import { CommentsRepositoryWrap } from '../blogger-platform-wrap/comments/infras
 import { CommentsQueryRepositoryWrap } from '../blogger-platform-wrap/comments/infrastructure/query/comments.query-repository.wrap';
 import { MakePostLikeOperationUseCaseWrap } from '../blogger-platform-wrap/likes/application/usecases/make-post-like-operation.usecase.wrap';
 import { PostLikesRepositoryWrap } from '../blogger-platform-wrap/likes/infrastructure/post-likes.repository.wrap';
+import { MakeCommentLikeOperationUseCaseWrap } from '../blogger-platform-wrap/likes/application/usecases/make-comment-like-operation.usecase.wrap';
+import { CommentLikesRepositoryWrap } from '../blogger-platform-wrap/likes/infrastructure/comment-likes.repository.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -192,6 +194,7 @@ const providersWrap = [
   CommentsRepositoryWrap,
   CommentsQueryRepositoryWrap,
   PostLikesRepositoryWrap,
+  CommentLikesRepositoryWrap,
 ];
 const queryHandlersWrap = [
   GetBlogByIdOrInternalFailQueryHandlerWrap,
@@ -216,6 +219,7 @@ const commandHandlersWrap = [
   DeleteCommentUseCaseWrap,
   UpdateCommentUseCaseWrap,
   MakePostLikeOperationUseCaseWrap,
+  MakeCommentLikeOperationUseCaseWrap,
 ];
 
 @Module({

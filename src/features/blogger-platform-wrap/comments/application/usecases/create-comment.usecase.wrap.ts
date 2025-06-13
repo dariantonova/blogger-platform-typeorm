@@ -2,7 +2,6 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepositoryWrap } from '../../../posts/infrastructure/posts.repository.wrap';
 import { CommentsRepositoryWrap } from '../../infrastructure/comments.repository.wrap';
 import { CommentWrap } from '../../domain/comment.wrap';
-import { UsersExternalQueryRepositoryWrap } from '../../../../user-accounts-wrap/infrastructure/external-query/users.external-query-repository.wrap';
 import { CreateCommentDto } from '../../../../blogger-platform/comments/dto/create-comment.dto';
 
 export class CreateCommentCommandWrap {
@@ -15,14 +14,11 @@ export class CreateCommentUseCaseWrap
 {
   constructor(
     private postsRepository: PostsRepositoryWrap,
-    private usersExternalQueryRepository: UsersExternalQueryRepositoryWrap,
     private commentsRepository: CommentsRepositoryWrap,
   ) {}
 
   async execute({ dto }: CreateCommentCommandWrap): Promise<string> {
     await this.postsRepository.findByIdOrNotFoundFail(dto.postId);
-
-    await this.usersExternalQueryRepository.findByIdOrInternalFail(dto.userId);
 
     const comment = CommentWrap.createInstance(dto);
 

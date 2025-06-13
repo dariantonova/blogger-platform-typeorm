@@ -20,6 +20,17 @@ export class PostsRepositoryWrap {
     return post;
   }
 
+  async findById(id: string): Promise<PostWrap | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE p.deleted_at IS NULL
+    AND p.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [+id]);
+
+    return findResult[0] ? PostWrap.reconstitute(findResult[0]) : null;
+  }
+
   async findByIdAndBlogId(
     id: string,
     blogId: string,
@@ -33,6 +44,16 @@ export class PostsRepositoryWrap {
     const findResult = await this.dataSource.query(findQuery, [+id, +blogId]);
 
     return findResult[0] ? PostWrap.reconstitute(findResult[0]) : null;
+  }
+
+  async findByIdOrNotFoundFail(id: string): Promise<PostWrap> {
+    const post = await this.findById(id);
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    return post;
   }
 
   async findByIdAndBlogIdOrNotFoundFail(

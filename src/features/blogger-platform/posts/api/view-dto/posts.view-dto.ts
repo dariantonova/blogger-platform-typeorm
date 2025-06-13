@@ -3,7 +3,7 @@ import { PostDocument } from '../../domain/post.entity';
 import { LikeStatus } from '../../../likes/dto/like-status';
 import { PostDtoSql } from '../../../../blogger-platform-sql/posts/dto/post.dto.sql';
 import { ExtendedLikesInfoViewDtoSql } from '../../../../blogger-platform-sql/common/dto/extended-likes-info.view-dto.sql';
-import { PostViewRowWrap } from '../../../../blogger-platform-wrap/posts/infrastructure/query/post.view-row.wrap';
+import { PostViewRowWrap } from '../../../../blogger-platform-wrap/posts/infrastructure/query/dto/post.view-row.wrap';
 import { LikeDetailsViewDto } from '../../../common/dto/like-details.view-dto';
 
 export class PostViewDto {

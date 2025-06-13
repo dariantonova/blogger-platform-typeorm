@@ -6,6 +6,9 @@ import { IntValidationPipe } from '../../../../core/pipes/int-validation-pipe';
 import { GetBlogByIdOrNotFoundFailQueryWrap } from '../application/queries/get-blog-by-id-or-not-found-fail.query.wrap';
 import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { BlogViewDto } from '../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { GetPostsQueryParams } from '../../../blogger-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { PostViewDto } from '../../../blogger-platform/posts/api/view-dto/posts.view-dto';
+import { GetBlogPostsQueryWrap } from '../../posts/application/queries/get-blog-posts.query.wrap';
 
 @Controller('blogs')
 export class BlogsControllerWrap {
@@ -25,14 +28,13 @@ export class BlogsControllerWrap {
     return this.queryBus.execute(new GetBlogByIdOrNotFoundFailQueryWrap(id));
   }
 
-  // @Get(':blogId/posts')
-  // async getBlogPosts(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Query() query: GetPostsQueryParams,
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  // ): Promise<PaginatedViewDto<PostViewDto[]>> {
-  //   return this.queryBus.execute(
-  //     new GetBlogPostsQuery(blogId, query, user?.id),
-  //   );
-  // }
+  @Get(':blogId/posts')
+  async getBlogPosts(
+    @Param('blogId', IntValidationPipe) blogId: string,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    return this.queryBus.execute(
+      new GetBlogPostsQueryWrap(blogId, query, undefined),
+    );
+  }
 }

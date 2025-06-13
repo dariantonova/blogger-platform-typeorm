@@ -51,7 +51,7 @@ export class PostsRepositoryWrap {
   private buildSelectFromClause(): string {
     return `
     SELECT
-    p.id, p.title, p.short_description, p.content, p.created_at, p.updated_at, p.deleted_at
+    p.id, p.title, p.short_description, p.content, p.blog_id, p.created_at, p.updated_at, p.deleted_at
     FROM posts p
     `;
   }

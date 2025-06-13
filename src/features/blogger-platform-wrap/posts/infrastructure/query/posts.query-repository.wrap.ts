@@ -12,7 +12,7 @@ import { PostsSortBy } from '../../../../blogger-platform/posts/api/input-dto/po
 import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
 import { buildPaginationClause } from '../../../../../common/utils/sql/build-pagination-clause';
 import { PostViewDto } from '../../../../blogger-platform/posts/api/view-dto/posts.view-dto';
-import { PostViewRowWrap } from './post.view-row.wrap';
+import { PostViewRowWrap } from './dto/post.view-row.wrap';
 
 @Injectable()
 export class PostsQueryRepositoryWrap {
@@ -151,7 +151,7 @@ export class PostsQueryRepositoryWrap {
     p.blog_id, p.blog_name,
     COALESCE(plc.likes_count, 0) as likes_count, 
     COALESCE(plc.dislikes_count, 0) as dislikes_count,
-    pnl.newest_likes,
+    COALESCE(pnl.newest_likes, '[]'::jsonb) as newest_likes,
     COALESCE(cupl.status, 'None') as my_status
     FROM paginated_posts p
     LEFT JOIN post_newest_likes pnl
@@ -180,7 +180,7 @@ export class PostsQueryRepositoryWrap {
     const postNewestLikesQuery = `
     SELECT
     n.post_id,
-    JSON_AGG(JSON_BUILD_OBJECT('user_id', n.user_id, 'login', n.login, 'added_at', n.added_at) 
+    JSONB_AGG(JSONB_BUILD_OBJECT('user_id', n.user_id, 'login', n.login, 'added_at', n.added_at) 
         order by n.rn asc) as newest_likes
     FROM newest_post_likes_ranked n
     WHERE n.rn <= 3

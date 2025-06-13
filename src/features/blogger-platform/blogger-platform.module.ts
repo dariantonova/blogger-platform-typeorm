@@ -55,7 +55,6 @@ import { UpdateBlogPostUseCaseSql } from '../blogger-platform-sql/posts/applicat
 import { DeleteBlogPostUseCaseSql } from '../blogger-platform-sql/posts/application/usecases/delete-blog-post.usecase.sql';
 import { GetBlogByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/blogs/application/queries/get-blog-by-id-or-not-found-fail.query.sql';
 import { GetPostByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-post-by-id-or-not-found-fail.query.sql';
-import { PostsControllerSql } from '../blogger-platform-sql/posts/api/posts.controller.sql';
 import { GetPostsQueryHandlerSql } from '../blogger-platform-sql/posts/application/queries/get-posts.query.sql';
 import { GetCommentByIdOrInternalFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-internal-fail.query.sql';
 import { CreateCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/create-comment.usecase.sql';
@@ -84,6 +83,16 @@ import { DeleteBlogUseCaseWrap } from '../blogger-platform-wrap/blogs/applicatio
 import { UpdateBlogUseCaseWrap } from '../blogger-platform-wrap/blogs/application/usecases/update-blog.usecase.wrap';
 import { BlogsRepositoryWrap } from '../blogger-platform-wrap/blogs/infrastructure/blogs.repository.wrap';
 import { BlogsQueryRepositoryWrap } from '../blogger-platform-wrap/blogs/infrastructure/query/blogs.query-repository.wrap';
+import { PostsControllerWrap } from '../blogger-platform-wrap/posts/api/posts.controller.wrap';
+import { GetBlogPostsQueryHandlerWrap } from '../blogger-platform-wrap/posts/application/queries/get-blog-posts.query.wrap';
+import { GetPostByIdOrInternalFailQueryHandlerWrap } from '../blogger-platform-wrap/posts/application/queries/get-post-by-id-or-internal-fail.query.wrap';
+import { GetPostByIdOrNotFoundFailQueryHandlerWrap } from '../blogger-platform-wrap/posts/application/queries/get-post-by-id-or-not-found-fail.query.wrap';
+import { GetPostsQueryHandlerWrap } from '../blogger-platform-wrap/posts/application/queries/get-posts.query.wrap';
+import { CreatePostUseCaseWrap } from '../blogger-platform-wrap/posts/application/usecases/create-post.usecase.wrap';
+import { DeleteBlogPostUseCaseWrap } from '../blogger-platform-wrap/posts/application/usecases/delete-blog-post.usecase.wrap';
+import { UpdateBlogPostUseCaseWrap } from '../blogger-platform-wrap/posts/application/usecases/update-blog-post.usecase.wrap';
+import { PostsRepositoryWrap } from '../blogger-platform-wrap/posts/infrastructure/posts.repository.wrap';
+import { PostsQueryRepositoryWrap } from '../blogger-platform-wrap/posts/infrastructure/query/posts.query-repository.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -115,7 +124,7 @@ const queryHandlers = [
 const controllersSql = [
   // BlogsSaControllerSql,
   // BlogsControllerSql,
-  PostsControllerSql,
+  // PostsControllerSql,
   CommentsControllerSql,
 ];
 const providersSql = [
@@ -159,17 +168,33 @@ const commandHandlersSql = [
   MakePostLikeOperationUseCaseSql,
 ];
 
-const controllersWrap = [BlogsControllerWrap, BlogsSaControllerWrap];
-const providersWrap = [BlogsRepositoryWrap, BlogsQueryRepositoryWrap];
+const controllersWrap = [
+  BlogsControllerWrap,
+  BlogsSaControllerWrap,
+  PostsControllerWrap,
+];
+const providersWrap = [
+  BlogsRepositoryWrap,
+  BlogsQueryRepositoryWrap,
+  PostsRepositoryWrap,
+  PostsQueryRepositoryWrap,
+];
 const queryHandlersWrap = [
   GetBlogByIdOrInternalFailQueryHandlerWrap,
   GetBlogByIdOrNotFoundFailQueryHandlerWrap,
   GetBlogsQueryHandlerWrap,
+  GetBlogPostsQueryHandlerWrap,
+  GetPostByIdOrInternalFailQueryHandlerWrap,
+  GetPostByIdOrNotFoundFailQueryHandlerWrap,
+  GetPostsQueryHandlerWrap,
 ];
 const commandHandlersWrap = [
   CreateBlogUseCaseWrap,
   DeleteBlogUseCaseWrap,
   UpdateBlogUseCaseWrap,
+  CreatePostUseCaseWrap,
+  DeleteBlogPostUseCaseWrap,
+  UpdateBlogPostUseCaseWrap,
 ];
 
 @Module({

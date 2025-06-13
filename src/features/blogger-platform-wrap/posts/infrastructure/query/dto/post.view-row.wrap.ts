@@ -1,5 +1,5 @@
-import { LikeStatus } from '../../../../blogger-platform/likes/dto/like-status';
-import { LikeDetailsViewRowWrap } from '../../../common/dto/like-details.view-row.wrap';
+import { LikeStatus } from '../../../../../blogger-platform/likes/dto/like-status';
+import { LikeDetailsViewRowWrap } from '../../../../common/dto/like-details.view-row.wrap';
 
 export class PostViewRowWrap {
   id: number;

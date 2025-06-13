@@ -1,5 +1,5 @@
 export class LikeDetailsViewRowWrap {
-  added_at: Date;
+  added_at: string;
   user_id: number;
   login: string;
 }

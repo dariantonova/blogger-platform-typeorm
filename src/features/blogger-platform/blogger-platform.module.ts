@@ -62,7 +62,6 @@ import { CommentsRepositorySql } from '../blogger-platform-sql/comments/infrastr
 import { CommentsQueryRepositorySql } from '../blogger-platform-sql/comments/infrastructure/query/comments.query-repository.sql';
 import { CommentsQueryServiceSql } from '../blogger-platform-sql/comments/application/comments.query-service.sql';
 import { GetPostCommentsQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-post-comments.query.sql';
-import { CommentsControllerSql } from '../blogger-platform-sql/comments/api/comments.controller.sql';
 import { GetCommentByIdOrNotFoundFailQueryHandlerSql } from '../blogger-platform-sql/comments/application/queries/get-comment-by-id-or-not-found-fail.query.sql';
 import { UpdateCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/update-comment.usecase.sql';
 import { DeleteCommentUseCaseSql } from '../blogger-platform-sql/comments/application/usecases/delete-comment.usecase.sql';
@@ -102,6 +101,8 @@ import { DeleteCommentUseCaseWrap } from '../blogger-platform-wrap/comments/appl
 import { UpdateCommentUseCaseWrap } from '../blogger-platform-wrap/comments/application/usecases/update-comment.usecase.wrap';
 import { CommentsRepositoryWrap } from '../blogger-platform-wrap/comments/infrastructure/comments.repository.wrap';
 import { CommentsQueryRepositoryWrap } from '../blogger-platform-wrap/comments/infrastructure/query/comments.query-repository.wrap';
+import { MakePostLikeOperationUseCaseWrap } from '../blogger-platform-wrap/likes/application/usecases/make-post-like-operation.usecase.wrap';
+import { PostLikesRepositoryWrap } from '../blogger-platform-wrap/likes/infrastructure/post-likes.repository.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -190,6 +191,7 @@ const providersWrap = [
   PostsQueryRepositoryWrap,
   CommentsRepositoryWrap,
   CommentsQueryRepositoryWrap,
+  PostLikesRepositoryWrap,
 ];
 const queryHandlersWrap = [
   GetBlogByIdOrInternalFailQueryHandlerWrap,
@@ -213,6 +215,7 @@ const commandHandlersWrap = [
   CreateCommentUseCaseWrap,
   DeleteCommentUseCaseWrap,
   UpdateCommentUseCaseWrap,
+  MakePostLikeOperationUseCaseWrap,
 ];
 
 @Module({

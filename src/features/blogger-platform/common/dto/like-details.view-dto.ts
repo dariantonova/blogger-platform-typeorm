@@ -31,7 +31,7 @@ export class LikeDetailsViewDto {
   static mapToViewWrap(row: LikeDetailsViewRowWrap): LikeDetailsViewDto {
     const dto = new LikeDetailsViewDto();
 
-    dto.addedAt = row.added_at.toISOString();
+    dto.addedAt = new Date(row.added_at).toISOString();
     dto.userId = row.user_id.toString();
     dto.login = row.login;
 

@@ -219,7 +219,7 @@ export class PostsQueryRepositoryWrap {
   ): string {
     const paginatedPostsQuery = `
     SELECT
-    p.id, p.title, p.short_description, p.content, p.created_at, p.updated_at,
+    p.id, p.title, p.short_description, p.content, p.created_at,
     p.blog_id, b.name as blog_name
     FROM posts p
     LEFT JOIN blogs b

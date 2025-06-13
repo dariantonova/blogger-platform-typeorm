@@ -1,6 +1,6 @@
 import { UpdatePostDomainDtoWrap } from './dto/update-post.domain.dto.wrap';
 import { PostRowWrap } from '../infrastructure/dto/post.row.wrap';
-import { CreatePostDomainDtoWrap } from './dto/create-post.domain.dto.wrap';
+import { CreatePostDto } from '../../../blogger-platform/posts/dto/create-post.dto';
 
 export class PostWrap {
   id: string;
@@ -12,7 +12,7 @@ export class PostWrap {
   updatedAt: Date;
   deletedAt: Date | null;
 
-  static createInstance(dto: CreatePostDomainDtoWrap): PostWrap {
+  static createInstance(dto: CreatePostDto): PostWrap {
     const post = new PostWrap();
 
     post.title = dto.title;

@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +28,8 @@ import { GetCommentsQueryParams } from '../../../blogger-platform/comments/api/i
 import { GetPostCommentsQueryWrap } from '../../comments/application/queries/get-post-comments.query.wrap';
 import { CreateCommentCommandWrap } from '../../comments/application/usecases/create-comment.usecase.wrap';
 import { GetCommentByIdOrInternalFailQueryWrap } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query.wrap';
+import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
+import { MakePostLikeOperationCommandWrap } from '../../likes/application/usecases/make-post-like-operation.usecase.wrap';
 
 @Controller('posts')
 export class PostsControllerWrap {
@@ -91,24 +96,21 @@ export class PostsControllerWrap {
     );
   }
 
-  // @Put(':postId/like-status')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAccessAuthGuardSql)
-  // async makePostLikeOperation(
-  //   @ExtractUserFromRequestSql() user: UserContextDtoSql,
-  //   @Param(
-  //     'postId',
-  //     new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
-  //   )
-  //     postId: number,
-  //   @Body() body: LikeInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(
-  //     new MakePostLikeOperationCommandSql({
-  //       postId,
-  //       userId: user.id,
-  //       likeStatus: body.likeStatus,
-  //     }),
-  //   );
-  // }
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAccessAuthGuardWrap)
+  async makePostLikeOperation(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('postId', IntValidationPipe)
+    postId: string,
+    @Body() body: LikeInputDto,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new MakePostLikeOperationCommandWrap({
+        postId,
+        userId: user.id,
+        likeStatus: body.likeStatus,
+      }),
+    );
+  }
 }

@@ -18,7 +18,7 @@ export class CommentLikesRepositoryWrap {
     return like;
   }
 
-  async findByUserAndPost(
+  async findByUserAndComment(
     userId: string,
     commentId: string,
   ): Promise<CommentLikeWrap | null> {

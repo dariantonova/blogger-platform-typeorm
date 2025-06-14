@@ -169,7 +169,7 @@ export class CommentsQueryRepositoryWrap {
   }
 
   private getCommentLikesCteParts(currentUserId: string | undefined): string[] {
-    const commentLikesCountsQuery = `
+    const commentLikesCountsCte = `
     SELECT
     cl.comment_id,
     COUNT(*) FILTER(WHERE status = 'Like')::int as likes_count, 
@@ -178,7 +178,7 @@ export class CommentsQueryRepositoryWrap {
     GROUP BY cl.comment_id
     `;
 
-    const currentUserCommentLikesQuery = `
+    const currentUserCommentLikesCte = `
     SELECT
     cl.comment_id,
     cl.status
@@ -187,8 +187,8 @@ export class CommentsQueryRepositoryWrap {
     `;
 
     return [
-      `comment_likes_counts AS (${commentLikesCountsQuery})`,
-      `current_user_comment_likes AS (${currentUserCommentLikesQuery})`,
+      `comment_likes_counts AS (${commentLikesCountsCte})`,
+      `current_user_comment_likes AS (${currentUserCommentLikesCte})`,
     ];
   }
 
@@ -197,7 +197,7 @@ export class CommentsQueryRepositoryWrap {
     orderClause: string,
     paginationClause: string,
   ): string {
-    const paginatedCommentsQuery = `
+    const paginatedCommentsCte = `
     SELECT
     c.id, c.content, c.created_at,
     c.user_id, u.login as user_login
@@ -209,6 +209,6 @@ export class CommentsQueryRepositoryWrap {
     ${paginationClause}
     `;
 
-    return `paginated_comments AS (${paginatedCommentsQuery})`;
+    return `paginated_comments AS (${paginatedCommentsCte})`;
   }
 }

@@ -165,7 +165,7 @@ export class PostsQueryRepositoryWrap {
   }
 
   private getPostLikesCteParts(currentUserId: string | undefined): string[] {
-    const newestPostLikesRankedQuery = `
+    const newestPostLikesRankedCte = `
     SELECT
     pl.post_id,
     pl.user_id,
@@ -177,7 +177,7 @@ export class PostsQueryRepositoryWrap {
     WHERE pl.status = 'Like'
     `;
 
-    const postNewestLikesQuery = `
+    const postNewestLikesCte = `
     SELECT
     n.post_id,
     JSONB_AGG(JSONB_BUILD_OBJECT('user_id', n.user_id, 'login', n.login, 'added_at', n.added_at) 
@@ -187,7 +187,7 @@ export class PostsQueryRepositoryWrap {
     GROUP BY n.post_id
     `;
 
-    const postLikesCountsQuery = `
+    const postLikesCountsCte = `
     SELECT
     pl.post_id,
     COUNT(*) FILTER(WHERE status = 'Like')::int as likes_count, 
@@ -196,7 +196,7 @@ export class PostsQueryRepositoryWrap {
     GROUP BY pl.post_id
     `;
 
-    const currentUserPostLikesQuery = `
+    const currentUserPostLikesCte = `
     SELECT
     pl.post_id,
     pl.status
@@ -205,10 +205,10 @@ export class PostsQueryRepositoryWrap {
     `;
 
     return [
-      `newest_post_likes_ranked AS (${newestPostLikesRankedQuery})`,
-      `post_newest_likes AS (${postNewestLikesQuery})`,
-      `post_likes_counts AS (${postLikesCountsQuery})`,
-      `current_user_post_likes AS (${currentUserPostLikesQuery})`,
+      `newest_post_likes_ranked AS (${newestPostLikesRankedCte})`,
+      `post_newest_likes AS (${postNewestLikesCte})`,
+      `post_likes_counts AS (${postLikesCountsCte})`,
+      `current_user_post_likes AS (${currentUserPostLikesCte})`,
     ];
   }
 
@@ -217,7 +217,7 @@ export class PostsQueryRepositoryWrap {
     orderClause: string,
     paginationClause: string,
   ): string {
-    const paginatedPostsQuery = `
+    const paginatedPostsCte = `
     SELECT
     p.id, p.title, p.short_description, p.content, p.created_at,
     p.blog_id, b.name as blog_name
@@ -229,7 +229,7 @@ export class PostsQueryRepositoryWrap {
     ${paginationClause}
     `;
 
-    return `paginated_posts AS (${paginatedPostsQuery})`;
+    return `paginated_posts AS (${paginatedPostsCte})`;
   }
 
   private buildOrderClause(queryParams: GetPostsQueryParams): string {

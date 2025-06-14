@@ -105,6 +105,7 @@ import { MakePostLikeOperationUseCaseWrap } from '../blogger-platform-wrap/likes
 import { PostLikesRepositoryWrap } from '../blogger-platform-wrap/likes/infrastructure/post-likes.repository.wrap';
 import { MakeCommentLikeOperationUseCaseWrap } from '../blogger-platform-wrap/likes/application/usecases/make-comment-like-operation.usecase.wrap';
 import { CommentLikesRepositoryWrap } from '../blogger-platform-wrap/likes/infrastructure/comment-likes.repository.wrap';
+import { BloggerPlatformExternalServiceWrap } from '../blogger-platform-wrap/common/infrastructure/external/blogger-platform.external-service.wrap';
 
 const commandHandlers = [
   DeleteBlogUseCase,
@@ -195,6 +196,7 @@ const providersWrap = [
   CommentsQueryRepositoryWrap,
   PostLikesRepositoryWrap,
   CommentLikesRepositoryWrap,
+  BloggerPlatformExternalServiceWrap,
 ];
 const queryHandlersWrap = [
   GetBlogByIdOrInternalFailQueryHandlerWrap,
@@ -261,6 +263,9 @@ const commandHandlersWrap = [
     ...queryHandlersWrap,
     ...commandHandlersWrap,
   ],
-  exports: [BloggerPlatformExternalServiceSql],
+  exports: [
+    BloggerPlatformExternalServiceSql,
+    BloggerPlatformExternalServiceWrap,
+  ],
 })
 export class BloggerPlatformModule {}

@@ -1,7 +1,7 @@
 import { LikeDetails } from '../schemas/like-details.schema';
 import { LikeDetailsDtoSql } from '../../../blogger-platform-sql/common/dto/like-details.dto.sql';
 
-import { LikeDetailsViewRowWrap } from '../../../blogger-platform-wrap/common/dto/like-details.view-row.wrap';
+import { LikeDetailsViewRowWrap } from '../../../blogger-platform-wrap/common/infrastructure/query/dto/like-details.view-row.wrap';
 
 export class LikeDetailsViewDto {
   addedAt: string;

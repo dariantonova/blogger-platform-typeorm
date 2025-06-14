@@ -1,5 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepositoryWrap } from '../../infrastructure/posts.repository.wrap';
+import { PostLikesRepositoryWrap } from '../../../likes/infrastructure/post-likes.repository.wrap';
+import { CommentsRepositoryWrap } from '../../../comments/infrastructure/comments.repository.wrap';
+import { CommentLikesRepositoryWrap } from '../../../likes/infrastructure/comment-likes.repository.wrap';
 
 export class DeleteBlogPostCommandWrap {
   constructor(
@@ -12,7 +15,12 @@ export class DeleteBlogPostCommandWrap {
 export class DeleteBlogPostUseCaseWrap
   implements ICommandHandler<DeleteBlogPostCommandWrap>
 {
-  constructor(private postsRepository: PostsRepositoryWrap) {}
+  constructor(
+    private postsRepository: PostsRepositoryWrap,
+    private postLikesRepository: PostLikesRepositoryWrap,
+    private commentsRepository: CommentsRepositoryWrap,
+    private commentLikesRepository: CommentLikesRepositoryWrap,
+  ) {}
 
   async execute({ blogId, postId }: DeleteBlogPostCommandWrap): Promise<void> {
     const post = await this.postsRepository.findByIdAndBlogIdOrNotFoundFail(
@@ -24,19 +32,10 @@ export class DeleteBlogPostUseCaseWrap
 
     await this.postsRepository.save(post);
 
-    // await this.deletePostComments(postId);
+    await this.commentLikesRepository.softDeleteLikesOfCommentsWithPostId(
+      postId,
+    );
+    await this.commentsRepository.softDeleteByPostId(postId);
+    await this.postLikesRepository.softDeleteByPostId(postId);
   }
-
-  // private async deletePostComments(postId: string): Promise<void> {
-  //   const comments = await this.commentsRepository.findAllPostComments(postId);
-  //
-  //   for (const comment of comments) {
-  //     comment.makeDeleted();
-  //   }
-  //
-  //   const savePromises = comments.map((comment) =>
-  //     this.commentsRepository.save(comment),
-  //   );
-  //   await Promise.all(savePromises);
-  // }
 }

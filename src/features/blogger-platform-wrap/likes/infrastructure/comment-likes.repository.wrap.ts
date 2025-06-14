@@ -36,6 +36,81 @@ export class CommentLikesRepositoryWrap {
     return findResult[0] ? CommentLikeWrap.reconstitute(findResult[0]) : null;
   }
 
+  async softDeleteLikesOfCommentsWithBlogId(blogId: string): Promise<void> {
+    const commentIdsCte = `
+    SELECT c.id
+    FROM comments c
+    JOIN posts p ON c.post_id = p.id
+    WHERE p.blog_id = $1
+    `;
+
+    const updateQuery = `
+    WITH comment_ids AS (${commentIdsCte})
+    UPDATE comment_likes
+    SET deleted_at = now()
+    FROM comment_ids ci
+    WHERE deleted_at IS NULL
+    AND comment_id IN (ci.id);
+    `;
+    await this.dataSource.query(updateQuery, [+blogId]);
+  }
+
+  async softDeleteLikesOfCommentsWithPostId(postId: string): Promise<void> {
+    const commentIdsCte = `
+    SELECT c.id
+    FROM comments c
+    WHERE c.post_id = $1
+    `;
+
+    const updateQuery = `
+    WITH comment_ids AS (${commentIdsCte})
+    UPDATE comment_likes
+    SET deleted_at = now()
+    FROM comment_ids ci
+    WHERE deleted_at IS NULL
+    AND comment_id IN (ci.id);
+    `;
+    await this.dataSource.query(updateQuery, [+postId]);
+  }
+
+  async softDeleteByCommentId(commentId: string): Promise<void> {
+    const updateQuery = `
+    UPDATE comment_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND comment_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [+commentId]);
+  }
+
+  async softDeleteByUserId(userId: string): Promise<void> {
+    const updateQuery = `
+    UPDATE comment_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND user_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [+userId]);
+  }
+
+  async softDeleteLikesOfCommentsWithUserId(userId: string): Promise<void> {
+    const commentIdsCte = `
+    SELECT c.id
+    FROM comments c
+    WHERE c.user_id = $1
+    `;
+
+    const updateQuery = `
+    WITH comment_ids AS (${commentIdsCte})
+    UPDATE comment_likes
+    SET deleted_at = now()
+    FROM comment_ids ci
+    WHERE deleted_at IS NULL
+    AND comment_id IN (ci.id);
+    `;
+    await this.dataSource.query(updateQuery, [+userId]);
+  }
+
   private buildSelectFromClause(): string {
     return `
     SELECT

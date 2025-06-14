@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForbiddenException } from '@nestjs/common';
 import { CommentsRepositoryWrap } from '../../infrastructure/comments.repository.wrap';
+import { CommentLikesRepositoryWrap } from '../../../likes/infrastructure/comment-likes.repository.wrap';
 
 export class DeleteCommentCommandWrap {
   constructor(
@@ -13,7 +14,10 @@ export class DeleteCommentCommandWrap {
 export class DeleteCommentUseCaseWrap
   implements ICommandHandler<DeleteCommentCommandWrap>
 {
-  constructor(private commentsRepository: CommentsRepositoryWrap) {}
+  constructor(
+    private commentsRepository: CommentsRepositoryWrap,
+    private commentLikesRepository: CommentLikesRepositoryWrap,
+  ) {}
 
   async execute({
     commentId,
@@ -29,5 +33,7 @@ export class DeleteCommentUseCaseWrap
     comment.makeDeleted();
 
     await this.commentsRepository.save(comment);
+
+    await this.commentLikesRepository.softDeleteByCommentId(commentId);
   }
 }

@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UsersRepositoryWrap } from '../../infrastructure/users.repository.wrap';
 import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-auth-sessions.repository.wrap';
+import { BloggerPlatformExternalServiceWrap } from '../../../blogger-platform-wrap/common/infrastructure/external/blogger-platform.external-service.wrap';
 
 export class DeleteUserCommandWrap {
   constructor(public userId: string) {}
@@ -13,6 +14,7 @@ export class DeleteUserUseCaseWrap
   constructor(
     private usersRepository: UsersRepositoryWrap,
     private deviceAuthSessionsRepository: DeviceAuthSessionsRepositoryWrap,
+    private bloggerPlatformExternalService: BloggerPlatformExternalServiceWrap,
   ) {}
 
   async execute({ userId }: DeleteUserCommandWrap): Promise<void> {
@@ -25,5 +27,6 @@ export class DeleteUserUseCaseWrap
     await this.deviceAuthSessionsRepository.deleteUserDeviceAuthSessions(
       userId,
     );
+    await this.bloggerPlatformExternalService.deleteUserRelations(userId);
   }
 }

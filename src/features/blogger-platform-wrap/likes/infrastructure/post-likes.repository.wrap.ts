@@ -36,6 +36,44 @@ export class PostLikesRepositoryWrap {
     return findResult[0] ? PostLikeWrap.reconstitute(findResult[0]) : null;
   }
 
+  async softDeleteLikesOfPostsWithBlogId(blogId: string): Promise<void> {
+    const postIdsCte = `
+    SELECT p.id
+    FROM posts p
+    WHERE p.blog_id = $1
+    `;
+
+    const updateQuery = `
+    WITH post_ids AS (${postIdsCte})
+    UPDATE post_likes
+    SET deleted_at = now()
+    FROM post_ids pi
+    WHERE deleted_at IS NULL
+    AND post_id IN (pi.id);
+    `;
+    await this.dataSource.query(updateQuery, [+blogId]);
+  }
+
+  async softDeleteByPostId(postId: string): Promise<void> {
+    const updateQuery = `
+    UPDATE post_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND post_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [+postId]);
+  }
+
+  async softDeleteByUserId(userId: string): Promise<void> {
+    const updateQuery = `
+    UPDATE post_likes
+    SET deleted_at = now()
+    WHERE deleted_at IS NULL
+    AND user_id = $1;
+    `;
+    await this.dataSource.query(updateQuery, [+userId]);
+  }
+
   private buildSelectFromClause(): string {
     return `
     SELECT

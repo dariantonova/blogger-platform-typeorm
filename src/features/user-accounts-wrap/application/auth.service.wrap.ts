@@ -51,9 +51,10 @@ export class AuthServiceWrap {
     payload: RefreshJWTPayload,
   ): Promise<DeviceAuthSessionContextDto | null> {
     const deviceAuthSession =
-      await this.deviceAuthSessionsRepository.findByDeviceIdAndIat(
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndIatAndUserId(
         payload.deviceId,
         unixToDate(payload.iat),
+        payload.userId,
       );
     if (!deviceAuthSession) {
       return null;

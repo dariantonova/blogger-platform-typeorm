@@ -38,6 +38,7 @@ export class RefreshTokenUseCaseWrap
 
     await this.updateDeviceAuthSession(
       dto.deviceId,
+      dto.userId,
       refreshTokenPayload.exp,
       refreshTokenPayload.iat,
       dto.ip,
@@ -52,13 +53,15 @@ export class RefreshTokenUseCaseWrap
 
   private async updateDeviceAuthSession(
     deviceId: string,
+    userId: string,
     expUnix: number,
     iatUnix: number,
     ip: string,
   ): Promise<void> {
     const deviceAuthSession =
-      await this.deviceAuthSessionsRepository.findByDeviceIdOrInternalFail(
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndUserIdOrInternalFail(
         deviceId,
+        userId,
       );
 
     deviceAuthSession.update({

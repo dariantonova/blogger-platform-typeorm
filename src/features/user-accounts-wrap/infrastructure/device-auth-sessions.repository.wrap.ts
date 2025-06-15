@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DeviceAuthSessionWrap } from '../domain/device-auth-session.wrap';
@@ -20,40 +20,55 @@ export class DeviceAuthSessionsRepositoryWrap {
     return session;
   }
 
-  async findByDeviceIdAndIat(
+  async findByDeviceIdAndIatAndUserId(
     deviceId: string,
     iat: Date,
+    userId: string,
   ): Promise<DeviceAuthSessionWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE d.device_id = $1
-    AND d.iat = $2;
+    AND d.iat = $2
+    AND d.user_id = $3;
     `;
-    const findResult = await this.dataSource.query(findQuery, [deviceId, iat]);
+    const findResult = await this.dataSource.query(findQuery, [
+      deviceId,
+      iat,
+      +userId,
+    ]);
 
     return findResult[0]
       ? DeviceAuthSessionWrap.reconstitute(findResult[0])
       : null;
   }
 
-  async findByDeviceId(
+  async findByDeviceIdAndUserId(
     deviceId: string,
+    userId: string,
   ): Promise<DeviceAuthSessionWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
-    WHERE d.device_id = $1;
+    WHERE d.device_id = $1
+    AND d.user_id = $2;
     `;
-    const findResult = await this.dataSource.query(findQuery, [deviceId]);
+    const findResult = await this.dataSource.query(findQuery, [
+      deviceId,
+      +userId,
+    ]);
 
     return findResult[0]
       ? DeviceAuthSessionWrap.reconstitute(findResult[0])
       : null;
   }
 
-  async findByDeviceIdOrInternalFail(
+  async findByDeviceIdAndUserIdOrInternalFail(
     deviceId: string,
+    userId: string,
   ): Promise<DeviceAuthSessionWrap> {
-    const deviceAuthSession = await this.findByDeviceId(deviceId);
+    const deviceAuthSession = await this.findByDeviceIdAndUserId(
+      deviceId,
+      userId,
+    );
 
     if (!deviceAuthSession) {
       throw new Error('Device auth session not found');
@@ -62,16 +77,14 @@ export class DeviceAuthSessionsRepositoryWrap {
     return deviceAuthSession;
   }
 
-  async findByDeviceIdOrNotFoundFail(
-    deviceId: string,
-  ): Promise<DeviceAuthSessionWrap> {
-    const deviceAuthSession = await this.findByDeviceId(deviceId);
+  async findManyByDeviceId(deviceId: string): Promise<DeviceAuthSessionWrap[]> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE d.device_id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [deviceId]);
 
-    if (!deviceAuthSession) {
-      throw new NotFoundException('Device auth session not found');
-    }
-
-    return deviceAuthSession;
+    return findResult.map(DeviceAuthSessionWrap.reconstitute);
   }
 
   async deleteUserDeviceAuthSessions(userId: string): Promise<void> {
@@ -82,12 +95,16 @@ export class DeviceAuthSessionsRepositoryWrap {
     await this.dataSource.query(deleteQuery, [+userId]);
   }
 
-  async deleteByDeviceId(deviceId: string): Promise<void> {
+  async deleteByDeviceIdAndUserId(
+    deviceId: string,
+    userId: string,
+  ): Promise<void> {
     const deleteQuery = `
     DELETE FROM device_auth_sessions
-    WHERE device_id = $1;
+    WHERE device_id = $1
+    AND user_id = $2;
     `;
-    await this.dataSource.query(deleteQuery, [deviceId]);
+    await this.dataSource.query(deleteQuery, [deviceId, +userId]);
   }
 
   async deleteUserDeviceAuthSessionsExceptCurrent(

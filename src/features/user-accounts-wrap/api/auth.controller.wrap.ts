@@ -162,7 +162,10 @@ export class AuthControllerWrap {
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
   ): Promise<void> {
     await this.commandBus.execute(
-      new LogoutUserCommandWrap({ deviceId: user.deviceId }),
+      new LogoutUserCommandWrap({
+        deviceId: user.deviceId,
+        userId: user.userId,
+      }),
     );
   }
 

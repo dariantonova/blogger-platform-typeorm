@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-auth-sessions.repository.wrap';
 
 export class LogoutUserCommandWrap {
-  constructor(public dto: { deviceId: string }) {}
+  constructor(public dto: { deviceId: string; userId: string }) {}
 }
 
 @CommandHandler(LogoutUserCommandWrap)
@@ -14,6 +14,9 @@ export class LogoutUserUseCaseWrap
   ) {}
 
   async execute({ dto }: LogoutUserCommandWrap): Promise<void> {
-    await this.deviceAuthSessionsRepository.deleteByDeviceId(dto.deviceId);
+    await this.deviceAuthSessionsRepository.deleteByDeviceIdAndUserId(
+      dto.deviceId,
+      dto.userId,
+    );
   }
 }

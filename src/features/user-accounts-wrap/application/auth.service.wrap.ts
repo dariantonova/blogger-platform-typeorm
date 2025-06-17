@@ -60,6 +60,11 @@ export class AuthServiceWrap {
       return null;
     }
 
+    const user = await this.usersRepository.findById(payload.userId);
+    if (!user) {
+      return null;
+    }
+
     return { userId: payload.userId, deviceId: payload.deviceId };
   }
 }

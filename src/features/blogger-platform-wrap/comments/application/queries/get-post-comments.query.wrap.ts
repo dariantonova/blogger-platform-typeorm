@@ -28,7 +28,7 @@ export class GetPostCommentsQueryHandlerWrap
     queryParams,
     currentUserId,
   }: GetPostCommentsQueryWrap): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    await this.postsQueryRepository.findByIdOrNotFoundFail(postId, undefined);
+    await this.postsQueryRepository.checkPostExistsOrNotFoundFail(postId);
 
     return this.commentsQueryRepository.findPostComments(
       postId,

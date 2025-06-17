@@ -57,6 +57,27 @@ export class PostsQueryRepositoryWrap {
     return PostViewDto.mapToViewWrap(post);
   }
 
+  async checkPostExists(postId: number): Promise<boolean> {
+    const findQuery = `
+    SELECT
+    p.id
+    FROM posts p
+    WHERE p.deleted_at IS NULL
+    AND p.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [postId]);
+
+    return findResult.length > 0;
+  }
+
+  async checkPostExistsOrNotFoundFail(postId: number): Promise<void> {
+    const isPostFound = await this.checkPostExists(postId);
+
+    if (!isPostFound) {
+      throw new NotFoundException('Post not found');
+    }
+  }
+
   async findPosts(
     queryParams: GetPostsQueryParams,
     currentUserId: number | undefined,

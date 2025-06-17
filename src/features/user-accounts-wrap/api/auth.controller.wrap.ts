@@ -25,8 +25,6 @@ import { LogoutUserCommandWrap } from '../application/usecases/logout-user.useca
 import { LocalAuthGuardWrap } from '../guards/local/local-auth.guard.wrap';
 import { JwtAccessAuthGuardWrap } from '../guards/bearer/jwt-access-auth.guard.wrap';
 import { JwtRefreshAuthGuardWrap } from '../guards/refresh-token/jwt-refresh-auth.guard.wrap';
-import { ExtractUserFromRequest } from '../../user-accounts/guards/decorators/param/extract-user-from-request';
-import { UserContextDto } from '../../user-accounts/guards/dto/user-context.dto';
 import { LoginSuccessViewDto } from '../../user-accounts/api/view-dto/login-success.view-dto';
 import { AuthTokensDto } from '../../user-accounts/dto/auth-tokens.dto';
 import { MeViewDto } from '../../user-accounts/api/view-dto/user.view-dto';
@@ -35,7 +33,9 @@ import { RegistrationEmailResendingInputDto } from '../../user-accounts/api/inpu
 import { RegistrationConfirmationCodeInputDto } from '../../user-accounts/api/input-dto/registration-confirmation-code.input-dto';
 import { PasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/password-recovery.input-dto';
 import { NewPasswordRecoveryInputDto } from '../../user-accounts/api/input-dto/new-password-recovery.input-dto';
-import { DeviceAuthSessionContextDto } from '../../user-accounts/guards/dto/device-auth-session-context.dto';
+import { ExtractUserFromRequestSql } from '../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
+import { UserContextDtoSql } from '../../user-accounts-sql/guards/dto/user-context.dto.sql';
+import { DeviceAuthSessionContextDtoSql } from '../../user-accounts-sql/guards/dto/device-auth-session-context.dto.sql';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -49,7 +49,7 @@ export class AuthControllerWrap {
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuardWrap)
   async login(
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
     @Ip() ip: string | undefined,
     @Headers('user-agent') userAgent: string | undefined,
     @Res({ passthrough: true })
@@ -78,7 +78,9 @@ export class AuthControllerWrap {
   @Get('me')
   @UseGuards(JwtAccessAuthGuardWrap)
   @SkipThrottle()
-  async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
+  async me(
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
+  ): Promise<MeViewDto> {
     return this.queryBus.execute(new MeQueryWrap(user.id));
   }
 
@@ -129,7 +131,7 @@ export class AuthControllerWrap {
   @UseGuards(JwtRefreshAuthGuardWrap)
   @SkipThrottle()
   async refreshToken(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
     @Ip() ip: string | undefined,
     @Res({ passthrough: true })
     response: Response,
@@ -159,7 +161,7 @@ export class AuthControllerWrap {
   @UseGuards(JwtRefreshAuthGuardWrap)
   @SkipThrottle()
   async logout(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
       new LogoutUserCommandWrap({

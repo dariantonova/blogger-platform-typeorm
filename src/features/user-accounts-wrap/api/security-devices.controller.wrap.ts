@@ -12,9 +12,9 @@ import { JwtRefreshAuthGuardWrap } from '../guards/refresh-token/jwt-refresh-aut
 import { GetUserDeviceSessionsQueryWrap } from '../application/queries/get-user-device-sessions.query.wrap';
 import { TerminateDeviceSessionCommandWrap } from '../application/usecases/terminate-device-session.usecase.wrap';
 import { TerminateAllOtherUserDeviceSessionsCommandWrap } from '../application/usecases/terminate-all-other-device-sessions.usecase.wrap';
-import { DeviceAuthSessionContextDto } from '../../user-accounts/guards/dto/device-auth-session-context.dto';
-import { ExtractUserFromRequest } from '../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { DeviceViewDto } from '../../user-accounts/api/view-dto/device.view-dto';
+import { ExtractUserFromRequestSql } from '../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
+import { DeviceAuthSessionContextDtoSql } from '../../user-accounts-sql/guards/dto/device-auth-session-context.dto.sql';
 
 @Controller('security/devices')
 export class SecurityDevicesControllerWrap {
@@ -26,7 +26,7 @@ export class SecurityDevicesControllerWrap {
   @Get()
   @UseGuards(JwtRefreshAuthGuardWrap)
   async getUserDeviceSessions(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
   ): Promise<DeviceViewDto[]> {
     return this.queryBus.execute(
       new GetUserDeviceSessionsQueryWrap(user.userId),
@@ -38,7 +38,7 @@ export class SecurityDevicesControllerWrap {
   @UseGuards(JwtRefreshAuthGuardWrap)
   async terminateDeviceSession(
     @Param('deviceId') deviceId: string,
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
       new TerminateDeviceSessionCommandWrap({
@@ -52,7 +52,7 @@ export class SecurityDevicesControllerWrap {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuardWrap)
   async terminateAllOtherUserDeviceSessions(
-    @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @ExtractUserFromRequestSql() user: DeviceAuthSessionContextDtoSql,
   ): Promise<void> {
     await this.commandBus.execute(
       new TerminateAllOtherUserDeviceSessionsCommandWrap({

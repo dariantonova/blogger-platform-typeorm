@@ -4,9 +4,9 @@ import { CreateCommentLikeDomainDto } from './dto/create-comment-like.domain-dto
 import { CommentLikeRowWrap } from '../infrastructure/dto/comment-like.row.wrap';
 
 export class CommentLikeWrap {
-  id: string;
-  commentId: string;
-  userId: string;
+  id: number;
+  commentId: number;
+  userId: number;
   status: LikeStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -28,9 +28,9 @@ export class CommentLikeWrap {
   static reconstitute(row: CommentLikeRowWrap): CommentLikeWrap {
     const like = new CommentLikeWrap();
 
-    like.id = row.id.toString();
-    like.commentId = row.comment_id.toString();
-    like.userId = row.user_id.toString();
+    like.id = row.id;
+    like.commentId = row.comment_id;
+    like.userId = row.user_id;
     like.status = row.status;
     like.createdAt = row.created_at;
     like.updatedAt = row.updated_at;

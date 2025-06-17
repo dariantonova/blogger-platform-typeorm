@@ -6,7 +6,7 @@ import { CommentsRepositoryWrap } from '../../../comments/infrastructure/comment
 import { CommentLikesRepositoryWrap } from '../../../likes/infrastructure/comment-likes.repository.wrap';
 
 export class DeleteBlogCommandWrap {
-  constructor(public blogId: string) {}
+  constructor(public blogId: number) {}
 }
 
 @CommandHandler(DeleteBlogCommandWrap)

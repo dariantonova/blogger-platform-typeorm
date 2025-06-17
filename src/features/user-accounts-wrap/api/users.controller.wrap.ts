@@ -20,7 +20,7 @@ import { BasicAuthGuard } from '../../user-accounts/guards/basic/basic-auth.guar
 import { GetUsersQueryParams } from '../../user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { UserViewDto } from '../../user-accounts/api/view-dto/user.view-dto';
 import { CreateUserInputDto } from '../../user-accounts/api/input-dto/create-user.input-dto';
-import { IntValidationPipe } from '../../../core/pipes/int-validation-pipe';
+import { IntValidationTransformationPipe } from '../../../core/pipes/int-validation-transformation-pipe';
 
 @Controller('sa/users')
 export class UsersControllerWrap {
@@ -42,7 +42,7 @@ export class UsersControllerWrap {
   async createUser(@Body() body: CreateUserInputDto): Promise<UserViewDto> {
     const createdUserId = await this.commandBus.execute<
       CreateUserCommandWrap,
-      string
+      number
     >(new CreateUserCommandWrap(body));
 
     return this.queryBus.execute(
@@ -53,7 +53,9 @@ export class UsersControllerWrap {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(BasicAuthGuard)
-  async deleteUser(@Param('id', IntValidationPipe) id: string): Promise<void> {
+  async deleteUser(
+    @Param('id', IntValidationTransformationPipe) id: number,
+  ): Promise<void> {
     await this.commandBus.execute(new DeleteUserCommandWrap(id));
   }
 }

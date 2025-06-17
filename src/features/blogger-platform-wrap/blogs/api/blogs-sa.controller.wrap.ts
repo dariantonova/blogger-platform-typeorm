@@ -16,7 +16,7 @@ import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-d
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { BlogViewDto } from '../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { GetBlogsQueryWrap } from '../application/queries/get-blogs.query.wrap';
-import { IntValidationPipe } from '../../../../core/pipes/int-validation-pipe';
+import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
 import { GetBlogByIdOrNotFoundFailQueryWrap } from '../application/queries/get-blog-by-id-or-not-found-fail.query.wrap';
 import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
 import { CreateBlogInputDto } from '../../../blogger-platform/blogs/api/input-dto/create-blog.input-dto';
@@ -33,7 +33,7 @@ import { CreatePostCommandWrap } from '../../posts/application/usecases/create-p
 import { GetPostByIdOrInternalFailQueryWrap } from '../../posts/application/queries/get-post-by-id-or-internal-fail.query.wrap';
 import { UpdateBlogPostCommandWrap } from '../../posts/application/usecases/update-blog-post.usecase.wrap';
 import { DeleteBlogPostCommandWrap } from '../../posts/application/usecases/delete-blog-post.usecase.wrap';
-import { UpdateBlogPostInputDtoWrap } from './input-dto/update-blog-post.input-dto.sql';
+import { UpdateBlogPostInputDtoWrap } from './input-dto/update-blog-post.input-dto.wrap';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -52,7 +52,7 @@ export class BlogsSaControllerWrap {
 
   @Get(':id')
   async getBlog(
-    @Param('id', IntValidationPipe) id: string,
+    @Param('id', IntValidationTransformationPipe) id: number,
   ): Promise<BlogViewDto> {
     return this.queryBus.execute(new GetBlogByIdOrNotFoundFailQueryWrap(id));
   }
@@ -61,7 +61,7 @@ export class BlogsSaControllerWrap {
   async createBlog(@Body() body: CreateBlogInputDto): Promise<BlogViewDto> {
     const createdBlogId = await this.commandBus.execute<
       CreateBlogCommandWrap,
-      string
+      number
     >(new CreateBlogCommandWrap(body));
 
     return this.queryBus.execute(
@@ -72,7 +72,7 @@ export class BlogsSaControllerWrap {
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param('id', IntValidationPipe) id: string,
+    @Param('id', IntValidationTransformationPipe) id: number,
     @Body() body: UpdateBlogInputDto,
   ): Promise<void> {
     await this.commandBus.execute(new UpdateBlogCommandWrap(id, body));
@@ -80,13 +80,15 @@ export class BlogsSaControllerWrap {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id', IntValidationPipe) id: string): Promise<void> {
+  async deleteBlog(
+    @Param('id', IntValidationTransformationPipe) id: number,
+  ): Promise<void> {
     await this.commandBus.execute(new DeleteBlogCommandWrap(id));
   }
 
   @Get(':blogId/posts')
   async getBlogPosts(
-    @Param('blogId', IntValidationPipe) blogId: string,
+    @Param('blogId', IntValidationTransformationPipe) blogId: number,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(
@@ -96,12 +98,12 @@ export class BlogsSaControllerWrap {
 
   @Post(':blogId/posts')
   async createBlogPost(
-    @Param('blogId', IntValidationPipe) blogId: string,
+    @Param('blogId', IntValidationTransformationPipe) blogId: number,
     @Body() body: CreateBlogPostInputDto,
   ): Promise<PostViewDto> {
     const createdPostId = await this.commandBus.execute<
       CreatePostCommandWrap,
-      string
+      number
     >(
       new CreatePostCommandWrap({
         title: body.title,
@@ -119,10 +121,10 @@ export class BlogsSaControllerWrap {
   @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlogPost(
-    @Param('blogId', IntValidationPipe)
-    blogId: string,
-    @Param('postId', IntValidationPipe)
-    postId: string,
+    @Param('blogId', IntValidationTransformationPipe)
+    blogId: number,
+    @Param('postId', IntValidationTransformationPipe)
+    postId: number,
     @Body() body: UpdateBlogPostInputDtoWrap,
   ): Promise<void> {
     await this.commandBus.execute(
@@ -133,10 +135,10 @@ export class BlogsSaControllerWrap {
   @Delete(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteBlogPost(
-    @Param('blogId', IntValidationPipe)
-    blogId: string,
-    @Param('postId', IntValidationPipe)
-    postId: string,
+    @Param('blogId', IntValidationTransformationPipe)
+    blogId: number,
+    @Param('postId', IntValidationTransformationPipe)
+    postId: number,
   ): Promise<void> {
     await this.commandBus.execute(
       new DeleteBlogPostCommandWrap(blogId, postId),

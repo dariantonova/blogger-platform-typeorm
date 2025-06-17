@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostLikesRepositoryWrap } from '../../infrastructure/post-likes.repository.wrap';
 import { PostsRepositoryWrap } from '../../../posts/infrastructure/posts.repository.wrap';
-import { MakePostLikeOperationDto } from '../../../../blogger-platform/posts/dto/make-post-like-operation.dto';
 import { PostLikeWrap } from '../../domain/post-like.wrap';
+import { MakePostLikeOperationDtoSql } from '../../../../blogger-platform-sql/likes/dto/make-post-like-operation.dto.sql';
 
 export class MakePostLikeOperationCommandWrap {
-  constructor(public dto: MakePostLikeOperationDto) {}
+  constructor(public dto: MakePostLikeOperationDtoSql) {}
 }
 
 @CommandHandler(MakePostLikeOperationCommandWrap)

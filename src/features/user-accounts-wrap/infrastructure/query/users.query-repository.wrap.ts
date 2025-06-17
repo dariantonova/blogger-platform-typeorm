@@ -42,18 +42,18 @@ export class UsersQueryRepositoryWrap {
     );
   }
 
-  async findById(id: string): Promise<UserViewRowWrap | null> {
+  async findById(id: number): Promise<UserViewRowWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE u.deleted_at IS NULL
     AND u.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? findResult[0] : null;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<UserViewDto> {
+  async findByIdOrInternalFail(id: number): Promise<UserViewDto> {
     const user = await this.findById(id);
 
     if (!user) {

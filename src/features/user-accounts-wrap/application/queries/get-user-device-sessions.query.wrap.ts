@@ -3,7 +3,7 @@ import { DeviceAuthSessionsQueryRepositoryWrap } from '../../infrastructure/quer
 import { DeviceViewDto } from '../../../user-accounts/api/view-dto/device.view-dto';
 
 export class GetUserDeviceSessionsQueryWrap {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(GetUserDeviceSessionsQueryWrap)

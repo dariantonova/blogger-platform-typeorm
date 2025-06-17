@@ -11,7 +11,7 @@ export class BloggerPlatformExternalServiceWrap {
     private commentLikesRepository: CommentLikesRepositoryWrap,
   ) {}
 
-  async deleteUserRelations(userId: string): Promise<void> {
+  async deleteUserRelations(userId: number): Promise<void> {
     await this.commentLikesRepository.softDeleteLikesOfCommentsWithUserId(
       userId,
     );

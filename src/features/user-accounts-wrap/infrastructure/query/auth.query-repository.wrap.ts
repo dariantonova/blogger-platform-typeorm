@@ -6,7 +6,7 @@ import { UsersQueryRepositoryWrap } from './users.query-repository.wrap';
 export class AuthQueryRepositoryWrap {
   constructor(private usersQueryRepository: UsersQueryRepositoryWrap) {}
 
-  async me(userId: string): Promise<MeViewDto> {
+  async me(userId: number): Promise<MeViewDto> {
     const user = await this.usersQueryRepository.findById(userId);
 
     if (!user) {

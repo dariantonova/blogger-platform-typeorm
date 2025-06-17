@@ -3,7 +3,7 @@ import { UsersQueryRepositoryWrap } from '../../infrastructure/query/users.query
 import { UserViewDto } from '../../../user-accounts/api/view-dto/user.view-dto';
 
 export class GetUserByIdOrInternalFailQueryWrap {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(GetUserByIdOrInternalFailQueryWrap)

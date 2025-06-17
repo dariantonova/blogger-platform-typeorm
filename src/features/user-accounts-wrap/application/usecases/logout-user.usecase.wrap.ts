@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-auth-sessions.repository.wrap';
 
 export class LogoutUserCommandWrap {
-  constructor(public dto: { deviceId: string; userId: string }) {}
+  constructor(public dto: { deviceId: string; userId: number }) {}
 }
 
 @CommandHandler(LogoutUserCommandWrap)

@@ -19,21 +19,21 @@ export class PostsQueryRepositoryWrap {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findById(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<PostViewRowWrap | null> {
     const whereParts = ['p.deleted_at IS NULL', 'p.id = $1'];
     const whereClause = buildWhereClause(whereParts);
 
     const findSql = this.getPostsSelectSql(whereClause, '', '', currentUserId);
-    const findResult = await this.dataSource.query(findSql, [+id]);
+    const findResult = await this.dataSource.query(findSql, [id]);
 
     return findResult[0] ? findResult[0] : null;
   }
 
   async findByIdOrInternalFail(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<PostViewDto> {
     const post = await this.findById(id, currentUserId);
 
@@ -45,8 +45,8 @@ export class PostsQueryRepositoryWrap {
   }
 
   async findByIdOrNotFoundFail(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<PostViewDto> {
     const post = await this.findById(id, currentUserId);
 
@@ -59,7 +59,7 @@ export class PostsQueryRepositoryWrap {
 
   async findPosts(
     queryParams: GetPostsQueryParams,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const whereParts = ['p.deleted_at IS NULL'];
 
@@ -72,11 +72,11 @@ export class PostsQueryRepositoryWrap {
   }
 
   async findBlogPosts(
-    blogId: string,
+    blogId: number,
     queryParams: GetPostsQueryParams,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
-    const whereParams: any[] = [+blogId];
+    const whereParams: any[] = [blogId];
     const whereParts = ['p.deleted_at IS NULL', `p.blog_id = $1`];
 
     return this.findManyByWhereAndQuery(
@@ -91,7 +91,7 @@ export class PostsQueryRepositoryWrap {
     whereParts: string[],
     whereSqlParams: any[],
     queryParams: GetPostsQueryParams,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const limit = queryParams.pageSize;
     const offset = queryParams.calculateSkip();
@@ -136,7 +136,7 @@ export class PostsQueryRepositoryWrap {
     whereClause: string,
     orderClause: string,
     paginationClause: string,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): string {
     const cteParts = [
       ...this.getPostLikesCteParts(currentUserId),
@@ -164,7 +164,7 @@ export class PostsQueryRepositoryWrap {
     `;
   }
 
-  private getPostLikesCteParts(currentUserId: string | undefined): string[] {
+  private getPostLikesCteParts(currentUserId: number | undefined): string[] {
     const newestPostLikesRankedCte = `
     SELECT
     pl.post_id,
@@ -201,7 +201,7 @@ export class PostsQueryRepositoryWrap {
     pl.post_id,
     pl.status
     FROM post_likes pl
-    WHERE pl.user_id = ${currentUserId ? +currentUserId : -1}
+    WHERE pl.user_id = ${currentUserId ?? -1}
     `;
 
     return [

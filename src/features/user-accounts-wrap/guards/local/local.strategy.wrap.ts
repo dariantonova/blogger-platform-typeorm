@@ -7,7 +7,7 @@ import {
 import { PassportStrategy } from '@nestjs/passport';
 import { FieldError } from '../../../../core/exceptions/field-error';
 import { AuthServiceWrap } from '../../application/auth.service.wrap';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
 
 @Injectable()
 export class LocalStrategyWrap extends PassportStrategy(
@@ -18,7 +18,10 @@ export class LocalStrategyWrap extends PassportStrategy(
     super({ usernameField: 'loginOrEmail' });
   }
 
-  async validate(username: string, password: string): Promise<UserContextDto> {
+  async validate(
+    username: string,
+    password: string,
+  ): Promise<UserContextDtoSql> {
     this.validateInput(username, password);
 
     const user = await this.authService.validateUser(username, password);

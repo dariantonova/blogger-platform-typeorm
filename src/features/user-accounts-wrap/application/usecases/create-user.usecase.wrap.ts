@@ -12,7 +12,7 @@ export class CreateUserCommandWrap {
 
 @CommandHandler(CreateUserCommandWrap)
 export class CreateUserUseCaseWrap
-  implements ICommandHandler<CreateUserCommandWrap, string>
+  implements ICommandHandler<CreateUserCommandWrap, number>
 {
   constructor(
     private usersRepository: UsersRepositoryWrap,
@@ -20,7 +20,7 @@ export class CreateUserUseCaseWrap
     private userAccountsConfig: UserAccountsConfig,
   ) {}
 
-  async execute({ dto }: CreateUserCommandWrap): Promise<string> {
+  async execute({ dto }: CreateUserCommandWrap): Promise<number> {
     const userWithSameLogin = await this.usersRepository.findByLogin(dto.login);
     if (userWithSameLogin) {
       throw new BadRequestException({
@@ -60,6 +60,6 @@ export class CreateUserUseCaseWrap
 
     await this.usersRepository.save(user);
 
-    return user.id.toString();
+    return user.id;
   }
 }

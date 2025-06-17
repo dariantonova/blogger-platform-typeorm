@@ -8,10 +8,10 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../../user-accounts/constants/auth-tokens.inject-constants';
-import { RefreshJWTPayload } from '../../../user-accounts/dto/refresh-jwt-payload';
+import { RefreshJWTPayloadSql } from '../../../user-accounts-sql/dto/refresh-jwt-payload.sql';
 
 export class RefreshTokenCommandWrap {
-  constructor(public dto: { userId: string; deviceId: string; ip: string }) {}
+  constructor(public dto: { userId: number; deviceId: string; ip: string }) {}
 }
 
 @CommandHandler(RefreshTokenCommandWrap)
@@ -33,7 +33,7 @@ export class RefreshTokenUseCaseWrap
       deviceId: dto.deviceId,
     });
 
-    const refreshTokenPayload: RefreshJWTPayload =
+    const refreshTokenPayload: RefreshJWTPayloadSql =
       this.refreshTokenContext.decode(refreshToken);
 
     await this.updateDeviceAuthSession(
@@ -53,7 +53,7 @@ export class RefreshTokenUseCaseWrap
 
   private async updateDeviceAuthSession(
     deviceId: string,
-    userId: string,
+    userId: number,
     expUnix: number,
     iatUnix: number,
     ip: string,

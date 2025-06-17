@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { BlogWrap } from '../domain/blog.wrap';
@@ -18,38 +14,28 @@ export class BlogsRepositoryWrap {
       await this.createBlog(blog);
     } else {
       const { id, ...dtoToUpdate } = blog;
-      await this.updateBlog(+id, dtoToUpdate);
+      await this.updateBlog(id, dtoToUpdate);
     }
 
     return blog;
   }
 
-  async findById(id: string): Promise<BlogWrap | null> {
+  async findById(id: number): Promise<BlogWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE b.deleted_at IS NULL
     AND b.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? BlogWrap.reconstitute(findResult[0]) : null;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<BlogWrap> {
+  async findByIdOrNotFoundFail(id: number): Promise<BlogWrap> {
     const blog = await this.findById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
-    }
-
-    return blog;
-  }
-
-  async findByIdOrInternalFail(id: string): Promise<BlogWrap> {
-    const blog = await this.findById(id);
-
-    if (!blog) {
-      throw new InternalServerErrorException('Blog not found');
     }
 
     return blog;
@@ -80,7 +66,7 @@ export class BlogsRepositoryWrap {
       blog.deletedAt,
     ]);
 
-    blog.id = createResult[0].id.toString();
+    blog.id = createResult[0].id;
   }
 
   private async updateBlog(

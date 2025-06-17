@@ -7,7 +7,7 @@ import { PostViewDto } from '../../../../blogger-platform/posts/api/view-dto/pos
 export class GetPostsQueryWrap {
   constructor(
     public queryParams: GetPostsQueryParams,
-    public currentUserId: string | undefined,
+    public currentUserId: number | undefined,
   ) {}
 }
 

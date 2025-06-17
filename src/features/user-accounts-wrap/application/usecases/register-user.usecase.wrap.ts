@@ -28,7 +28,7 @@ export class RegisterUserUseCaseWrap
   async execute({ dto }: RegisterUserCommandWrap): Promise<void> {
     const createdUserId = await this.commandBus.execute<
       CreateUserCommandWrap,
-      string
+      number
     >(new CreateUserCommandWrap(dto));
 
     const createdUser =

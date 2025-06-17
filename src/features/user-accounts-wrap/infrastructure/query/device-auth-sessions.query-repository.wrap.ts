@@ -7,7 +7,7 @@ import { DeviceViewDto } from '../../../user-accounts/api/view-dto/device.view-d
 export class DeviceAuthSessionsQueryRepositoryWrap {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findUserSessions(userId: string): Promise<DeviceViewDto[]> {
+  async findUserSessions(userId: number): Promise<DeviceViewDto[]> {
     const findQuery = `
     SELECT
     d.ip, d.device_name, d.iat, d.device_id
@@ -15,7 +15,7 @@ export class DeviceAuthSessionsQueryRepositoryWrap {
     WHERE d.user_id = $1
     ORDER BY d.id;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+userId]);
+    const findResult = await this.dataSource.query(findQuery, [userId]);
 
     return findResult.map(DeviceViewDto.mapToViewWrap);
   }

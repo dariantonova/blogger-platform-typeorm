@@ -6,7 +6,7 @@ import { UserExternalDto } from '../../../user-accounts/infrastructure/external-
 export class UsersExternalQueryRepositoryWrap {
   constructor(private usersQueryRepository: UsersQueryRepositoryWrap) {}
 
-  async findByIdOrInternalFail(userId: string): Promise<UserExternalDto> {
+  async findByIdOrInternalFail(userId: number): Promise<UserExternalDto> {
     const user = await this.usersQueryRepository.findById(userId);
 
     if (!user) {

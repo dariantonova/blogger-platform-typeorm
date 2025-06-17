@@ -12,17 +12,17 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { JwtAccessOptionalAuthGuardWrap } from '../../../user-accounts-wrap/guards/bearer/jwt-access-optional-auth.guard.wrap';
 import { JwtAccessAuthGuardWrap } from '../../../user-accounts-wrap/guards/bearer/jwt-access-auth.guard.wrap';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 import { CommentViewDto } from '../../../blogger-platform/comments/api/view-dto/comments.view-dto';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
 import { UpdateCommentInputDto } from '../../../blogger-platform/comments/api/input-dto/update-comment.input-dto';
-import { IntValidationPipe } from '../../../../core/pipes/int-validation-pipe';
+import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
 import { GetCommentByIdOrNotFoundFailQueryWrap } from '../application/queries/get-comment-by-id-or-not-found-fail.query.wrap';
 import { UpdateCommentCommandWrap } from '../application/usecases/update-comment.usecase.wrap';
 import { DeleteCommentCommandWrap } from '../application/usecases/delete-comment.usecase.wrap';
 import { LikeInputDto } from '../../../blogger-platform/likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommandWrap } from '../../likes/application/usecases/make-comment-like-operation.usecase.wrap';
+import { ExtractUserIfExistsFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-if-exists-from-request.sql';
+import { UserContextDtoSql } from '../../../user-accounts-sql/guards/dto/user-context.dto.sql';
+import { ExtractUserFromRequestSql } from '../../../user-accounts-sql/guards/decorators/param/extract-user-from-request.sql';
 
 @Controller('comments')
 export class CommentsControllerWrap {
@@ -34,8 +34,8 @@ export class CommentsControllerWrap {
   @Get(':id')
   @UseGuards(JwtAccessOptionalAuthGuardWrap)
   async getComment(
-    @Param('id', IntValidationPipe) id: string,
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', IntValidationTransformationPipe) id: number,
+    @ExtractUserIfExistsFromRequestSql() user: UserContextDtoSql | null,
   ): Promise<CommentViewDto> {
     return this.queryBus.execute(
       new GetCommentByIdOrNotFoundFailQueryWrap(id, user?.id),
@@ -46,8 +46,8 @@ export class CommentsControllerWrap {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardWrap)
   async updateComment(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', IntValidationPipe) id: string,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
+    @Param('id', IntValidationTransformationPipe) id: number,
     @Body() body: UpdateCommentInputDto,
   ): Promise<void> {
     await this.commandBus.execute(
@@ -59,8 +59,8 @@ export class CommentsControllerWrap {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardWrap)
   async deleteComment(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', IntValidationPipe) id: string,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
+    @Param('id', IntValidationTransformationPipe) id: number,
   ): Promise<void> {
     await this.commandBus.execute(new DeleteCommentCommandWrap(id, user.id));
   }
@@ -69,8 +69,8 @@ export class CommentsControllerWrap {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAccessAuthGuardWrap)
   async makeCommentLikeOperation(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('commentId', IntValidationPipe) commentId: string,
+    @ExtractUserFromRequestSql() user: UserContextDtoSql,
+    @Param('commentId', IntValidationTransformationPipe) commentId: number,
     @Body() body: LikeInputDto,
   ): Promise<void> {
     await this.commandBus.execute(

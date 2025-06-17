@@ -4,7 +4,7 @@ import { UpdateBlogDto } from '../../../../blogger-platform/blogs/dto/update-blo
 
 export class UpdateBlogCommandWrap {
   constructor(
-    public blogId: string,
+    public blogId: number,
     public dto: UpdateBlogDto,
   ) {}
 }

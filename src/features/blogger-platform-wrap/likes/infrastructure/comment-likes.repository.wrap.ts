@@ -12,15 +12,15 @@ export class CommentLikesRepositoryWrap {
       await this.createCommentLike(like);
     } else {
       const { id, ...dtoToUpdate } = like;
-      await this.updateCommentLike(+id, dtoToUpdate);
+      await this.updateCommentLike(id, dtoToUpdate);
     }
 
     return like;
   }
 
   async findByUserAndComment(
-    userId: string,
-    commentId: string,
+    userId: number,
+    commentId: number,
   ): Promise<CommentLikeWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
@@ -29,14 +29,14 @@ export class CommentLikesRepositoryWrap {
     AND cl.comment_id = $2;
     `;
     const findResult = await this.dataSource.query(findQuery, [
-      +userId,
-      +commentId,
+      userId,
+      commentId,
     ]);
 
     return findResult[0] ? CommentLikeWrap.reconstitute(findResult[0]) : null;
   }
 
-  async softDeleteLikesOfCommentsWithBlogId(blogId: string): Promise<void> {
+  async softDeleteLikesOfCommentsWithBlogId(blogId: number): Promise<void> {
     const commentIdsCte = `
     SELECT c.id
     FROM comments c
@@ -52,10 +52,10 @@ export class CommentLikesRepositoryWrap {
     WHERE deleted_at IS NULL
     AND comment_id IN (ci.id);
     `;
-    await this.dataSource.query(updateQuery, [+blogId]);
+    await this.dataSource.query(updateQuery, [blogId]);
   }
 
-  async softDeleteLikesOfCommentsWithPostId(postId: string): Promise<void> {
+  async softDeleteLikesOfCommentsWithPostId(postId: number): Promise<void> {
     const commentIdsCte = `
     SELECT c.id
     FROM comments c
@@ -70,30 +70,30 @@ export class CommentLikesRepositoryWrap {
     WHERE deleted_at IS NULL
     AND comment_id IN (ci.id);
     `;
-    await this.dataSource.query(updateQuery, [+postId]);
+    await this.dataSource.query(updateQuery, [postId]);
   }
 
-  async softDeleteByCommentId(commentId: string): Promise<void> {
+  async softDeleteByCommentId(commentId: number): Promise<void> {
     const updateQuery = `
     UPDATE comment_likes
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND comment_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+commentId]);
+    await this.dataSource.query(updateQuery, [commentId]);
   }
 
-  async softDeleteByUserId(userId: string): Promise<void> {
+  async softDeleteByUserId(userId: number): Promise<void> {
     const updateQuery = `
     UPDATE comment_likes
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND user_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+userId]);
+    await this.dataSource.query(updateQuery, [userId]);
   }
 
-  async softDeleteLikesOfCommentsWithUserId(userId: string): Promise<void> {
+  async softDeleteLikesOfCommentsWithUserId(userId: number): Promise<void> {
     const commentIdsCte = `
     SELECT c.id
     FROM comments c
@@ -108,7 +108,7 @@ export class CommentLikesRepositoryWrap {
     WHERE deleted_at IS NULL
     AND comment_id IN (ci.id);
     `;
-    await this.dataSource.query(updateQuery, [+userId]);
+    await this.dataSource.query(updateQuery, [userId]);
   }
 
   private buildSelectFromClause(): string {
@@ -135,7 +135,7 @@ export class CommentLikesRepositoryWrap {
       like.deletedAt,
     ]);
 
-    like.id = createResult[0].id.toString();
+    like.id = createResult[0].id;
   }
 
   private async updateCommentLike(

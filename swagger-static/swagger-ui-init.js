@@ -70,7 +70,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -332,7 +332,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -355,7 +355,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -414,7 +414,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -435,7 +435,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -466,7 +466,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -489,7 +489,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -510,7 +510,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -543,7 +543,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             },
             {
@@ -551,7 +551,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -582,7 +582,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             },
             {
@@ -590,7 +590,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -627,7 +627,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -650,7 +650,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -671,7 +671,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -695,6 +695,39 @@ window.onload = function() {
           ]
         }
       },
+      "/api/posts/{postId}/like-status": {
+        "put": {
+          "operationId": "PostsControllerWrap_makePostLikeOperation",
+          "parameters": [
+            {
+              "name": "postId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "PostsControllerWrap"
+          ]
+        }
+      },
       "/api/comments/{id}": {
         "get": {
           "operationId": "CommentsControllerWrap_getComment",
@@ -704,7 +737,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -725,7 +758,7 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
@@ -756,10 +789,43 @@ window.onload = function() {
               "required": true,
               "in": "path",
               "schema": {
-                "type": "string"
+                "type": "number"
               }
             }
           ],
+          "responses": {
+            "204": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "CommentsControllerWrap"
+          ]
+        }
+      },
+      "/api/comments/{commentId}/like-status": {
+        "put": {
+          "operationId": "CommentsControllerWrap_makeCommentLikeOperation",
+          "parameters": [
+            {
+              "name": "commentId",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "number"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LikeInputDto"
+                }
+              }
+            }
+          },
           "responses": {
             "204": {
               "description": ""
@@ -839,6 +905,10 @@ window.onload = function() {
           "properties": {}
         },
         "CreatePostCommentInputDto": {
+          "type": "object",
+          "properties": {}
+        },
+        "LikeInputDto": {
           "type": "object",
           "properties": {}
         },

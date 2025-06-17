@@ -7,9 +7,9 @@ import { CommentViewDto } from '../../../../blogger-platform/comments/api/view-d
 
 export class GetPostCommentsQueryWrap {
   constructor(
-    public postId: string,
+    public postId: number,
     public queryParams: GetCommentsQueryParams,
-    public currentUserId: string | undefined,
+    public currentUserId: number | undefined,
   ) {}
 }
 

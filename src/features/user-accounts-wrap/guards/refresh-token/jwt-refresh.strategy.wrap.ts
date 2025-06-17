@@ -4,8 +4,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { CoreConfig } from '../../../../core/core.config';
 import { Request } from 'express';
 import { AuthServiceWrap } from '../../application/auth.service.wrap';
-import { RefreshJWTPayload } from '../../../user-accounts/dto/refresh-jwt-payload';
-import { DeviceAuthSessionContextDto } from '../../../user-accounts/guards/dto/device-auth-session-context.dto';
+import { RefreshJWTPayloadSql } from '../../../user-accounts-sql/dto/refresh-jwt-payload.sql';
+import { DeviceAuthSessionContextDtoSql } from '../../../user-accounts-sql/guards/dto/device-auth-session-context.dto.sql';
 
 @Injectable()
 export class JwtRefreshStrategyWrap extends PassportStrategy(
@@ -26,8 +26,8 @@ export class JwtRefreshStrategyWrap extends PassportStrategy(
   }
 
   async validate(
-    payload: RefreshJWTPayload,
-  ): Promise<DeviceAuthSessionContextDto> {
+    payload: RefreshJWTPayloadSql,
+  ): Promise<DeviceAuthSessionContextDtoSql> {
     const session =
       await this.authService.validateSessionFromRefreshToken(payload);
     if (!session) {

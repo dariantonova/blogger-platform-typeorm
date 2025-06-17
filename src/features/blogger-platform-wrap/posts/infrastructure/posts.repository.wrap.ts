@@ -14,26 +14,26 @@ export class PostsRepositoryWrap {
       await this.createPost(post);
     } else {
       const { id, ...dtoToUpdate } = post;
-      await this.updatePost(+id, dtoToUpdate);
+      await this.updatePost(id, dtoToUpdate);
     }
 
     return post;
   }
 
-  async findById(id: string): Promise<PostWrap | null> {
+  async findById(id: number): Promise<PostWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE p.deleted_at IS NULL
     AND p.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? PostWrap.reconstitute(findResult[0]) : null;
   }
 
   async findByIdAndBlogId(
-    id: string,
-    blogId: string,
+    id: number,
+    blogId: number,
   ): Promise<PostWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
@@ -41,12 +41,12 @@ export class PostsRepositoryWrap {
     AND p.id = $1
     AND p.blog_id = $2;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id, +blogId]);
+    const findResult = await this.dataSource.query(findQuery, [id, blogId]);
 
     return findResult[0] ? PostWrap.reconstitute(findResult[0]) : null;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<PostWrap> {
+  async findByIdOrNotFoundFail(id: number): Promise<PostWrap> {
     const post = await this.findById(id);
 
     if (!post) {
@@ -57,8 +57,8 @@ export class PostsRepositoryWrap {
   }
 
   async findByIdAndBlogIdOrNotFoundFail(
-    id: string,
-    blogId: string,
+    id: number,
+    blogId: number,
   ): Promise<PostWrap> {
     const post = await this.findByIdAndBlogId(id, blogId);
 
@@ -69,14 +69,14 @@ export class PostsRepositoryWrap {
     return post;
   }
 
-  async softDeleteByBlogId(blogId: string): Promise<void> {
+  async softDeleteByBlogId(blogId: number): Promise<void> {
     const updateQuery = `
     UPDATE posts
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND blog_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+blogId]);
+    await this.dataSource.query(updateQuery, [blogId]);
   }
 
   private buildSelectFromClause(): string {
@@ -104,7 +104,7 @@ export class PostsRepositoryWrap {
       post.deletedAt,
     ]);
 
-    post.id = createResult[0].id.toString();
+    post.id = createResult[0].id;
   }
 
   private async updatePost(

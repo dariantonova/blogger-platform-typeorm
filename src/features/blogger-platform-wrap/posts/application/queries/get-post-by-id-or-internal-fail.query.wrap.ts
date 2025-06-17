@@ -4,8 +4,8 @@ import { PostViewDto } from '../../../../blogger-platform/posts/api/view-dto/pos
 
 export class GetPostByIdOrInternalFailQueryWrap {
   constructor(
-    public postId: string,
-    public currentUserId: string | undefined,
+    public postId: number,
+    public currentUserId: number | undefined,
   ) {}
 }
 

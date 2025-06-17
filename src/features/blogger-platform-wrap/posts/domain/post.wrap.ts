@@ -1,18 +1,18 @@
 import { UpdatePostDomainDtoWrap } from './dto/update-post.domain.dto.wrap';
 import { PostRowWrap } from '../infrastructure/dto/post.row.wrap';
-import { CreatePostDto } from '../../../blogger-platform/posts/dto/create-post.dto';
+import { CreatePostDtoSql } from '../../../blogger-platform-sql/posts/dto/create-post.dto.sql';
 
 export class PostWrap {
-  id: string;
+  id: number;
   title: string;
   shortDescription: string;
   content: string;
-  blogId: string;
+  blogId: number;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
 
-  static createInstance(dto: CreatePostDto): PostWrap {
+  static createInstance(dto: CreatePostDtoSql): PostWrap {
     const post = new PostWrap();
 
     post.title = dto.title;
@@ -29,11 +29,11 @@ export class PostWrap {
   static reconstitute(row: PostRowWrap): PostWrap {
     const post = new PostWrap();
 
-    post.id = row.id.toString();
+    post.id = row.id;
     post.title = row.title;
     post.shortDescription = row.short_description;
     post.content = row.content;
-    post.blogId = row.blog_id.toString();
+    post.blogId = row.blog_id;
     post.createdAt = row.created_at;
     post.updatedAt = row.updated_at;
     post.deletedAt = row.deleted_at;

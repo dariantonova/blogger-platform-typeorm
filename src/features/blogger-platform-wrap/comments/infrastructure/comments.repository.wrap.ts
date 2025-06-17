@@ -14,24 +14,24 @@ export class CommentsRepositoryWrap {
       await this.createComment(comment);
     } else {
       const { id, ...dtoToUpdate } = comment;
-      await this.updateComment(+id, dtoToUpdate);
+      await this.updateComment(id, dtoToUpdate);
     }
 
     return comment;
   }
 
-  async findById(id: string): Promise<CommentWrap | null> {
+  async findById(id: number): Promise<CommentWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE c.deleted_at IS NULL
     AND c.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? CommentWrap.reconstitute(findResult[0]) : null;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<CommentWrap> {
+  async findByIdOrNotFoundFail(id: number): Promise<CommentWrap> {
     const comment = await this.findById(id);
 
     if (!comment) {
@@ -41,7 +41,7 @@ export class CommentsRepositoryWrap {
     return comment;
   }
 
-  async softDeleteCommentsOfPostsWithBlogId(blogId: string): Promise<void> {
+  async softDeleteCommentsOfPostsWithBlogId(blogId: number): Promise<void> {
     const postIdsCte = `
     SELECT p.id
     FROM posts p
@@ -56,27 +56,27 @@ export class CommentsRepositoryWrap {
     WHERE deleted_at IS NULL
     AND post_id IN (pi.id);
     `;
-    await this.dataSource.query(updateQuery, [+blogId]);
+    await this.dataSource.query(updateQuery, [blogId]);
   }
 
-  async softDeleteByPostId(postId: string): Promise<void> {
+  async softDeleteByPostId(postId: number): Promise<void> {
     const updateQuery = `
     UPDATE comments
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND post_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+postId]);
+    await this.dataSource.query(updateQuery, [postId]);
   }
 
-  async softDeleteByUserId(userId: string): Promise<void> {
+  async softDeleteByUserId(userId: number): Promise<void> {
     const updateQuery = `
     UPDATE comments
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND user_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+userId]);
+    await this.dataSource.query(updateQuery, [userId]);
   }
 
   private buildSelectFromClause(): string {
@@ -103,7 +103,7 @@ export class CommentsRepositoryWrap {
       comment.deletedAt,
     ]);
 
-    comment.id = createResult[0].id.toString();
+    comment.id = createResult[0].id;
   }
 
   private async updateComment(

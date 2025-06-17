@@ -4,8 +4,8 @@ import { CommentViewDto } from '../../../../blogger-platform/comments/api/view-d
 
 export class GetCommentByIdOrNotFoundFailQueryWrap {
   constructor(
-    public commentId: string,
-    public currentUserId: string | undefined,
+    public commentId: number,
+    public currentUserId: number | undefined,
   ) {}
 }
 

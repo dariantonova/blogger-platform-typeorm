@@ -4,9 +4,9 @@ import { UpdateLikeDomainDto } from '../../../blogger-platform/likes/domain/dto/
 import { PostLikeRowWrap } from '../infrastructure/dto/post-like.row.wrap';
 
 export class PostLikeWrap {
-  id: string;
-  postId: string;
-  userId: string;
+  id: number;
+  postId: number;
+  userId: number;
   status: LikeStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -28,9 +28,9 @@ export class PostLikeWrap {
   static reconstitute(row: PostLikeRowWrap): PostLikeWrap {
     const like = new PostLikeWrap();
 
-    like.id = row.id.toString();
-    like.postId = row.post_id.toString();
-    like.userId = row.user_id.toString();
+    like.id = row.id;
+    like.postId = row.post_id;
+    like.userId = row.user_id;
     like.status = row.status;
     like.createdAt = row.created_at;
     like.updatedAt = row.updated_at;

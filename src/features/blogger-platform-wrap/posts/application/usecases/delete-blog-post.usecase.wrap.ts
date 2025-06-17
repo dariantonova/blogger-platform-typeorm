@@ -6,8 +6,8 @@ import { CommentLikesRepositoryWrap } from '../../../likes/infrastructure/commen
 
 export class DeleteBlogPostCommandWrap {
   constructor(
-    public blogId: string,
-    public postId: string,
+    public blogId: number,
+    public postId: number,
   ) {}
 }
 

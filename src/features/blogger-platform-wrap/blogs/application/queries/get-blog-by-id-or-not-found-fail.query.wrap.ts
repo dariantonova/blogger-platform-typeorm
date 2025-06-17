@@ -3,7 +3,7 @@ import { BlogsQueryRepositoryWrap } from '../../infrastructure/query/blogs.query
 import { BlogViewDto } from '../../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
 
 export class GetBlogByIdOrNotFoundFailQueryWrap {
-  constructor(public blogId: string) {}
+  constructor(public blogId: number) {}
 }
 
 @QueryHandler(GetBlogByIdOrNotFoundFailQueryWrap)

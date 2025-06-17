@@ -1,7 +1,7 @@
 import { LikeStatus } from '../../../../blogger-platform/likes/dto/like-status';
 
 export class CreatePostLikeDomainDto {
-  postId: string;
-  userId: string;
+  postId: number;
+  userId: number;
   status: LikeStatus;
 }

@@ -5,9 +5,9 @@ import { UpdateCommentDto } from '../../../../blogger-platform/comments/dto/upda
 
 export class UpdateCommentCommandWrap {
   constructor(
-    public commentId: string,
+    public commentId: number,
     public dto: UpdateCommentDto,
-    public currentUserId: string,
+    public currentUserId: number,
   ) {}
 }
 

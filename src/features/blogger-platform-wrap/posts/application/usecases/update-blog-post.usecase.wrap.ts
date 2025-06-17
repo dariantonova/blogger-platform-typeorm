@@ -4,8 +4,8 @@ import { UpdateBlogPostDtoWrap } from '../../dto/update-blog-post.dto.wrap';
 
 export class UpdateBlogPostCommandWrap {
   constructor(
-    public blogId: string,
-    public postId: string,
+    public blogId: number,
+    public postId: number,
     public dto: UpdateBlogPostDtoWrap,
   ) {}
 }

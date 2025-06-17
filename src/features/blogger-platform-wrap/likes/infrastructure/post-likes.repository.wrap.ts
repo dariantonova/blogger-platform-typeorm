@@ -12,15 +12,15 @@ export class PostLikesRepositoryWrap {
       await this.createPostLike(like);
     } else {
       const { id, ...dtoToUpdate } = like;
-      await this.updatePostLike(+id, dtoToUpdate);
+      await this.updatePostLike(id, dtoToUpdate);
     }
 
     return like;
   }
 
   async findByUserAndPost(
-    userId: string,
-    postId: string,
+    userId: number,
+    postId: number,
   ): Promise<PostLikeWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
@@ -28,15 +28,12 @@ export class PostLikesRepositoryWrap {
     AND pl.user_id = $1
     AND pl.post_id = $2;
     `;
-    const findResult = await this.dataSource.query(findQuery, [
-      +userId,
-      +postId,
-    ]);
+    const findResult = await this.dataSource.query(findQuery, [userId, postId]);
 
     return findResult[0] ? PostLikeWrap.reconstitute(findResult[0]) : null;
   }
 
-  async softDeleteLikesOfPostsWithBlogId(blogId: string): Promise<void> {
+  async softDeleteLikesOfPostsWithBlogId(blogId: number): Promise<void> {
     const postIdsCte = `
     SELECT p.id
     FROM posts p
@@ -51,27 +48,27 @@ export class PostLikesRepositoryWrap {
     WHERE deleted_at IS NULL
     AND post_id IN (pi.id);
     `;
-    await this.dataSource.query(updateQuery, [+blogId]);
+    await this.dataSource.query(updateQuery, [blogId]);
   }
 
-  async softDeleteByPostId(postId: string): Promise<void> {
+  async softDeleteByPostId(postId: number): Promise<void> {
     const updateQuery = `
     UPDATE post_likes
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND post_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+postId]);
+    await this.dataSource.query(updateQuery, [postId]);
   }
 
-  async softDeleteByUserId(userId: string): Promise<void> {
+  async softDeleteByUserId(userId: number): Promise<void> {
     const updateQuery = `
     UPDATE post_likes
     SET deleted_at = now()
     WHERE deleted_at IS NULL
     AND user_id = $1;
     `;
-    await this.dataSource.query(updateQuery, [+userId]);
+    await this.dataSource.query(updateQuery, [userId]);
   }
 
   private buildSelectFromClause(): string {
@@ -98,7 +95,7 @@ export class PostLikesRepositoryWrap {
       like.deletedAt,
     ]);
 
-    like.id = createResult[0].id.toString();
+    like.id = createResult[0].id;
   }
 
   private async updatePostLike(

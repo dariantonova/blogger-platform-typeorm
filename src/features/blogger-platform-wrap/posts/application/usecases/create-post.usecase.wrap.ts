@@ -2,22 +2,22 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepositoryWrap } from '../../infrastructure/posts.repository.wrap';
 import { BlogsRepositoryWrap } from '../../../blogs/infrastructure/blogs.repository.wrap';
 import { PostWrap } from '../../domain/post.wrap';
-import { CreatePostDto } from '../../../../blogger-platform/posts/dto/create-post.dto';
+import { CreatePostDtoSql } from '../../../../blogger-platform-sql/posts/dto/create-post.dto.sql';
 
 export class CreatePostCommandWrap {
-  constructor(public dto: CreatePostDto) {}
+  constructor(public dto: CreatePostDtoSql) {}
 }
 
 @CommandHandler(CreatePostCommandWrap)
 export class CreatePostUseCaseWrap
-  implements ICommandHandler<CreatePostCommandWrap, string>
+  implements ICommandHandler<CreatePostCommandWrap, number>
 {
   constructor(
     private postsRepository: PostsRepositoryWrap,
     private blogsRepository: BlogsRepositoryWrap,
   ) {}
 
-  async execute({ dto }: CreatePostCommandWrap): Promise<string> {
+  async execute({ dto }: CreatePostCommandWrap): Promise<number> {
     await this.blogsRepository.findByIdOrNotFoundFail(dto.blogId);
 
     const post = PostWrap.createInstance({
@@ -29,6 +29,6 @@ export class CreatePostUseCaseWrap
 
     await this.postsRepository.save(post);
 
-    return post.id.toString();
+    return post.id;
   }
 }

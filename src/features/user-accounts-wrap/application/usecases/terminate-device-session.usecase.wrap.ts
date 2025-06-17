@@ -3,7 +3,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-auth-sessions.repository.wrap';
 
 export class TerminateDeviceSessionCommandWrap {
-  constructor(public dto: { deviceId: string; currentUserId: string }) {}
+  constructor(public dto: { deviceId: string; currentUserId: number }) {}
 }
 
 @CommandHandler(TerminateDeviceSessionCommandWrap)

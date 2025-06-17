@@ -19,8 +19,8 @@ export class CommentsQueryRepositoryWrap {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findById(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<CommentViewRowWrap | null> {
     const whereParts = ['c.deleted_at IS NULL', 'c.id = $1'];
     const whereClause = buildWhereClause(whereParts);
@@ -31,14 +31,14 @@ export class CommentsQueryRepositoryWrap {
       '',
       currentUserId,
     );
-    const findResult = await this.dataSource.query(findSql, [+id]);
+    const findResult = await this.dataSource.query(findSql, [id]);
 
     return findResult[0] ? findResult[0] : null;
   }
 
   async findByIdOrInternalFail(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<CommentViewDto> {
     const comment = await this.findById(id, currentUserId);
 
@@ -50,8 +50,8 @@ export class CommentsQueryRepositoryWrap {
   }
 
   async findByIdOrNotFoundFail(
-    id: string,
-    currentUserId: string | undefined,
+    id: number,
+    currentUserId: number | undefined,
   ): Promise<CommentViewDto> {
     const comment = await this.findById(id, currentUserId);
 
@@ -63,11 +63,11 @@ export class CommentsQueryRepositoryWrap {
   }
 
   async findPostComments(
-    postId: string,
+    postId: number,
     queryParams: GetCommentsQueryParams,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
-    const whereParams: any[] = [+postId];
+    const whereParams: any[] = [postId];
     const whereParts = ['c.deleted_at IS NULL', `c.post_id = $1`];
 
     return this.findManyByWhereAndQuery(
@@ -82,7 +82,7 @@ export class CommentsQueryRepositoryWrap {
     whereParts: string[],
     whereSqlParams: any[],
     queryParams: GetCommentsQueryParams,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): Promise<PaginatedViewDto<CommentViewDto[]>> {
     const limit = queryParams.pageSize;
     const offset = queryParams.calculateSkip();
@@ -139,7 +139,7 @@ export class CommentsQueryRepositoryWrap {
     whereClause: string,
     orderClause: string,
     paginationClause: string,
-    currentUserId: string | undefined,
+    currentUserId: number | undefined,
   ): string {
     const cteParts = [
       ...this.getCommentLikesCteParts(currentUserId),
@@ -168,7 +168,7 @@ export class CommentsQueryRepositoryWrap {
     `;
   }
 
-  private getCommentLikesCteParts(currentUserId: string | undefined): string[] {
+  private getCommentLikesCteParts(currentUserId: number | undefined): string[] {
     const commentLikesCountsCte = `
     SELECT
     cl.comment_id,
@@ -183,7 +183,7 @@ export class CommentsQueryRepositoryWrap {
     cl.comment_id,
     cl.status
     FROM comment_likes cl
-    WHERE cl.user_id = ${currentUserId ? +currentUserId : -1}
+    WHERE cl.user_id = ${currentUserId ?? -1}
     `;
 
     return [

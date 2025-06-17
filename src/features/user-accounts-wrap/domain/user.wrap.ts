@@ -4,7 +4,7 @@ import { CreateUserDomainDto } from '../../user-accounts/domain/dto/create-user.
 import { UserRowWrap } from '../infrastructure/dto/user.row.wrap';
 
 export class UserWrap {
-  id: string;
+  id: number;
   login: string;
   email: string;
   passwordHash: string;
@@ -39,7 +39,7 @@ export class UserWrap {
   static reconstitute(row: UserRowWrap): UserWrap {
     const user = new UserWrap();
 
-    user.id = row.id.toString();
+    user.id = row.id;
     user.login = row.login;
     user.email = row.email;
     user.passwordHash = row.password_hash;

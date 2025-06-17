@@ -14,7 +14,7 @@ export class DeviceAuthSessionsRepositoryWrap {
       await this.createDeviceAuthSession(session);
     } else {
       const { id, ...dtoToUpdate } = session;
-      await this.updateDeviceAuthSession(+id, dtoToUpdate);
+      await this.updateDeviceAuthSession(id, dtoToUpdate);
     }
 
     return session;
@@ -23,7 +23,7 @@ export class DeviceAuthSessionsRepositoryWrap {
   async findByDeviceIdAndIatAndUserId(
     deviceId: string,
     iat: Date,
-    userId: string,
+    userId: number,
   ): Promise<DeviceAuthSessionWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
@@ -34,7 +34,7 @@ export class DeviceAuthSessionsRepositoryWrap {
     const findResult = await this.dataSource.query(findQuery, [
       deviceId,
       iat,
-      +userId,
+      userId,
     ]);
 
     return findResult[0]
@@ -44,7 +44,7 @@ export class DeviceAuthSessionsRepositoryWrap {
 
   async findByDeviceIdAndUserId(
     deviceId: string,
-    userId: string,
+    userId: number,
   ): Promise<DeviceAuthSessionWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
@@ -53,7 +53,7 @@ export class DeviceAuthSessionsRepositoryWrap {
     `;
     const findResult = await this.dataSource.query(findQuery, [
       deviceId,
-      +userId,
+      userId,
     ]);
 
     return findResult[0]
@@ -63,7 +63,7 @@ export class DeviceAuthSessionsRepositoryWrap {
 
   async findByDeviceIdAndUserIdOrInternalFail(
     deviceId: string,
-    userId: string,
+    userId: number,
   ): Promise<DeviceAuthSessionWrap> {
     const deviceAuthSession = await this.findByDeviceIdAndUserId(
       deviceId,
@@ -87,28 +87,28 @@ export class DeviceAuthSessionsRepositoryWrap {
     return findResult.map(DeviceAuthSessionWrap.reconstitute);
   }
 
-  async deleteUserDeviceAuthSessions(userId: string): Promise<void> {
+  async deleteUserDeviceAuthSessions(userId: number): Promise<void> {
     const deleteQuery = `
     DELETE FROM device_auth_sessions
     WHERE user_id = $1;
     `;
-    await this.dataSource.query(deleteQuery, [+userId]);
+    await this.dataSource.query(deleteQuery, [userId]);
   }
 
   async deleteByDeviceIdAndUserId(
     deviceId: string,
-    userId: string,
+    userId: number,
   ): Promise<void> {
     const deleteQuery = `
     DELETE FROM device_auth_sessions
     WHERE device_id = $1
     AND user_id = $2;
     `;
-    await this.dataSource.query(deleteQuery, [deviceId, +userId]);
+    await this.dataSource.query(deleteQuery, [deviceId, userId]);
   }
 
   async deleteUserDeviceAuthSessionsExceptCurrent(
-    userId: string,
+    userId: number,
     currentDeviceId: string,
   ): Promise<void> {
     const deleteQuery = `
@@ -145,7 +145,7 @@ export class DeviceAuthSessionsRepositoryWrap {
       session.ip,
     ]);
 
-    session.id = createResult[0].id.toString();
+    session.id = createResult[0];
   }
 
   private async updateDeviceAuthSession(

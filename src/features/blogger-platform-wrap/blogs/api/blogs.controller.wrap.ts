@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryWrap } from '../application/queries/get-blogs.query.wrap';
-import { IntValidationPipe } from '../../../../core/pipes/int-validation-pipe';
+import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
 import { GetBlogByIdOrNotFoundFailQueryWrap } from '../application/queries/get-blog-by-id-or-not-found-fail.query.wrap';
 import { GetBlogsQueryParams } from '../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { BlogViewDto } from '../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
@@ -23,14 +23,14 @@ export class BlogsControllerWrap {
 
   @Get(':id')
   async getBlog(
-    @Param('id', IntValidationPipe) id: string,
+    @Param('id', IntValidationTransformationPipe) id: number,
   ): Promise<BlogViewDto> {
     return this.queryBus.execute(new GetBlogByIdOrNotFoundFailQueryWrap(id));
   }
 
   @Get(':blogId/posts')
   async getBlogPosts(
-    @Param('blogId', IntValidationPipe) blogId: string,
+    @Param('blogId', IntValidationTransformationPipe) blogId: number,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(

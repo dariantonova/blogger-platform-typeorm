@@ -3,10 +3,10 @@ import { unixToDate } from '../../../common/utils/date.util';
 import { UsersRepositoryWrap } from '../infrastructure/users.repository.wrap';
 import { DeviceAuthSessionsRepositoryWrap } from '../infrastructure/device-auth-sessions.repository.wrap';
 import { CryptoService } from '../../user-accounts/application/crypto.service';
-import { UserContextDto } from '../../user-accounts/guards/dto/user-context.dto';
-import { AccessJwtPayload } from '../../user-accounts/dto/access-jwt-payload';
-import { RefreshJWTPayload } from '../../user-accounts/dto/refresh-jwt-payload';
-import { DeviceAuthSessionContextDto } from '../../user-accounts/guards/dto/device-auth-session-context.dto';
+import { UserContextDtoSql } from '../../user-accounts-sql/guards/dto/user-context.dto.sql';
+import { AccessJwtPayloadSql } from '../../user-accounts-sql/dto/access-jwt-payload.sql';
+import { RefreshJWTPayloadSql } from '../../user-accounts-sql/dto/refresh-jwt-payload.sql';
+import { DeviceAuthSessionContextDtoSql } from '../../user-accounts-sql/guards/dto/device-auth-session-context.dto.sql';
 
 @Injectable()
 export class AuthServiceWrap {
@@ -19,7 +19,7 @@ export class AuthServiceWrap {
   async validateUser(
     loginOrEmail: string,
     password: string,
-  ): Promise<UserContextDto | null> {
+  ): Promise<UserContextDtoSql | null> {
     const user = await this.usersRepository.findByLoginOrEmail(loginOrEmail);
     if (!user) {
       return null;
@@ -33,12 +33,12 @@ export class AuthServiceWrap {
       return null;
     }
 
-    return { id: user.id.toString() };
+    return { id: user.id };
   }
 
   async validateUserFromAccessToken(
-    payload: AccessJwtPayload,
-  ): Promise<UserContextDto | null> {
+    payload: AccessJwtPayloadSql,
+  ): Promise<UserContextDtoSql | null> {
     const user = await this.usersRepository.findById(payload.userId);
     if (!user) {
       return null;
@@ -48,8 +48,8 @@ export class AuthServiceWrap {
   }
 
   async validateSessionFromRefreshToken(
-    payload: RefreshJWTPayload,
-  ): Promise<DeviceAuthSessionContextDto | null> {
+    payload: RefreshJWTPayloadSql,
+  ): Promise<DeviceAuthSessionContextDtoSql | null> {
     const deviceAuthSession =
       await this.deviceAuthSessionsRepository.findByDeviceIdAndIatAndUserId(
         payload.deviceId,

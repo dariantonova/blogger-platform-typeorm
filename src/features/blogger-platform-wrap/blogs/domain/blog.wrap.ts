@@ -3,7 +3,7 @@ import { UpdateBlogDto } from '../../../blogger-platform/blogs/dto/update-blog.d
 import { BlogRowWrap } from '../infrastructure/dto/blog.row.wrap';
 
 export class BlogWrap {
-  id: string;
+  id: number;
   name: string;
   description: string;
   websiteUrl: string;
@@ -29,7 +29,7 @@ export class BlogWrap {
   static reconstitute(row: BlogRowWrap): BlogWrap {
     const blog = new BlogWrap();
 
-    blog.id = row.id.toString();
+    blog.id = row.id;
     blog.name = row.name;
     blog.description = row.description;
     blog.websiteUrl = row.website_url;

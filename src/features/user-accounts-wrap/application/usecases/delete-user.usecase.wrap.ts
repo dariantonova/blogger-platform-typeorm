@@ -4,7 +4,7 @@ import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-au
 import { BloggerPlatformExternalServiceWrap } from '../../../blogger-platform-wrap/common/infrastructure/external/blogger-platform.external-service.wrap';
 
 export class DeleteUserCommandWrap {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @CommandHandler(DeleteUserCommandWrap)

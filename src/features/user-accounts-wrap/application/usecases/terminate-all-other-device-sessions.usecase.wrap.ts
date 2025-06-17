@@ -2,7 +2,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DeviceAuthSessionsRepositoryWrap } from '../../infrastructure/device-auth-sessions.repository.wrap';
 
 export class TerminateAllOtherUserDeviceSessionsCommandWrap {
-  constructor(public dto: { userId: string; currentDeviceId: string }) {}
+  constructor(public dto: { userId: number; currentDeviceId: string }) {}
 }
 
 @CommandHandler(TerminateAllOtherUserDeviceSessionsCommandWrap)

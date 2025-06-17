@@ -19,37 +19,37 @@ export class UsersRepositoryWrap {
   async save(user: UserWrap): Promise<UserWrap> {
     if (!user.id) {
       await this.createUser(user);
-      await this.createUserConfirmation(+user.id, user.confirmationInfo);
+      await this.createUserConfirmation(user.id, user.confirmationInfo);
     } else {
       const { id, confirmationInfo, passwordRecoveryInfo, ...dtoToUpdate } =
         user;
 
-      await this.updateUser(+id, dtoToUpdate);
+      await this.updateUser(id, dtoToUpdate);
 
       const { ...confirmationDtoToUpdate } = confirmationInfo;
-      await this.updateUserConfirmation(+id, confirmationDtoToUpdate);
+      await this.updateUserConfirmation(id, confirmationDtoToUpdate);
     }
 
     if (user.passwordRecoveryInfo) {
       const { ...passwordRecoveryDto } = user.passwordRecoveryInfo;
-      await this.createOrUpdatePasswordRecovery(+user.id, passwordRecoveryDto);
+      await this.createOrUpdatePasswordRecovery(user.id, passwordRecoveryDto);
     }
 
     return user;
   }
 
-  async findById(id: string): Promise<UserWrap | null> {
+  async findById(id: number): Promise<UserWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE u.deleted_at IS NULL
     AND u.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? UserWrap.reconstitute(findResult[0]) : null;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<UserWrap> {
+  async findByIdOrNotFoundFail(id: number): Promise<UserWrap> {
     const user = await this.findById(id);
 
     if (!user) {
@@ -59,7 +59,7 @@ export class UsersRepositoryWrap {
     return user;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<UserWrap> {
+  async findByIdOrInternalFail(id: number): Promise<UserWrap> {
     const user = await this.findById(id);
 
     if (!user) {
@@ -161,7 +161,7 @@ export class UsersRepositoryWrap {
       user.deletedAt,
     ]);
 
-    user.id = createResult[0].id.toString();
+    user.id = createResult[0].id;
   }
 
   private async createUserConfirmation(

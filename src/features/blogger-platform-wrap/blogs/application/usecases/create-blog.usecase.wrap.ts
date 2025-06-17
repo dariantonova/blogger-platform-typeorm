@@ -9,15 +9,15 @@ export class CreateBlogCommandWrap {
 
 @CommandHandler(CreateBlogCommandWrap)
 export class CreateBlogUseCaseWrap
-  implements ICommandHandler<CreateBlogCommandWrap, string>
+  implements ICommandHandler<CreateBlogCommandWrap, number>
 {
   constructor(private blogsRepository: BlogsRepositoryWrap) {}
 
-  async execute({ dto }: CreateBlogCommandWrap): Promise<string> {
+  async execute({ dto }: CreateBlogCommandWrap): Promise<number> {
     const blog = BlogWrap.createInstance(dto);
 
     await this.blogsRepository.save(blog);
 
-    return blog.id.toString();
+    return blog.id;
   }
 }

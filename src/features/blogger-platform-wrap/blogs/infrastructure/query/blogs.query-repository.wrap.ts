@@ -41,18 +41,18 @@ export class BlogsQueryRepositoryWrap {
     );
   }
 
-  async findById(id: string): Promise<BlogViewRowWrap | null> {
+  async findById(id: number): Promise<BlogViewRowWrap | null> {
     const findQuery = `
     ${this.buildSelectFromClause()}
     WHERE b.deleted_at IS NULL
     AND b.id = $1;
     `;
-    const findResult = await this.dataSource.query(findQuery, [+id]);
+    const findResult = await this.dataSource.query(findQuery, [id]);
 
     return findResult[0] ? findResult[0] : null;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<BlogViewDto> {
+  async findByIdOrInternalFail(id: number): Promise<BlogViewDto> {
     const blog = await this.findById(id);
 
     if (!blog) {
@@ -62,7 +62,7 @@ export class BlogsQueryRepositoryWrap {
     return BlogViewDto.mapToViewWrap(blog);
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
+  async findByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
     const blog = await this.findById(id);
 
     if (!blog) {

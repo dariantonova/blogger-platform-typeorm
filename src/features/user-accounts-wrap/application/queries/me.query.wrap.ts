@@ -3,7 +3,7 @@ import { AuthQueryRepositoryWrap } from '../../infrastructure/query/auth.query-r
 import { MeViewDto } from '../../../user-accounts/api/view-dto/user.view-dto';
 
 export class MeQueryWrap {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(MeQueryWrap)

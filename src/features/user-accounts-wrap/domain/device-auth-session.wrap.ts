@@ -1,18 +1,18 @@
-import { CreateDeviceAuthSessionDomainDto } from '../../user-accounts/domain/dto/create-device-auth-session.domain.dto';
 import { UpdateDeviceAuthSessionDomainDto } from '../../user-accounts/domain/dto/update-device-auth-session.domain.dto';
 import { DeviceAuthSessionRowWrap } from '../infrastructure/dto/device-auth-session.row.wrap';
+import { CreateDeviceAuthSessionDomainDtoWrap } from './dto/create-device-auth-session.domain-dto.wrap';
 
 export class DeviceAuthSessionWrap {
-  id: string;
+  id: number;
   deviceId: string;
-  userId: string;
+  userId: number;
   exp: Date;
   iat: Date;
   deviceName: string;
   ip: string;
 
   static createInstance(
-    dto: CreateDeviceAuthSessionDomainDto,
+    dto: CreateDeviceAuthSessionDomainDtoWrap,
   ): DeviceAuthSessionWrap {
     const session = new DeviceAuthSessionWrap();
 
@@ -29,9 +29,9 @@ export class DeviceAuthSessionWrap {
   static reconstitute(row: DeviceAuthSessionRowWrap): DeviceAuthSessionWrap {
     const session = new DeviceAuthSessionWrap();
 
-    session.id = row.id.toString();
+    session.id = row.id;
     session.deviceId = row.device_id;
-    session.userId = row.user_id.toString();
+    session.userId = row.user_id;
     session.exp = row.exp;
     session.iat = row.iat;
     session.deviceName = row.device_name;

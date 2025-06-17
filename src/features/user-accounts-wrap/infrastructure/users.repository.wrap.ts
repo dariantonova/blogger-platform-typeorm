@@ -230,4 +230,12 @@ export class UsersRepositoryWrap {
       dto.expirationDate,
     ]);
   }
+
+  async deletePasswordRecoveryByUserId(userId: number): Promise<void> {
+    const deleteQuery = `
+      DELETE FROM password_recoveries
+      WHERE user_id = $1;
+      `;
+    await this.dataSource.query(deleteQuery, [userId]);
+  }
 }

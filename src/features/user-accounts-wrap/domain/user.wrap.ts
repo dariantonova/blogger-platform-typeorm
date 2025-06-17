@@ -104,8 +104,7 @@ export class UserWrap {
   }
 
   resetPasswordRecoveryInfo() {
-    this.passwordRecoveryInfo?.revoke();
-    this.updatedAt = new Date();
+    this.passwordRecoveryInfo = null;
   }
 
   setPasswordHash(passwordHash: string) {

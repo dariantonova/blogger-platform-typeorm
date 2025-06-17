@@ -53,6 +53,7 @@ export class SetNewPasswordUseCaseWrap
     }
 
     user.resetPasswordRecoveryInfo();
+    await this.usersRepository.deletePasswordRecoveryByUserId(user.id);
 
     const newPasswordHash =
       await this.cryptoService.createPasswordHash(newPassword);

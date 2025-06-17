@@ -34,9 +34,4 @@ export class PasswordRecoveryWrap {
       seconds: codeLifetimeInSeconds,
     });
   }
-
-  revoke() {
-    this.recoveryCodeHash = '';
-    this.expirationDate = new Date();
-  }
 }

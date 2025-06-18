@@ -1,6 +1,4 @@
-import { BlogDocument } from '../../domain/blog.entity';
-import { BlogDtoSql } from '../../../../blogger-platform-sql/blogs/dto/blog.dto.sql';
-import { BlogViewRowWrap } from '../../../../blogger-platform-wrap/blogs/infrastructure/query/dto/blog.view-row.wrap';
+import { BlogViewRow } from '../../infrastructure/query/dto/blog.view-row';
 
 export class BlogViewDto {
   id: string;
@@ -10,33 +8,7 @@ export class BlogViewDto {
   createdAt: string;
   isMembership: boolean;
 
-  static mapToView(blog: BlogDtoSql): BlogViewDto {
-    const dto = new BlogViewDto();
-
-    dto.id = blog.id.toString();
-    dto.name = blog.name;
-    dto.description = blog.description;
-    dto.websiteUrl = blog.websiteUrl;
-    dto.createdAt = blog.createdAt.toISOString();
-    dto.isMembership = blog.isMembership;
-
-    return dto;
-  }
-
-  static mapToViewMongo(blog: BlogDocument): BlogViewDto {
-    const dto = new BlogViewDto();
-
-    dto.id = blog._id.toString();
-    dto.name = blog.name;
-    dto.description = blog.description;
-    dto.websiteUrl = blog.websiteUrl;
-    dto.createdAt = blog.createdAt.toISOString();
-    dto.isMembership = blog.isMembership;
-
-    return dto;
-  }
-
-  static mapToViewWrap(row: BlogViewRowWrap): BlogViewDto {
+  static mapToViewWrap(row: BlogViewRow): BlogViewDto {
     const dto = new BlogViewDto();
 
     dto.id = row.id.toString();

@@ -1,4 +1,4 @@
 export class DeviceAuthSessionContextDto {
-  userId: string;
+  userId: number;
   deviceId: string;
 }

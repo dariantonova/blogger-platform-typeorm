@@ -1,19 +1,19 @@
-import { UpdateCommentDto } from '../../dto/update-comment.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { ForbiddenException } from '@nestjs/common';
+import { CommentsRepository } from '../../infrastructure/comments.repository';
+import { UpdateCommentDto } from '../../dto/update-comment.dto';
 
-export class UpdateCommentCommand {
+export class UpdateCommentCommandWrap {
   constructor(
-    public commentId: string,
+    public commentId: number,
     public dto: UpdateCommentDto,
-    public currentUserId: string,
+    public currentUserId: number,
   ) {}
 }
 
-@CommandHandler(UpdateCommentCommand)
-export class UpdateCommentUseCase
-  implements ICommandHandler<UpdateCommentCommand>
+@CommandHandler(UpdateCommentCommandWrap)
+export class UpdateCommentUseCaseWrap
+  implements ICommandHandler<UpdateCommentCommandWrap>
 {
   constructor(private commentsRepository: CommentsRepository) {}
 
@@ -21,11 +21,11 @@ export class UpdateCommentUseCase
     commentId,
     dto,
     currentUserId,
-  }: UpdateCommentCommand): Promise<void> {
+  }: UpdateCommentCommandWrap): Promise<void> {
     const comment =
       await this.commentsRepository.findByIdOrNotFoundFail(commentId);
 
-    if (currentUserId !== comment.commentatorInfo.userId) {
+    if (currentUserId !== comment.userId) {
       throw new ForbiddenException();
     }
 

@@ -2,7 +2,6 @@ import { configModule } from './dynamic-config-module';
 import { DynamicModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
 import { UserAccountsModule } from './features/user-accounts/user-accounts.module';
 import { BloggerPlatformModule } from './features/blogger-platform/blogger-platform.module';
 import { TestingModule } from './features/testing/testing.module';
@@ -34,15 +33,6 @@ export class AppModule {
             database: coreConfig.pgDbName,
             autoLoadEntities: false,
             synchronize: false,
-          };
-        },
-      }),
-      MongooseModule.forRootAsync({
-        inject: [CoreConfig],
-        useFactory: (coreConfig: CoreConfig) => {
-          return {
-            uri: coreConfig.mongoUri,
-            dbName: coreConfig.dbName,
           };
         },
       }),

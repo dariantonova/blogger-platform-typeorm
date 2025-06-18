@@ -36,7 +36,7 @@ import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { UsersTestRepositorySql } from '../helpers/repositories/users.test-repository.sql';
+import { UsersTestRepository } from '../helpers/repositories/users.test-repository';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -45,7 +45,7 @@ describe('auth', () => {
   let usersTestManager: UsersTestManager;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
-  let usersTestRepository: UsersTestRepositorySql;
+  let usersTestRepository: UsersTestRepository;
 
   const accessTokenExpInMs = 2000;
   const refreshTokenExpInMs = 3000;
@@ -106,7 +106,7 @@ describe('auth', () => {
     jwtTestManager = new JwtTestManager(refreshJwtService);
 
     const dataSource = app.get(DataSource);
-    usersTestRepository = new UsersTestRepositorySql(dataSource);
+    usersTestRepository = new UsersTestRepository(dataSource);
   });
 
   afterAll(async () => {
@@ -450,14 +450,6 @@ describe('auth', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      // const dbCreatedUser = await usersCommonTestManager.findUserById(
-      //   createdUser.id,
-      // );
-      // expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
-      // expect(
-      //   dbCreatedUser.confirmationInfo.confirmationCode.length,
-      // ).toBeGreaterThan(0);
-
       const dbCreatedUserConfirmationInfo =
         await usersTestRepository.findUserConfirmationInfo(createdUser.id);
       expect(dbCreatedUserConfirmationInfo.isConfirmed).toBe(false);
@@ -751,12 +743,6 @@ describe('auth', () => {
       const getUsersResponse = await usersCommonTestManager.getUsers();
       const createdUser = getUsersResponse.body.items[0] as UserViewDto;
 
-      // const dbUnconfirmedUser = await usersCommonTestManager.findUserById(
-      //   createdUser.id,
-      // );
-      // const confirmationCode =
-      //   dbUnconfirmedUser.confirmationInfo.confirmationCode;
-
       const confirmationCode =
         await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
@@ -767,11 +753,6 @@ describe('auth', () => {
         inputDto,
         HttpStatus.NO_CONTENT,
       );
-
-      // const dbConfirmedUser = await usersCommonTestManager.findUserById(
-      //   createdUser.id,
-      // );
-      // expect(dbConfirmedUser.confirmationInfo.isConfirmed).toBe(true);
 
       const dbUserConfirmationInfo =
         await usersTestRepository.findUserConfirmationInfo(createdUser.id);
@@ -859,10 +840,6 @@ describe('auth', () => {
 
         await usersCommonTestManager.deleteUser(userToDelete.id);
 
-        // const dbDeletedUser = await usersCommonTestManager.findUserById(
-        //   userToDelete.id,
-        // );
-        // const code = dbDeletedUser.confirmationInfo.confirmationCode;
         const code = await usersTestRepository.findUserConfirmationCode(
           userToDelete.id,
         );
@@ -890,8 +867,6 @@ describe('auth', () => {
         };
         await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
-        // const confirmationCode =
-        //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
         const confirmationCode =
           await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
@@ -926,8 +901,6 @@ describe('auth', () => {
         };
         await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
-        // const confirmationCode =
-        //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
         const confirmationCode =
           await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
@@ -1047,8 +1020,6 @@ describe('auth', () => {
       };
       await authTestManager.register(userData, HttpStatus.NO_CONTENT);
 
-      // const confirmationCode =
-      //   await usersCommonTestManager.getConfirmationCodeOfLastCreatedUser();
       const confirmationCode =
         await usersTestRepository.findConfirmationCodeOfLastCreatedUser();
 
@@ -1212,10 +1183,6 @@ describe('auth', () => {
       const recoveryCodeHash =
         cryptoService.createPasswordRecoveryCodeHash(recoveryCode);
 
-      // await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
-      //   user.id,
-      //   recoveryCodeHash,
-      // );
       await usersTestRepository.setUserPasswordRecoveryCodeHash(
         user.id,
         recoveryCodeHash,
@@ -1277,10 +1244,6 @@ describe('auth', () => {
         );
 
         for (let i = 0; i < usersData.length; i++) {
-          // await usersCommonTestManager.setUserPasswordRecoveryCodeHash(
-          //   users[i].id,
-          //   recoveryCodesHashes[i],
-          // );
           await usersTestRepository.setUserPasswordRecoveryCodeHash(
             users[i].id,
             recoveryCodesHashes[i],
@@ -1480,10 +1443,6 @@ describe('auth', () => {
 
       // expired code
       it('should return 400 if recovery code is expired', async () => {
-        // await usersCommonTestManager.setUserPasswordRecoveryExpirationDate(
-        //   users[2].id,
-        //   new Date(),
-        // );
         await usersTestRepository.setUserPasswordRecoveryExpirationDate(
           users[2].id,
           new Date(),

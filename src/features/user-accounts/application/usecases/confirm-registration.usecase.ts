@@ -39,7 +39,7 @@ export class ConfirmRegistrationUseCase
       });
     }
 
-    if (new Date() > user.confirmationInfo.expirationDate) {
+    if (new Date() > user.confirmationInfo.expirationDate!) {
       throw new BadRequestException({
         errors: [
           {

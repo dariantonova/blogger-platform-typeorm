@@ -23,15 +23,15 @@ import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
-import { UsersTestRepositorySql } from '../helpers/repositories/users.test-repository.sql';
+import { UsersTestRepository } from '../helpers/repositories/users.test-repository';
 import { DataSource } from 'typeorm';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
 import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
-import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
+import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
+import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
 
@@ -40,14 +40,14 @@ describe('users', () => {
   let usersTestManager: UsersTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
-  let usersTestRepository: UsersTestRepositorySql;
+  let usersTestRepository: UsersTestRepository;
   let blogsCommonTestManager: BlogsCommonTestManager;
   let postsCommonTestManager: PostsCommonTestManager;
   let commentsCommonTestManager: CommentsCommonTestManager;
   let postLikesTestManager: PostLikesTestManager;
-  let postLikesTestRepository: PostLikesTestRepositorySql;
+  let postLikesTestRepository: PostLikesTestRepository;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepositorySql;
+  let commentLikesTestRepository: CommentLikesTestRepository;
 
   beforeAll(async () => {
     app = await initApp();
@@ -62,9 +62,9 @@ describe('users', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    usersTestRepository = new UsersTestRepositorySql(dataSource);
-    postLikesTestRepository = new PostLikesTestRepositorySql(dataSource);
-    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
+    usersTestRepository = new UsersTestRepository(dataSource);
+    postLikesTestRepository = new PostLikesTestRepository(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
   });
 
   afterAll(async () => {
@@ -91,8 +91,6 @@ describe('users', () => {
 
       usersTestManager.checkCreatedUserViewFields(createdUser, inputDto);
 
-      // const dbCreatedUser = await usersTestManager.findUserById(createdUser.id);
-      // expect(dbCreatedUser.confirmationInfo.isConfirmed).toBe(false);
       const dbCreatedUserConfirmationInfo =
         await usersTestRepository.findUserConfirmationInfo(createdUser.id);
       expect(dbCreatedUserConfirmationInfo.isConfirmed).toBe(false);
@@ -480,11 +478,6 @@ describe('users', () => {
         const nonExistingId = generateNonExistingId();
         await usersTestManager.deleteUser(nonExistingId, HttpStatus.NOT_FOUND);
       });
-
-      // it('should return 404 when user id is not valid ObjectId', async () => {
-      //   const invalidId = 'not ObjectId';
-      //   await usersTestManager.deleteUser(invalidId, HttpStatus.NOT_FOUND);
-      // });
 
       it('should return 404 when user id is not a number', async () => {
         const invalidId = generateIdOfWrongType();
@@ -981,15 +974,6 @@ describe('users', () => {
         });
         expect(response.body.items).toEqual(expectedItems);
       });
-
-      // it(`should return users in order of creation if sort field doesn't exist`, async () => {
-      //   const expectedItems = users;
-      //
-      //   const response = await usersTestManager.getUsers(HttpStatus.OK, {
-      //     sortBy: 'nonExisting',
-      //   });
-      //   expect(response.body.items).toEqual(expectedItems);
-      // });
     });
 
     describe('filtering', () => {

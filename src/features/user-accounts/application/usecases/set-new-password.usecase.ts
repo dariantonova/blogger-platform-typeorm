@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { UsersRepository } from '../../infrastructure/users.repository';
-import { CryptoService } from '../crypto.service';
+import { CryptoService } from '../../../user-accounts/application/crypto.service';
 
 export class SetNewPasswordCommand {
   constructor(
@@ -41,7 +41,7 @@ export class SetNewPasswordUseCase
       });
     }
 
-    if (new Date() > user.passwordRecoveryInfo.expirationDate) {
+    if (new Date() > user.passwordRecoveryInfo!.expirationDate) {
       throw new BadRequestException({
         errors: [
           {
@@ -53,6 +53,7 @@ export class SetNewPasswordUseCase
     }
 
     user.resetPasswordRecoveryInfo();
+    await this.usersRepository.deletePasswordRecoveryByUserId(user.id);
 
     const newPasswordHash =
       await this.cryptoService.createPasswordHash(newPassword);

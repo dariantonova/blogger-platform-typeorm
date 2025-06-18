@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { UsersService } from '../users.service';
-import { ConfirmationEmailResendRequestedEvent } from '../../domain/events/confirmation-email-resend-requested.event';
+import { ConfirmationEmailResendRequestedEvent } from '../../../user-accounts/domain/events/confirmation-email-resend-requested.event';
 
 export class ResendRegistrationEmailCommand {
   constructor(public email: string) {}

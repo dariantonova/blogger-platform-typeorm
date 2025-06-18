@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import {
-  DeviceAuthSession,
-  DeviceAuthSessionModelType,
-} from '../../domain/device-auth-session.entity';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { DeviceViewDto } from '../../api/view-dto/device.view-dto';
 
 @Injectable()
 export class DeviceAuthSessionsQueryRepository {
-  constructor(
-    @InjectModel(DeviceAuthSession.name)
-    private DeviceAuthSessionModel: DeviceAuthSessionModelType,
-  ) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findUserSessions(userId: string): Promise<DeviceViewDto[]> {
-    const deviceAuthSessions = await this.DeviceAuthSessionModel.find({
-      userId,
-    }).sort({ _id: 1 });
+  async findUserSessions(userId: number): Promise<DeviceViewDto[]> {
+    const findQuery = `
+    SELECT
+    d.ip, d.device_name, d.iat, d.device_id
+    FROM device_auth_sessions d
+    WHERE d.user_id = $1
+    ORDER BY d.id;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [userId]);
 
-    return deviceAuthSessions.map(DeviceViewDto.mapToViewMongo);
+    return findResult.map(DeviceViewDto.mapToViewWrap);
   }
 }

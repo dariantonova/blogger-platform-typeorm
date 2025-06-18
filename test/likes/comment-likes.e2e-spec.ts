@@ -23,7 +23,7 @@ import { CommentViewDto } from '../../src/features/blogger-platform/comments/api
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
+import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -33,7 +33,7 @@ describe('comment likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepositorySql;
+  let commentLikesTestRepository: CommentLikesTestRepository;
   const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
@@ -55,7 +55,7 @@ describe('comment likes', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
@@ -285,17 +285,6 @@ describe('comment likes', () => {
         HttpStatus.NOT_FOUND,
       );
     });
-
-    // it('should return 404 when comment id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //
-    //   await commentLikesTestManager.makeCommentLikeOperation(
-    //     invalidId,
-    //     inputDto,
-    //     validAuth,
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // });
 
     it('should return 404 when comment id is not a number', async () => {
       const invalidId = generateIdOfWrongType();

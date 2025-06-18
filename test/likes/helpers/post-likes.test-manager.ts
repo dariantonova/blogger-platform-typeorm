@@ -7,18 +7,6 @@ import { LikeDetailsViewDto } from '../../../src/features/blogger-platform/commo
 export class PostLikesTestManager {
   constructor(private app: INestApplication) {}
 
-  // async checkPostLikesCount(
-  //   postId: string,
-  //   expectedCount: number,
-  // ): Promise<void> {
-  //   const count = await this.LikeModel.countDocuments({
-  //     status: LikeStatus.Like,
-  //     parentId: postId,
-  //     deletedAt: null,
-  //   });
-  //   expect(count).toBe(expectedCount);
-  // }
-
   async makePostLikeOperation(
     postId: string,
     dto: any,

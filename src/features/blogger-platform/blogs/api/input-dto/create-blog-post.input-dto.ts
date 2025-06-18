@@ -1,10 +1,10 @@
 import { IsStringOfLengthWithTrim } from '../../../../../core/decorators/validation/is-string-of-length-with-trim';
+import { IsNotEmpty } from 'class-validator';
 import {
   contentConstraints,
   shortDescriptionConstraints,
   titleConstraints,
-} from '../../../posts/domain/post.entity';
-import { IsNotEmpty } from 'class-validator';
+} from '../../../posts/domain/post-constraints';
 
 export class CreateBlogPostInputDto {
   @IsStringOfLengthWithTrim(

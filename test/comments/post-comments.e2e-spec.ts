@@ -60,9 +60,7 @@ describe('post comments', () => {
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);
     authTestManager = new AuthTestManager(app);
-
     usersCommonTestManager = new UsersCommonTestManager(app);
-
     commentsTestManager = new CommentsTestManager(app);
   });
 
@@ -194,14 +192,6 @@ describe('post comments', () => {
           HttpStatus.NOT_FOUND,
         );
       });
-
-      // it('should return 404 when post id is not valid ObjectId', async () => {
-      //   const invalidId = 'not ObjectId';
-      //   await commentsTestManager.getPostComments(
-      //     invalidId,
-      //     HttpStatus.NOT_FOUND,
-      //   );
-      // });
 
       it('should return 404 when post id is not a number', async () => {
         const invalidId = generateIdOfWrongType();
@@ -527,16 +517,6 @@ describe('post comments', () => {
           HttpStatus.NOT_FOUND,
         );
       });
-
-      // it('should return 404 when post id is not valid ObjectId', async () => {
-      //   const invalidId = 'not ObjectId';
-      //   await commentsTestManager.createPostComment(
-      //     invalidId,
-      //     validInputDto,
-      //     validAuth,
-      //     HttpStatus.NOT_FOUND,
-      //   );
-      // });
 
       it('should return 404 when post id is not a number', async () => {
         const invalidId = generateIdOfWrongType();

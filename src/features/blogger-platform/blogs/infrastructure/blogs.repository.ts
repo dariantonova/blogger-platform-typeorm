@@ -1,27 +1,37 @@
-import { ObjectId } from 'mongodb';
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
-import { Blog, BlogDocument, BlogModelType } from '../domain/blog.entity';
-import { InjectModel } from '@nestjs/mongoose';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { Blog } from '../domain/blog.entity';
+import { getValuesFromDtoToUpdate } from '../../../../common/utils/sql/get-values-from-dto-to-update';
+import { buildUpdateSetClause } from '../../../../common/utils/sql/build-update-set-clause';
 
 @Injectable()
 export class BlogsRepository {
-  constructor(
-    @InjectModel(Blog.name)
-    private BlogModel: BlogModelType,
-  ) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  async findById(id: string): Promise<BlogDocument | null> {
-    return this.BlogModel.findOne({
-      _id: new ObjectId(id),
-      deletedAt: null,
-    });
+  async save(blog: Blog): Promise<Blog> {
+    if (!blog.id) {
+      await this.createBlog(blog);
+    } else {
+      const { id, ...dtoToUpdate } = blog;
+      await this.updateBlog(id, dtoToUpdate);
+    }
+
+    return blog;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<BlogDocument> {
+  async findById(id: number): Promise<Blog | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE b.deleted_at IS NULL
+    AND b.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [id]);
+
+    return findResult[0] ? Blog.reconstitute(findResult[0]) : null;
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<Blog> {
     const blog = await this.findById(id);
 
     if (!blog) {
@@ -31,17 +41,46 @@ export class BlogsRepository {
     return blog;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<BlogDocument> {
-    const blog = await this.findById(id);
-
-    if (!blog) {
-      throw new InternalServerErrorException('Blog not found');
-    }
-
-    return blog;
+  private buildSelectFromClause(): string {
+    return `
+    SELECT
+    b.id, b.name, b.description, b.website_url, b.is_membership, b.created_at, b.updated_at, b.deleted_at
+    FROM blogs b
+    `;
   }
 
-  async save(blog: BlogDocument): Promise<void> {
-    await blog.save();
+  private async createBlog(blog: Blog): Promise<void> {
+    const createQuery = `
+    INSERT INTO blogs
+    (name, description, website_url, is_membership, created_at, updated_at, deleted_at)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
+    RETURNING id;
+    `;
+    const createResult = await this.dataSource.query(createQuery, [
+      blog.name,
+      blog.description,
+      blog.websiteUrl,
+      blog.isMembership,
+      blog.createdAt,
+      blog.updatedAt,
+      blog.deletedAt,
+    ]);
+
+    blog.id = createResult[0].id;
+  }
+
+  private async updateBlog(
+    id: number,
+    dtoToUpdate: Partial<Blog>,
+  ): Promise<void> {
+    const newValues = getValuesFromDtoToUpdate(dtoToUpdate);
+    const updateSetClause = buildUpdateSetClause(dtoToUpdate);
+
+    const updateQuery = `
+    UPDATE blogs
+    ${updateSetClause}
+    WHERE id = $${newValues.length + 1};
+    `;
+    await this.dataSource.query(updateQuery, [...newValues, id]);
   }
 }

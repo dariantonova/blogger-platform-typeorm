@@ -1,6 +1,6 @@
 import { IsStringOfLengthWithTrim } from '../../../../core/decorators/validation/is-string-of-length-with-trim';
-import { passwordConstraints } from '../../domain/user.entity';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { passwordConstraints } from '../../domain/user-constraints';
 
 export class NewPasswordRecoveryInputDto {
   @IsStringOfLengthWithTrim(

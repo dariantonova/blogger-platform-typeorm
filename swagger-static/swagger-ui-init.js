@@ -27,7 +27,7 @@ window.onload = function() {
       },
       "/api/sa/users": {
         "get": {
-          "operationId": "UsersControllerWrap_getUsers",
+          "operationId": "UsersController_getUsers",
           "parameters": [],
           "responses": {
             "200": {
@@ -35,11 +35,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerWrap"
+            "Users"
           ]
         },
         "post": {
-          "operationId": "UsersControllerWrap_createUser",
+          "operationId": "UsersController_createUser",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -57,13 +57,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerWrap"
+            "Users"
           ]
         }
       },
       "/api/sa/users/{id}": {
         "delete": {
-          "operationId": "UsersControllerWrap_deleteUser",
+          "operationId": "UsersController_deleteUser",
           "parameters": [
             {
               "name": "id",
@@ -80,13 +80,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "UsersControllerWrap"
+            "Users"
           ]
         }
       },
       "/api/auth/login": {
         "post": {
-          "operationId": "AuthControllerWrap_login",
+          "operationId": "AuthController_login",
           "parameters": [],
           "responses": {
             "200": {
@@ -94,13 +94,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/me": {
         "get": {
-          "operationId": "AuthControllerWrap_me",
+          "operationId": "AuthController_me",
           "parameters": [],
           "responses": {
             "200": {
@@ -108,13 +108,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/registration": {
         "post": {
-          "operationId": "AuthControllerWrap_register",
+          "operationId": "AuthController_register",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -132,13 +132,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/registration-email-resending": {
         "post": {
-          "operationId": "AuthControllerWrap_resendRegistrationEmail",
+          "operationId": "AuthController_resendRegistrationEmail",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -156,13 +156,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/registration-confirmation": {
         "post": {
-          "operationId": "AuthControllerWrap_confirmRegistration",
+          "operationId": "AuthController_confirmRegistration",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -180,13 +180,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/password-recovery": {
         "post": {
-          "operationId": "AuthControllerWrap_recoverPassword",
+          "operationId": "AuthController_recoverPassword",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -204,13 +204,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/new-password": {
         "post": {
-          "operationId": "AuthControllerWrap_setNewPassword",
+          "operationId": "AuthController_setNewPassword",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -228,13 +228,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/refresh-token": {
         "post": {
-          "operationId": "AuthControllerWrap_refreshToken",
+          "operationId": "AuthController_refreshToken",
           "parameters": [],
           "responses": {
             "200": {
@@ -242,13 +242,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/auth/logout": {
         "post": {
-          "operationId": "AuthControllerWrap_logout",
+          "operationId": "AuthController_logout",
           "parameters": [],
           "responses": {
             "204": {
@@ -256,13 +256,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "AuthControllerWrap"
+            "Auth"
           ]
         }
       },
       "/api/security/devices": {
         "get": {
-          "operationId": "SecurityDevicesControllerWrap_getUserDeviceSessions",
+          "operationId": "SecurityDevicesController_getUserDeviceSessions",
           "parameters": [],
           "responses": {
             "200": {
@@ -270,11 +270,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerWrap"
+            "SecurityDevices"
           ]
         },
         "delete": {
-          "operationId": "SecurityDevicesControllerWrap_terminateAllOtherUserDeviceSessions",
+          "operationId": "SecurityDevicesController_terminateAllOtherUserDeviceSessions",
           "parameters": [],
           "responses": {
             "204": {
@@ -282,13 +282,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerWrap"
+            "SecurityDevices"
           ]
         }
       },
       "/api/security/devices/{deviceId}": {
         "delete": {
-          "operationId": "SecurityDevicesControllerWrap_terminateDeviceSession",
+          "operationId": "SecurityDevicesController_terminateDeviceSession",
           "parameters": [
             {
               "name": "deviceId",
@@ -305,13 +305,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "SecurityDevicesControllerWrap"
+            "SecurityDevices"
           ]
         }
       },
       "/api/blogs": {
         "get": {
-          "operationId": "BlogsControllerWrap_getBlogs",
+          "operationId": "BlogsController_getBlogs",
           "parameters": [],
           "responses": {
             "200": {
@@ -319,13 +319,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsControllerWrap"
+            "Blogs"
           ]
         }
       },
       "/api/blogs/{id}": {
         "get": {
-          "operationId": "BlogsControllerWrap_getBlog",
+          "operationId": "BlogsController_getBlog",
           "parameters": [
             {
               "name": "id",
@@ -342,13 +342,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsControllerWrap"
+            "Blogs"
           ]
         }
       },
       "/api/blogs/{blogId}/posts": {
         "get": {
-          "operationId": "BlogsControllerWrap_getBlogPosts",
+          "operationId": "BlogsController_getBlogPosts",
           "parameters": [
             {
               "name": "blogId",
@@ -365,13 +365,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsControllerWrap"
+            "Blogs"
           ]
         }
       },
       "/api/sa/blogs": {
         "get": {
-          "operationId": "BlogsSaControllerWrap_getBlogs",
+          "operationId": "BlogsSaController_getBlogs",
           "parameters": [],
           "responses": {
             "200": {
@@ -379,11 +379,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         },
         "post": {
-          "operationId": "BlogsSaControllerWrap_createBlog",
+          "operationId": "BlogsSaController_createBlog",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -401,13 +401,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         }
       },
       "/api/sa/blogs/{id}": {
         "get": {
-          "operationId": "BlogsSaControllerWrap_getBlog",
+          "operationId": "BlogsSaController_getBlog",
           "parameters": [
             {
               "name": "id",
@@ -424,11 +424,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         },
         "put": {
-          "operationId": "BlogsSaControllerWrap_updateBlog",
+          "operationId": "BlogsSaController_updateBlog",
           "parameters": [
             {
               "name": "id",
@@ -455,11 +455,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         },
         "delete": {
-          "operationId": "BlogsSaControllerWrap_deleteBlog",
+          "operationId": "BlogsSaController_deleteBlog",
           "parameters": [
             {
               "name": "id",
@@ -476,13 +476,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         }
       },
       "/api/sa/blogs/{blogId}/posts": {
         "get": {
-          "operationId": "BlogsSaControllerWrap_getBlogPosts",
+          "operationId": "BlogsSaController_getBlogPosts",
           "parameters": [
             {
               "name": "blogId",
@@ -499,11 +499,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         },
         "post": {
-          "operationId": "BlogsSaControllerWrap_createBlogPost",
+          "operationId": "BlogsSaController_createBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -530,13 +530,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         }
       },
       "/api/sa/blogs/{blogId}/posts/{postId}": {
         "put": {
-          "operationId": "BlogsSaControllerWrap_updateBlogPost",
+          "operationId": "BlogsSaController_updateBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -560,7 +560,7 @@ window.onload = function() {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/UpdateBlogPostInputDtoWrap"
+                  "$ref": "#/components/schemas/UpdateBlogPostInputDto"
                 }
               }
             }
@@ -571,11 +571,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         },
         "delete": {
-          "operationId": "BlogsSaControllerWrap_deleteBlogPost",
+          "operationId": "BlogsSaController_deleteBlogPost",
           "parameters": [
             {
               "name": "blogId",
@@ -600,13 +600,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "BlogsSaControllerWrap"
+            "BlogsSa"
           ]
         }
       },
       "/api/posts": {
         "get": {
-          "operationId": "PostsControllerWrap_getPosts",
+          "operationId": "PostsController_getPosts",
           "parameters": [],
           "responses": {
             "200": {
@@ -614,13 +614,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "PostsControllerWrap"
+            "Posts"
           ]
         }
       },
       "/api/posts/{id}": {
         "get": {
-          "operationId": "PostsControllerWrap_getPost",
+          "operationId": "PostsController_getPost",
           "parameters": [
             {
               "name": "id",
@@ -637,13 +637,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "PostsControllerWrap"
+            "Posts"
           ]
         }
       },
       "/api/posts/{postId}/comments": {
         "get": {
-          "operationId": "PostsControllerWrap_getPostComments",
+          "operationId": "PostsController_getPostComments",
           "parameters": [
             {
               "name": "postId",
@@ -660,11 +660,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "PostsControllerWrap"
+            "Posts"
           ]
         },
         "post": {
-          "operationId": "PostsControllerWrap_createPostComment",
+          "operationId": "PostsController_createPostComment",
           "parameters": [
             {
               "name": "postId",
@@ -691,13 +691,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "PostsControllerWrap"
+            "Posts"
           ]
         }
       },
       "/api/posts/{postId}/like-status": {
         "put": {
-          "operationId": "PostsControllerWrap_makePostLikeOperation",
+          "operationId": "PostsController_makePostLikeOperation",
           "parameters": [
             {
               "name": "postId",
@@ -724,13 +724,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "PostsControllerWrap"
+            "Posts"
           ]
         }
       },
       "/api/comments/{id}": {
         "get": {
-          "operationId": "CommentsControllerWrap_getComment",
+          "operationId": "CommentsController_getComment",
           "parameters": [
             {
               "name": "id",
@@ -747,11 +747,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "CommentsControllerWrap"
+            "Comments"
           ]
         },
         "put": {
-          "operationId": "CommentsControllerWrap_updateComment",
+          "operationId": "CommentsController_updateComment",
           "parameters": [
             {
               "name": "id",
@@ -778,11 +778,11 @@ window.onload = function() {
             }
           },
           "tags": [
-            "CommentsControllerWrap"
+            "Comments"
           ]
         },
         "delete": {
-          "operationId": "CommentsControllerWrap_deleteComment",
+          "operationId": "CommentsController_deleteComment",
           "parameters": [
             {
               "name": "id",
@@ -799,13 +799,13 @@ window.onload = function() {
             }
           },
           "tags": [
-            "CommentsControllerWrap"
+            "Comments"
           ]
         }
       },
       "/api/comments/{commentId}/like-status": {
         "put": {
-          "operationId": "CommentsControllerWrap_makeCommentLikeOperation",
+          "operationId": "CommentsController_makeCommentLikeOperation",
           "parameters": [
             {
               "name": "commentId",
@@ -832,7 +832,7 @@ window.onload = function() {
             }
           },
           "tags": [
-            "CommentsControllerWrap"
+            "Comments"
           ]
         }
       },
@@ -900,7 +900,7 @@ window.onload = function() {
           "type": "object",
           "properties": {}
         },
-        "UpdateBlogPostInputDtoWrap": {
+        "UpdateBlogPostInputDto": {
           "type": "object",
           "properties": {}
         },

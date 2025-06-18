@@ -1,59 +1,43 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
-import { CreateDeviceAuthSessionDomainDto } from './dto/create-device-auth-session.domain.dto';
 import { UpdateDeviceAuthSessionDomainDto } from './dto/update-device-auth-session.domain.dto';
+import { DeviceAuthSessionRow } from '../infrastructure/dto/device-auth-session.row';
+import { CreateDeviceAuthSessionDomainDto } from './dto/create-device-auth-session.domain-dto';
 
-@Schema()
 export class DeviceAuthSession {
-  @Prop({
-    type: String,
-    required: true,
-  })
+  id: number;
   deviceId: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
-  userId: string;
-
-  @Prop({
-    type: Date,
-    required: true,
-  })
+  userId: number;
   exp: Date;
-
-  @Prop({
-    type: Date,
-    required: true,
-  })
   iat: Date;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
   deviceName: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
   ip: string;
 
   static createInstance(
     dto: CreateDeviceAuthSessionDomainDto,
-  ): DeviceAuthSessionDocument {
-    const session = new this();
+  ): DeviceAuthSession {
+    const session = new DeviceAuthSession();
 
     session.deviceId = dto.deviceId;
     session.userId = dto.userId;
     session.exp = dto.exp;
     session.iat = dto.iat;
-    session.ip = dto.ip;
     session.deviceName = dto.deviceName;
+    session.ip = dto.ip;
 
-    return session as DeviceAuthSessionDocument;
+    return session;
+  }
+
+  static reconstitute(row: DeviceAuthSessionRow): DeviceAuthSession {
+    const session = new DeviceAuthSession();
+
+    session.id = row.id;
+    session.deviceId = row.device_id;
+    session.userId = row.user_id;
+    session.exp = row.exp;
+    session.iat = row.iat;
+    session.deviceName = row.device_name;
+    session.ip = row.ip;
+
+    return session;
   }
 
   update(dto: UpdateDeviceAuthSessionDomainDto) {
@@ -62,13 +46,3 @@ export class DeviceAuthSession {
     this.ip = dto.ip;
   }
 }
-
-export const DeviceAuthSessionSchema =
-  SchemaFactory.createForClass(DeviceAuthSession);
-
-DeviceAuthSessionSchema.loadClass(DeviceAuthSession);
-
-export type DeviceAuthSessionDocument = HydratedDocument<DeviceAuthSession>;
-
-export type DeviceAuthSessionModelType = Model<DeviceAuthSessionDocument> &
-  typeof DeviceAuthSession;

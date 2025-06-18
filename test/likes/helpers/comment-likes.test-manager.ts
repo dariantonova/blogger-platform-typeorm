@@ -6,18 +6,6 @@ import { LikeStatus } from '../../../src/features/blogger-platform/likes/dto/lik
 export class CommentLikesTestManager {
   constructor(private app: INestApplication) {}
 
-  // async checkCommentLikesCount(
-  //   commentId: string,
-  //   expectedCount: number,
-  // ): Promise<void> {
-  //   const count = await this.LikeModel.countDocuments({
-  //     status: LikeStatus.Like,
-  //     parentId: commentId,
-  //     deletedAt: null,
-  //   });
-  //   expect(count).toBe(expectedCount);
-  // }
-
   async makeCommentLikeOperation(
     commentId: string,
     dto: any,

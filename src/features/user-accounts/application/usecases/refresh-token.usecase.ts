@@ -1,17 +1,17 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { unixToDate } from '../../../../common/utils/date.util';
+import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
+import { AuthTokensDto } from '../../../user-accounts/dto/auth-tokens.dto';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
-} from '../../constants/auth-tokens.inject-constants';
-import { JwtService } from '@nestjs/jwt';
-import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
-import { AuthTokensDto } from '../../dto/auth-tokens.dto';
-import { RefreshJWTPayload } from '../../dto/refresh-jwt-payload';
-import { unixToDate } from '../../../../common/utils/date.util';
+} from '../../../user-accounts/constants/auth-tokens.inject-constants';
+import { RefreshJwtPayloadDto } from '../../dto/refresh-jwt-payload.dto';
 
 export class RefreshTokenCommand {
-  constructor(public dto: { userId: string; deviceId: string; ip: string }) {}
+  constructor(public dto: { userId: number; deviceId: string; ip: string }) {}
 }
 
 @CommandHandler(RefreshTokenCommand)
@@ -33,11 +33,12 @@ export class RefreshTokenUseCase
       deviceId: dto.deviceId,
     });
 
-    const refreshTokenPayload: RefreshJWTPayload =
+    const refreshTokenPayload: RefreshJwtPayloadDto =
       this.refreshTokenContext.decode(refreshToken);
 
     await this.updateDeviceAuthSession(
       dto.deviceId,
+      dto.userId,
       refreshTokenPayload.exp,
       refreshTokenPayload.iat,
       dto.ip,
@@ -52,13 +53,15 @@ export class RefreshTokenUseCase
 
   private async updateDeviceAuthSession(
     deviceId: string,
+    userId: number,
     expUnix: number,
     iatUnix: number,
     ip: string,
   ): Promise<void> {
     const deviceAuthSession =
-      await this.deviceAuthSessionsRepository.findByDeviceIdOrInternalFail(
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndUserIdOrInternalFail(
         deviceId,
+        userId,
       );
 
     deviceAuthSession.update({

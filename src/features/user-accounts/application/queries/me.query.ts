@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { MeViewDto } from '../../api/view-dto/user.view-dto';
 import { AuthQueryRepository } from '../../infrastructure/query/auth.query-repository';
+import { MeViewDto } from '../../api/view-dto/user.view-dto';
 
 export class MeQuery {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(MeQuery)

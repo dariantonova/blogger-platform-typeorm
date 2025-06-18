@@ -396,11 +396,6 @@ describe('posts', () => {
       await postsTestManager.getPost(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
-    // it('should return 404 when post id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //   await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);
-    // });
-
     it('should return 404 when post id is not a number', async () => {
       const invalidId = generateIdOfWrongType();
       await postsTestManager.getPost(invalidId, HttpStatus.NOT_FOUND);

@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { BlogsQueryRepository } from '../../infrastructure/query/blogs.query-repository';
+import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 
 export class GetBlogByIdOrNotFoundFailQuery {
-  constructor(public blogId: string) {}
+  constructor(public blogId: number) {}
 }
 
 @QueryHandler(GetBlogByIdOrNotFoundFailQuery)

@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepository } from '../infrastructure/users.repository';
-import { CryptoService } from './crypto.service';
-import { UserContextDto } from '../guards/dto/user-context.dto';
-import { RefreshJWTPayload } from '../dto/refresh-jwt-payload';
-import { AccessJwtPayload } from '../dto/access-jwt-payload';
-import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
-import { DeviceAuthSessionsRepository } from '../infrastructure/device-auth-sessions.repository';
 import { unixToDate } from '../../../common/utils/date.util';
+import { UsersRepository } from '../infrastructure/users.repository';
+import { DeviceAuthSessionsRepository } from '../infrastructure/device-auth-sessions.repository';
+import { CryptoService } from '../../user-accounts/application/crypto.service';
+import { UserContextDto } from '../guards/dto/user-context.dto';
+import { AccessJwtPayloadDto } from '../dto/access-jwt-payload.dto';
+import { RefreshJwtPayloadDto } from '../dto/refresh-jwt-payload.dto';
+import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,11 +33,11 @@ export class AuthService {
       return null;
     }
 
-    return { id: user._id.toString() };
+    return { id: user.id };
   }
 
   async validateUserFromAccessToken(
-    payload: AccessJwtPayload,
+    payload: AccessJwtPayloadDto,
   ): Promise<UserContextDto | null> {
     const user = await this.usersRepository.findById(payload.userId);
     if (!user) {
@@ -48,14 +48,20 @@ export class AuthService {
   }
 
   async validateSessionFromRefreshToken(
-    payload: RefreshJWTPayload,
+    payload: RefreshJwtPayloadDto,
   ): Promise<DeviceAuthSessionContextDto | null> {
     const deviceAuthSession =
-      await this.deviceAuthSessionsRepository.findByDeviceIdAndIat(
+      await this.deviceAuthSessionsRepository.findByDeviceIdAndIatAndUserId(
         payload.deviceId,
         unixToDate(payload.iat),
+        payload.userId,
       );
     if (!deviceAuthSession) {
+      return null;
+    }
+
+    const user = await this.usersRepository.findById(payload.userId);
+    if (!user) {
       return null;
     }
 

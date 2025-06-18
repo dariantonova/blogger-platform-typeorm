@@ -1,11 +1,11 @@
 import { IsEmail, IsNotEmpty, IsString, Matches } from 'class-validator';
+import { Trim } from '../../../../core/decorators/transform/trim';
+import { IsStringOfLengthWithTrim } from '../../../../core/decorators/validation/is-string-of-length-with-trim';
 import {
   emailConstraints,
   loginConstraints,
   passwordConstraints,
-} from '../../domain/user.entity';
-import { Trim } from '../../../../core/decorators/transform/trim';
-import { IsStringOfLengthWithTrim } from '../../../../core/decorators/validation/is-string-of-length-with-trim';
+} from '../../domain/user-constraints';
 
 export class CreateUserInputDto {
   @Matches(loginConstraints.match)

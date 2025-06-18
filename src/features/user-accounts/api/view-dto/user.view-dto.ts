@@ -1,7 +1,5 @@
-import { UserDocument } from '../../domain/user.entity';
 import { OmitType } from '@nestjs/swagger';
-import { UserDtoSql } from '../../../user-accounts-sql/dto/user.dto.sql';
-import { UserViewRowWrap } from '../../../user-accounts-wrap/infrastructure/query/dto/user.view-row.wrap';
+import { UserViewRow } from '../../infrastructure/query/dto/user.view-row';
 
 export class UserViewDto {
   id: string;
@@ -9,29 +7,7 @@ export class UserViewDto {
   email: string;
   createdAt: string;
 
-  static mapToView(user: UserDtoSql): UserViewDto {
-    const dto = new UserViewDto();
-
-    dto.id = user.id.toString();
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.createdAt = user.createdAt.toISOString();
-
-    return dto;
-  }
-
-  static mapToViewMongo(user: UserDocument): UserViewDto {
-    const dto = new UserViewDto();
-
-    dto.id = user._id.toString();
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.createdAt = user.createdAt.toISOString();
-
-    return dto;
-  }
-
-  static mapToViewWrap(row: UserViewRowWrap): UserViewDto {
+  static mapToViewWrap(row: UserViewRow): UserViewDto {
     const dto = new UserViewDto();
 
     dto.id = row.id.toString();
@@ -49,27 +25,7 @@ export class MeViewDto extends OmitType(UserViewDto, [
 ] as const) {
   userId: string;
 
-  static mapToView(user: UserDtoSql): MeViewDto {
-    const dto = new MeViewDto();
-
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.userId = user.id.toString();
-
-    return dto;
-  }
-
-  static mapToViewMongo(user: UserDocument): MeViewDto {
-    const dto = new MeViewDto();
-
-    dto.login = user.login;
-    dto.email = user.email;
-    dto.userId = user._id.toString();
-
-    return dto;
-  }
-
-  static mapToViewWrap(row: UserViewRowWrap): MeViewDto {
+  static mapToViewWrap(row: UserViewRow): MeViewDto {
     const dto = new MeViewDto();
 
     dto.login = row.login;

@@ -1,16 +1,18 @@
-import { UsersRepository } from '../users.repository';
-import { MeViewDto } from '../../api/view-dto/user.view-dto';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { MeViewDto } from '../../api/view-dto/user.view-dto';
+import { UsersQueryRepository } from './users.query-repository';
 
 @Injectable()
 export class AuthQueryRepository {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(private usersQueryRepository: UsersQueryRepository) {}
 
-  async me(userId: string): Promise<MeViewDto> {
-    const user = await this.usersRepository.findById(userId);
+  async me(userId: number): Promise<MeViewDto> {
+    const user = await this.usersQueryRepository.findById(userId);
+
     if (!user) {
       throw new InternalServerErrorException('User not found');
     }
-    return MeViewDto.mapToViewMongo(user);
+
+    return MeViewDto.mapToViewWrap(user);
   }
 }

@@ -5,9 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { UserContextDto } from '../dto/user-context.dto';
-import { AuthService } from '../../application/auth.service';
 import { FieldError } from '../../../../core/exceptions/field-error';
+import { AuthService } from '../../application/auth.service';
+import { UserContextDto } from '../dto/user-context.dto';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
@@ -16,7 +16,7 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   }
 
   async validate(username: string, password: string): Promise<UserContextDto> {
-    validateInput(username, password);
+    this.validateInput(username, password);
 
     const user = await this.authService.validateUser(username, password);
     if (!user) {
@@ -24,40 +24,40 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     }
     return user;
   }
-}
 
-function validateInput(username: any, password: any) {
-  const errors: FieldError[] = [];
+  private validateInput(username: any, password: any) {
+    const errors: FieldError[] = [];
 
-  if (typeof username !== 'string') {
-    errors.push({
-      field: 'loginOrEmail',
-      message: 'Login or email is required',
-    });
-  } else {
-    if (username.trim().length === 0) {
+    if (typeof username !== 'string') {
       errors.push({
         field: 'loginOrEmail',
-        message: 'Login or email should not be empty',
+        message: 'Login or email is required',
       });
+    } else {
+      if (username.trim().length === 0) {
+        errors.push({
+          field: 'loginOrEmail',
+          message: 'Login or email should not be empty',
+        });
+      }
     }
-  }
 
-  if (typeof password !== 'string') {
-    errors.push({
-      field: 'password',
-      message: 'Password is required',
-    });
-  } else {
-    if (password.trim().length === 0) {
+    if (typeof password !== 'string') {
       errors.push({
         field: 'password',
-        message: 'Password should not be empty',
+        message: 'Password is required',
       });
+    } else {
+      if (password.trim().length === 0) {
+        errors.push({
+          field: 'password',
+          message: 'Password should not be empty',
+        });
+      }
     }
-  }
 
-  if (errors.length !== 0) {
-    throw new BadRequestException({ errors });
+    if (errors.length !== 0) {
+      throw new BadRequestException({ errors });
+    }
   }
 }

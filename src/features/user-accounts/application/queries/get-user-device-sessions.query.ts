@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { DeviceViewDto } from '../../api/view-dto/device.view-dto';
 import { DeviceAuthSessionsQueryRepository } from '../../infrastructure/query/device-auth-sessions.query-repository';
+import { DeviceViewDto } from '../../api/view-dto/device.view-dto';
 
 export class GetUserDeviceSessionsQuery {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(GetUserDeviceSessionsQuery)

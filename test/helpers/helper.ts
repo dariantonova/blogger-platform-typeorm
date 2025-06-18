@@ -2,8 +2,6 @@ import { Test, TestingModule, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 import { appSetup } from '../../src/setup/app.setup';
 import { INestApplication } from '@nestjs/common';
-import { Connection } from 'mongoose';
-import { getConnectionToken } from '@nestjs/mongoose';
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import * as process from 'node:process';
@@ -15,6 +13,7 @@ import { setRootModule } from '../../src/app-root';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerGuardMock } from '../mock/throttler-guard.mock';
+import { DataSource } from 'typeorm';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const BLOGS_SA_PATH = `/${GLOBAL_PREFIX}/sa/blogs`;
@@ -95,12 +94,19 @@ export const initApp = async (
 };
 
 export const clearDB = async (moduleFixture: TestingModule): Promise<void> => {
-  const connection = moduleFixture.get<Connection>(getConnectionToken());
+  const dataSource = moduleFixture.get(DataSource);
 
-  const collections = await connection.listCollections();
-  for (const collection of collections) {
-    await connection.collection(collection.name).deleteMany({});
-  }
+  const tables: { tablename: string }[] = await dataSource.query(`
+    SELECT tablename
+    FROM pg_tables
+    WHERE schemaname = 'public';
+    `);
+  const tableNames = tables.map((t) => `"${t.tablename}"`).join(', ');
+
+  await dataSource.query(`
+    TRUNCATE TABLE ${tableNames} 
+    RESTART IDENTITY CASCADE;
+    `);
 };
 
 export const deleteAllData = async (
@@ -141,10 +147,6 @@ export const caseInsensitiveSearch = (
 ): boolean => {
   return new RegExp(searchStr, 'i').test(str);
 };
-
-// export const generateNonExistingId = (): string => {
-//   return new ObjectId().toString();
-// };
 
 export const generateNonExistingId = (): string => '-1';
 

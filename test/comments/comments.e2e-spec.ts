@@ -21,7 +21,7 @@ import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-d
 import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { millisecondsToSeconds } from 'date-fns';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
+import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 import { DataSource } from 'typeorm';
 
 describe('comments', () => {
@@ -32,7 +32,7 @@ describe('comments', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepositorySql;
+  let commentLikesTestRepository: CommentLikesTestRepository;
   const accessTokenExpInMs = 2000;
 
   beforeAll(async () => {
@@ -59,7 +59,7 @@ describe('comments', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
   });
 
   afterAll(async () => {
@@ -114,11 +114,6 @@ describe('comments', () => {
       const nonExistingId = generateNonExistingId();
       await commentsTestManager.getComment(nonExistingId, HttpStatus.NOT_FOUND);
     });
-
-    // it('should return 404 when comment id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //   await commentsTestManager.getComment(invalidId, HttpStatus.NOT_FOUND);
-    // });
 
     it('should return 404 when comment id is not a number', async () => {
       const invalidId = generateIdOfWrongType();
@@ -201,15 +196,6 @@ describe('comments', () => {
           HttpStatus.NOT_FOUND,
         );
       });
-
-      // it('should return 404 when comment id is not valid ObjectId', async () => {
-      //   const invalidId = 'not ObjectId';
-      //   await commentsTestManager.deleteComment(
-      //     invalidId,
-      //     validAuth,
-      //     HttpStatus.NOT_FOUND,
-      //   );
-      // });
 
       it('should return 404 when comment id is not a number', async () => {
         const invalidId = generateIdOfWrongType();
@@ -538,16 +524,6 @@ describe('comments', () => {
           HttpStatus.NOT_FOUND,
         );
       });
-
-      // it('should return 404 when comment id is not valid ObjectId', async () => {
-      //   const invalidId = 'not ObjectId';
-      //   await commentsTestManager.updateComment(
-      //     invalidId,
-      //     validInputDto,
-      //     validAuth,
-      //     HttpStatus.NOT_FOUND,
-      //   );
-      // });
 
       it('should return 404 when comment id is not a number', async () => {
         const invalidId = generateIdOfWrongType();

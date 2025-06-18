@@ -25,8 +25,8 @@ import { CommentsCommonTestManager } from '../helpers/comments.common.test-manag
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepositorySql } from '../helpers/repositories/comment-likes.test-repository.sql';
-import { PostLikesTestRepositorySql } from '../helpers/repositories/post-likes.test-repository.sql';
+import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
+import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { DataSource } from 'typeorm';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 
@@ -36,9 +36,9 @@ describe('blogs', () => {
   let postsCommonTestManager: PostsCommonTestManager;
   let commentsCommonTestManager: CommentsCommonTestManager;
   let postLikesTestManager: PostLikesTestManager;
-  let postLikesTestRepository: PostLikesTestRepositorySql;
+  let postLikesTestRepository: PostLikesTestRepository;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepositorySql;
+  let commentLikesTestRepository: CommentLikesTestRepository;
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
@@ -52,8 +52,8 @@ describe('blogs', () => {
     authTestManager = new AuthTestManager(app);
 
     const dataSource = app.get(DataSource);
-    postLikesTestRepository = new PostLikesTestRepositorySql(dataSource);
-    commentLikesTestRepository = new CommentLikesTestRepositorySql(dataSource);
+    postLikesTestRepository = new PostLikesTestRepository(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
   });
 
   afterAll(async () => {
@@ -715,11 +715,6 @@ describe('blogs', () => {
       await blogsTestManager.getBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
 
-    // it('should return 404 when blog id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //   await blogsTestManager.getBlog(invalidId, HttpStatus.NOT_FOUND);
-    // });
-
     it('should return 404 when blog id is not a number', async () => {
       const invalidId = generateIdOfWrongType();
       await blogsTestManager.getBlog(invalidId, HttpStatus.NOT_FOUND);
@@ -1082,16 +1077,6 @@ describe('blogs', () => {
       );
     });
 
-    // it('should return 404 when blog id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //
-    //   await blogsTestManager.updateBlog(
-    //     invalidId,
-    //     validInputDto,
-    //     HttpStatus.NOT_FOUND,
-    //   );
-    // });
-
     it('should return 404 when blog id is not a number', async () => {
       const invalidId = generateIdOfWrongType();
 
@@ -1394,11 +1379,6 @@ describe('blogs', () => {
       const nonExistingId = generateNonExistingId();
       await blogsTestManager.deleteBlog(nonExistingId, HttpStatus.NOT_FOUND);
     });
-
-    // it('should return 404 when blog id is not valid ObjectId', async () => {
-    //   const invalidId = 'not ObjectId';
-    //   await blogsTestManager.deleteBlog(invalidId, HttpStatus.NOT_FOUND);
-    // });
 
     it('should return 404 when blog id is not a number', async () => {
       const invalidId = generateIdOfWrongType();

@@ -3,9 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { CoreConfig } from '../../../../core/core.config';
 import { Request } from 'express';
-import { RefreshJWTPayload } from '../../dto/refresh-jwt-payload';
-import { DeviceAuthSessionContextDto } from '../dto/device-auth-session-context.dto';
 import { AuthService } from '../../application/auth.service';
+import { RefreshJwtPayloadDto } from '../../dto/refresh-jwt-payload.dto';
+import { DeviceAuthSessionContextDto } from '../dto/device-auth-session-context.dto';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,7 +26,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(
-    payload: RefreshJWTPayload,
+    payload: RefreshJwtPayloadDto,
   ): Promise<DeviceAuthSessionContextDto> {
     const session =
       await this.authService.validateSessionFromRefreshToken(payload);

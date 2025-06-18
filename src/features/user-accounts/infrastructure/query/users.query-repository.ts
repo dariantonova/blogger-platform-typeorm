@@ -1,75 +1,139 @@
-import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
+import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
+import { camelCaseToSnakeCase } from '../../../../common/utils/camel-case-to-snake-case';
+import { UsersSortBy } from '../../api/input-dto/users-sort-by';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument, UserModelType } from '../../domain/user.entity';
-import { ObjectId } from 'mongodb';
-import { Injectable } from '@nestjs/common';
-import { FilterQuery } from 'mongoose';
-import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
+import { buildWhereClause } from '../../../../common/utils/sql/build-where-clause';
+import { buildPaginationClause } from '../../../../common/utils/sql/build-pagination-clause';
+import { UserViewRow } from './dto/user.view-row';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @InjectModel(User.name)
-    private UserModel: UserModelType,
-  ) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findUsers(
-    query: GetUsersQueryParams,
+    queryParams: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto[]>> {
-    const filter: FilterQuery<User> = {
-      deletedAt: null,
-    };
+    const whereParts = ['u.deleted_at IS NULL'];
+    const orParts: string[] = [];
+    const whereSqlParams: any[] = [];
 
-    if (query.searchLoginTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        login: { $regex: query.searchLoginTerm, $options: 'i' },
-      });
+    if (queryParams.searchLoginTerm) {
+      whereSqlParams.push(`%${queryParams.searchLoginTerm}%`);
+      orParts.push(`u.login ILIKE $${whereSqlParams.length}`);
     }
 
-    if (query.searchEmailTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        email: { $regex: query.searchEmailTerm, $options: 'i' },
-      });
+    if (queryParams.searchEmailTerm) {
+      whereSqlParams.push(`%${queryParams.searchEmailTerm}%`);
+      orParts.push(`u.email ILIKE $${whereSqlParams.length}`);
     }
 
-    const users = await this.UserModel.find(filter)
-      .sort({
-        [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
-        _id: 1,
-      })
-      .skip(query.calculateSkip())
-      .limit(query.pageSize);
+    if (orParts.length > 0) {
+      whereParts.push(`(${orParts.join(' OR ')})`);
+    }
 
-    const totalCount = await this.UserModel.countDocuments(filter);
-
-    const items = users.map(UserViewDto.mapToViewMongo);
-
-    return PaginatedViewDto.mapToView<UserViewDto[]>({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-    });
+    return this.findManyByWhereAndQuery(
+      whereParts,
+      whereSqlParams,
+      queryParams,
+    );
   }
 
-  async findById(id: string): Promise<UserDocument | null> {
-    return this.UserModel.findOne({
-      _id: new ObjectId(id),
-      deletedAt: null,
-    });
+  async findById(id: number): Promise<UserViewRow | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE u.deleted_at IS NULL
+    AND u.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [id]);
+
+    return findResult[0] ? findResult[0] : null;
   }
 
-  async findByIdOrInternalFail(id: string): Promise<UserViewDto> {
+  async findByIdOrInternalFail(id: number): Promise<UserViewDto> {
     const user = await this.findById(id);
 
     if (!user) {
-      throw new Error('User not found');
+      throw new InternalServerErrorException('User not found');
     }
 
-    return UserViewDto.mapToViewMongo(user);
+    return UserViewDto.mapToViewWrap(user);
+  }
+
+  private async findManyByWhereAndQuery(
+    whereParts: string[],
+    whereSqlParams: any[],
+    queryParams: GetUsersQueryParams,
+  ): Promise<PaginatedViewDto<UserViewDto[]>> {
+    const whereClause = buildWhereClause(whereParts);
+    const orderClause = this.buildOrderClause(queryParams);
+
+    const limit = queryParams.pageSize;
+    const offset = queryParams.calculateSkip();
+
+    const sqlParams = [...whereSqlParams, limit, offset];
+    const paginationClause = buildPaginationClause(sqlParams.length);
+
+    const findSql = this.getUsersSelectSql(
+      whereClause,
+      orderClause,
+      paginationClause,
+    );
+    const findResult = await this.dataSource.query(findSql, sqlParams);
+
+    const countSql = `
+    SELECT
+    COUNT(*)::int as count
+    FROM users u
+    ${whereClause};
+    `;
+    const countResult = await this.dataSource.query(countSql, whereSqlParams);
+    const totalCount = countResult[0].count;
+
+    const users: UserViewDto[] = findResult.map(UserViewDto.mapToViewWrap);
+
+    return PaginatedViewDto.mapToView<UserViewDto[]>({
+      items: users,
+      totalCount,
+      page: queryParams.pageNumber,
+      pageSize: queryParams.pageSize,
+    });
+  }
+
+  private buildOrderClause(queryParams: GetUsersQueryParams): string {
+    const allowedSortFields = Object.values(UsersSortBy); // Защита от SQL-инъекций
+    const sortBy = camelCaseToSnakeCase(
+      allowedSortFields.includes(queryParams.sortBy)
+        ? queryParams.sortBy
+        : UsersSortBy.CreatedAt,
+    );
+    const sortDirection =
+      queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    return `ORDER BY ${sortBy} ${sortDirection}`;
+  }
+
+  private getUsersSelectSql(
+    whereClause: string,
+    orderClause: string,
+    paginationClause: string,
+  ): string {
+    return `
+    ${this.buildSelectFromClause()}
+    ${whereClause}
+    ${orderClause}
+    ${paginationClause}
+    `;
+  }
+
+  private buildSelectFromClause(): string {
+    return `
+    SELECT
+    u.id, u.login, u.email, u.created_at
+    FROM users u
+    `;
   }
 }

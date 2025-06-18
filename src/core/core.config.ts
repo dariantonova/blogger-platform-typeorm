@@ -28,16 +28,6 @@ export class CoreConfig {
   port: number;
 
   @IsNotEmpty({
-    message: 'Set Env variable MONGO_URL, example: mongodb://localhost:27017',
-  })
-  mongoUri: string;
-
-  @IsNotEmpty({
-    message: 'Set Env variable DB_NAME, example: my-app-db',
-  })
-  dbName: string;
-
-  @IsNotEmpty({
     message: 'Set Env variable PG_HOST, example: localhost',
   })
   pgHost: string;
@@ -139,10 +129,6 @@ export class CoreConfig {
     this.port = configValidationUtility.convertToNumber(
       this.configService.get('PORT'),
     ) as number;
-
-    this.mongoUri = this.configService.get('MONGO_URI') as string;
-
-    this.dbName = this.configService.get('DB_NAME') as string;
 
     this.pgHost = this.configService.get('PG_HOST') as string;
 

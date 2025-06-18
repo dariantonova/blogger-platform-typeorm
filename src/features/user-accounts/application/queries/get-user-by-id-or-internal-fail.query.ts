@@ -1,9 +1,9 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UsersQueryRepository } from '../../infrastructure/query/users.query-repository';
+import { UserViewDto } from '../../api/view-dto/user.view-dto';
 
 export class GetUserByIdOrInternalFailQuery {
-  constructor(public userId: string) {}
+  constructor(public userId: number) {}
 }
 
 @QueryHandler(GetUserByIdOrInternalFailQuery)

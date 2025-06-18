@@ -1,78 +1,137 @@
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dto';
 import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
-import { FilterQuery } from 'mongoose';
-import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { Blog, BlogDocument, BlogModelType } from '../../domain/blog.entity';
-import { InjectModel } from '@nestjs/mongoose';
-import { ObjectId } from 'mongodb';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BlogsSortBy } from '../../api/input-dto/blogs-sort-by';
+import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
+import { BlogViewRow } from './dto/blog.view-row';
+import { buildPaginationClause } from '../../../../../common/utils/sql/build-pagination-clause';
+import { buildWhereClause } from '../../../../../common/utils/sql/build-where-clause';
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(
-    @InjectModel(Blog.name)
-    private BlogModel: BlogModelType,
-  ) {}
+  constructor(@InjectDataSource() private dataSource: DataSource) {}
 
   async findBlogs(
-    query: GetBlogsQueryParams,
+    queryParams: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto[]>> {
-    const filter: FilterQuery<Blog> = {
-      deletedAt: null,
-    };
+    const whereParts = ['b.deleted_at IS NULL'];
+    const orParts: string[] = [];
+    const whereSqlParams: any[] = [];
 
-    if (query.searchNameTerm) {
-      filter.$or = filter.$or || [];
-      filter.$or.push({
-        name: { $regex: query.searchNameTerm, $options: 'i' },
-      });
+    if (queryParams.searchNameTerm) {
+      whereSqlParams.push(`%${queryParams.searchNameTerm}%`);
+      orParts.push(`b.name ILIKE $${whereSqlParams.length}`);
     }
 
-    const blogs = await this.BlogModel.find(filter)
-      .sort({
-        [query.sortBy]: query.sortDirection === SortDirection.Asc ? 1 : -1,
-        _id: 1,
-      })
-      .skip(query.calculateSkip())
-      .limit(query.pageSize);
+    if (orParts.length > 0) {
+      whereParts.push(`(${orParts.join(' OR ')})`);
+    }
 
-    const totalCount = await this.BlogModel.countDocuments(filter);
-
-    const items = blogs.map(BlogViewDto.mapToViewMongo);
-
-    return PaginatedViewDto.mapToView<BlogViewDto[]>({
-      items,
-      totalCount,
-      page: query.pageNumber,
-      pageSize: query.pageSize,
-    });
+    return this.findManyByWhereAndQuery(
+      whereParts,
+      whereSqlParams,
+      queryParams,
+    );
   }
 
-  async findById(id: string): Promise<BlogDocument | null> {
-    return this.BlogModel.findOne({
-      _id: new ObjectId(id),
-      deletedAt: null,
-    });
+  async findById(id: number): Promise<BlogViewRow | null> {
+    const findQuery = `
+    ${this.buildSelectFromClause()}
+    WHERE b.deleted_at IS NULL
+    AND b.id = $1;
+    `;
+    const findResult = await this.dataSource.query(findQuery, [id]);
+
+    return findResult[0] ? findResult[0] : null;
   }
 
-  async findByIdOrNotFoundFail(id: string): Promise<BlogViewDto> {
+  async findByIdOrInternalFail(id: number): Promise<BlogViewDto> {
+    const blog = await this.findById(id);
+
+    if (!blog) {
+      throw new InternalServerErrorException('Blog not found');
+    }
+
+    return BlogViewDto.mapToViewWrap(blog);
+  }
+
+  async findByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
     const blog = await this.findById(id);
 
     if (!blog) {
       throw new NotFoundException('Blog not found');
     }
 
-    return BlogViewDto.mapToViewMongo(blog);
+    return BlogViewDto.mapToViewWrap(blog);
   }
 
-  async findByIdOrInternalFail(id: string): Promise<BlogViewDto> {
-    const blog = await this.findById(id);
+  private async findManyByWhereAndQuery(
+    whereParts: string[],
+    whereSqlParams: any[],
+    queryParams: GetBlogsQueryParams,
+  ): Promise<PaginatedViewDto<BlogViewDto[]>> {
+    const limit = queryParams.pageSize;
+    const offset = queryParams.calculateSkip();
 
-    if (!blog) {
-      throw new Error('Blog not found');
-    }
+    const sqlParams = [...whereSqlParams, limit, offset];
 
-    return BlogViewDto.mapToViewMongo(blog);
+    const selectFromClause = this.buildSelectFromClause();
+    const whereClause = buildWhereClause(whereParts);
+    const orderClause = this.buildOrderClause(queryParams);
+    const paginationClause = buildPaginationClause(sqlParams.length);
+
+    const findSql = `
+    ${selectFromClause}
+    ${whereClause}
+    ${orderClause}
+    ${paginationClause};
+    `;
+    const findResult = await this.dataSource.query(findSql, sqlParams);
+
+    const countSql = `
+    SELECT
+    COUNT(*)::int as count
+    FROM blogs b
+    ${whereClause};
+    `;
+    const countResult = await this.dataSource.query(countSql, whereSqlParams);
+    const totalCount = countResult[0].count;
+
+    const blogs: BlogViewDto[] = findResult.map(BlogViewDto.mapToViewWrap);
+
+    return PaginatedViewDto.mapToView<BlogViewDto[]>({
+      items: blogs,
+      totalCount,
+      page: queryParams.pageNumber,
+      pageSize: queryParams.pageSize,
+    });
+  }
+
+  private buildSelectFromClause(): string {
+    return `
+    SELECT
+    b.id, b.name, b.description, b.website_url, b.is_membership, b.created_at
+    FROM blogs b
+    `;
+  }
+
+  private buildOrderClause(queryParams: GetBlogsQueryParams): string {
+    const allowedSortFields = Object.values(BlogsSortBy); // Защита от SQL-инъекций
+    const sortBy = camelCaseToSnakeCase(
+      allowedSortFields.includes(queryParams.sortBy)
+        ? queryParams.sortBy
+        : BlogsSortBy.CreatedAt,
+    );
+    const sortDirection =
+      queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    return `ORDER BY ${sortBy} ${sortDirection}`;
   }
 }

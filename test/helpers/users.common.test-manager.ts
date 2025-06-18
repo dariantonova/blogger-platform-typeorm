@@ -54,58 +54,10 @@ export class UsersCommonTestManager {
     return userToDeleteData;
   }
 
-  // async findUserById(id: string): Promise<UserDocument> {
-  //   const user = await this.UserModel.findOne({
-  //     _id: new ObjectId(id),
-  //   });
-  //   expect(user).not.toBeNull();
-  //
-  //   return user as UserDocument;
-  // }
-
-  // async getConfirmationCodeOfLastCreatedUser(): Promise<string> {
-  //   const getUsersResponse = await this.getUsers();
-  //   const lastCreatedUser = getUsersResponse.body.items[0] as UserViewDto;
-  //
-  //   const dbUnconfirmedUser = await this.findUserById(lastCreatedUser.id);
-  //   return dbUnconfirmedUser.confirmationInfo.confirmationCode;
-  // }
-
   async checkUsersCount(count: number): Promise<void> {
     const getUsersResponse = await this.getUsers();
     expect(getUsersResponse.body.totalCount).toBe(count);
   }
-
-  // async setUserPasswordRecoveryCodeHash(
-  //   userId: string,
-  //   recoveryCodeHash: string,
-  // ): Promise<void> {
-  //   await this.UserModel.updateOne(
-  //     {
-  //       _id: new ObjectId(userId),
-  //     },
-  //     {
-  //       passwordRecoveryInfo: {
-  //         recoveryCodeHash,
-  //         expirationDate: add(new Date(), { hours: 2 }),
-  //       },
-  //     },
-  //   );
-  // }
-
-  // async setUserPasswordRecoveryExpirationDate(
-  //   userId: string,
-  //   expirationDate: Date,
-  // ): Promise<void> {
-  //   await this.UserModel.updateOne(
-  //     {
-  //       _id: new ObjectId(userId),
-  //     },
-  //     {
-  //       'passwordRecoveryInfo.expirationDate': expirationDate,
-  //     },
-  //   );
-  // }
 
   async getLoginInputOfGeneratedUsers(
     numberOfUsers: number,

@@ -1,72 +1,41 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import {
-  CommentatorInfo,
-  CommentatorInfoSchema,
-} from './commentator-info.schema';
-import {
-  BaseLikesInfo,
-  BaseLikesInfoSchema,
-} from '../../common/schemas/base-likes-info.schema';
-import { HydratedDocument, Model } from 'mongoose';
-import { CreateCommentDomainDto } from './dto/create-comment.domain.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CommentRow } from '../infrastructure/dto/comment.row';
+import { CreateCommentDto } from '../dto/create-comment.dto';
 
-export const contentConstraints = {
-  minLength: 20,
-  maxLength: 300,
-};
-
-@Schema({ timestamps: true })
 export class Comment {
-  @Prop({
-    type: String,
-    required: true,
-    ...contentConstraints,
-  })
+  id: number;
   content: string;
-
-  @Prop({
-    type: String,
-    required: true,
-  })
-  postId: string;
-
-  @Prop({
-    type: CommentatorInfoSchema,
-  })
-  commentatorInfo: CommentatorInfo;
-
-  @Prop({
-    type: BaseLikesInfoSchema,
-  })
-  likesInfo: BaseLikesInfo;
-
+  postId: number;
+  userId: number;
   createdAt: Date;
   updatedAt: Date;
-
-  @Prop({
-    type: Date,
-    nullable: true,
-    default: null,
-  })
   deletedAt: Date | null;
 
-  static createInstance(dto: CreateCommentDomainDto): CommentDocument {
-    const comment = new this();
+  static createInstance(dto: CreateCommentDto): Comment {
+    const comment = new Comment();
 
     comment.content = dto.content;
     comment.postId = dto.postId;
-    comment.commentatorInfo = {
-      userId: dto.userId,
-      userLogin: dto.userLogin,
-    };
-    comment.likesInfo = {
-      likesCount: 0,
-      dislikesCount: 0,
-    };
+    comment.userId = dto.userId;
+    comment.createdAt = new Date();
+    comment.updatedAt = new Date();
     comment.deletedAt = null;
 
-    return comment as CommentDocument;
+    return comment;
+  }
+
+  static reconstitute(row: CommentRow): Comment {
+    const comment = new Comment();
+
+    comment.id = row.id;
+    comment.content = row.content;
+    comment.postId = row.post_id;
+    comment.userId = row.user_id;
+    comment.createdAt = row.created_at;
+    comment.updatedAt = row.updated_at;
+    comment.deletedAt = row.deleted_at;
+
+    return comment;
   }
 
   makeDeleted() {
@@ -78,18 +47,6 @@ export class Comment {
 
   update(dto: UpdateCommentDto) {
     this.content = dto.content;
-  }
-
-  updateLikesInfo(likesInfo: BaseLikesInfo) {
-    this.likesInfo.likesCount = likesInfo.likesCount;
-    this.likesInfo.dislikesCount = likesInfo.dislikesCount;
+    this.updatedAt = new Date();
   }
 }
-
-export const CommentSchema = SchemaFactory.createForClass(Comment);
-
-CommentSchema.loadClass(Comment);
-
-export type CommentDocument = HydratedDocument<Comment>;
-
-export type CommentModelType = Model<CommentDocument> & typeof Comment;

@@ -107,13 +107,4 @@ export class UsersTestManager {
     expect(createdUser.createdAt).toEqual(expect.any(String));
     expect(Date.parse(createdUser.createdAt)).not.toBeNaN();
   }
-
-  // async findUserById(id: string): Promise<UserDocument> {
-  //   const user = await this.UserModel.findOne({
-  //     _id: new ObjectId(id),
-  //   });
-  //   expect(user).not.toBeNull();
-  //
-  //   return user as UserDocument;
-  // }
 }

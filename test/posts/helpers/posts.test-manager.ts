@@ -7,7 +7,6 @@ import {
   VALID_BASIC_AUTH_VALUE,
 } from '../../helpers/helper';
 import request, { Response } from 'supertest';
-import { CreatePostInputDto } from '../../../src/features/blogger-platform/posts/api/input-dto/create-post.input-dto';
 import { PostViewDto } from '../../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { CreateBlogPostInputDto } from '../../../src/features/blogger-platform/blogs/api/input-dto/create-blog-post.input-dto';
 
@@ -26,82 +25,9 @@ export class PostsTestManager {
       .expect(expectedStatusCode);
   }
 
-  async createPost(
-    createDto: any,
-    expectedStatusCode: HttpStatus,
-    auth: string = VALID_BASIC_AUTH_VALUE,
-  ): Promise<Response> {
-    return request(this.app.getHttpServer())
-      .post(POSTS_PATH)
-      .set('Authorization', auth)
-      .send(createDto)
-      .expect(expectedStatusCode);
-  }
-
-  async createPosts(inputData: CreatePostInputDto[]): Promise<PostViewDto[]> {
-    const responses: Response[] = [];
-    for (const createDto of inputData) {
-      const response = await this.createPost(createDto, HttpStatus.CREATED);
-      responses.push(response);
-    }
-    return responses.map((res) => res.body as PostViewDto);
-  }
-
-  generatePostsData(
-    numberOfPosts: number,
-    blogId: string,
-  ): CreatePostInputDto[] {
-    const postsData: CreatePostInputDto[] = [];
-    for (let i = 1; i < numberOfPosts + 1; i++) {
-      const postData: CreatePostInputDto = {
-        title: 'post ' + i,
-        shortDescription: 'short description ' + i,
-        content: 'content ' + i,
-        blogId,
-      };
-      postsData.push(postData);
-    }
-    return postsData;
-  }
-
-  async createPostsWithGeneratedData(
-    numberOfPosts: number,
-    blogId: string,
-  ): Promise<PostViewDto[]> {
-    const postsInputData: CreatePostInputDto[] = this.generatePostsData(
-      numberOfPosts,
-      blogId,
-    );
-    return this.createPosts(postsInputData);
-  }
-
-  async deletePost(
-    id: string,
-    expectedStatusCode: HttpStatus,
-    auth: string = VALID_BASIC_AUTH_VALUE,
-  ): Promise<Response> {
-    return request(this.app.getHttpServer())
-      .delete(POSTS_PATH + '/' + id)
-      .set('Authorization', auth)
-      .expect(expectedStatusCode);
-  }
-
   async getPost(id: string, expectedStatusCode: HttpStatus): Promise<Response> {
     return request(this.app.getHttpServer())
       .get(POSTS_PATH + '/' + id)
-      .expect(expectedStatusCode);
-  }
-
-  async updatePost(
-    id: string,
-    updateDto: any,
-    expectedStatusCode: HttpStatus,
-    auth: string = VALID_BASIC_AUTH_VALUE,
-  ): Promise<Response> {
-    return request(this.app.getHttpServer())
-      .put(POSTS_PATH + '/' + id)
-      .set('Authorization', auth)
-      .send(updateDto)
       .expect(expectedStatusCode);
   }
 

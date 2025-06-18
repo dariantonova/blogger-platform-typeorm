@@ -1,33 +1,39 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { ForbiddenException } from '@nestjs/common';
+import { CommentsRepository } from '../../infrastructure/comments.repository';
+import { CommentLikesRepository } from '../../../likes/infrastructure/comment-likes.repository';
 
-export class DeleteCommentCommand {
+export class DeleteCommentCommandWrap {
   constructor(
-    public commentId: string,
-    public currentUserId: string,
+    public commentId: number,
+    public currentUserId: number,
   ) {}
 }
 
-@CommandHandler(DeleteCommentCommand)
-export class DeleteCommentUseCase
-  implements ICommandHandler<DeleteCommentCommand>
+@CommandHandler(DeleteCommentCommandWrap)
+export class DeleteCommentUseCaseWrap
+  implements ICommandHandler<DeleteCommentCommandWrap>
 {
-  constructor(private commentsRepository: CommentsRepository) {}
+  constructor(
+    private commentsRepository: CommentsRepository,
+    private commentLikesRepository: CommentLikesRepository,
+  ) {}
 
   async execute({
     commentId,
     currentUserId,
-  }: DeleteCommentCommand): Promise<void> {
+  }: DeleteCommentCommandWrap): Promise<void> {
     const comment =
       await this.commentsRepository.findByIdOrNotFoundFail(commentId);
 
-    if (currentUserId !== comment.commentatorInfo.userId) {
+    if (currentUserId !== comment.userId) {
       throw new ForbiddenException();
     }
 
     comment.makeDeleted();
 
     await this.commentsRepository.save(comment);
+
+    await this.commentLikesRepository.softDeleteByCommentId(commentId);
   }
 }

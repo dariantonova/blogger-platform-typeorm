@@ -126,6 +126,17 @@ export class BlogsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async getBlogSa(
+    id: string,
+    expectedStatusCode: HttpStatus,
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .get(BLOGS_SA_PATH + '/' + id)
+      .set('Authorization', auth)
+      .expect(expectedStatusCode);
+  }
+
   async updateBlog(
     id: string,
     updateDto: any,

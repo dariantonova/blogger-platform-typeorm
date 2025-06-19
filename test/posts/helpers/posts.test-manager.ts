@@ -156,6 +156,19 @@ export class PostsTestManager {
       .expect(expectedStatusCode);
   }
 
+  async getBlogPostsSa(
+    blogId: string,
+    expectedStatusCode: HttpStatus,
+    query: QueryType = {},
+    auth: string = VALID_BASIC_AUTH_VALUE,
+  ): Promise<Response> {
+    return request(this.app.getHttpServer())
+      .get(buildBlogPostsPath(true, blogId))
+      .set('Authorization', auth)
+      .query(query)
+      .expect(expectedStatusCode);
+  }
+
   async checkPostsCount(count: number): Promise<void> {
     const getPostsResponse = await this.getPosts(HttpStatus.OK);
     expect(getPostsResponse.body.totalCount).toBe(count);

@@ -753,6 +753,390 @@ describe('blog posts', () => {
     });
   });
 
+  describe('get blog posts sa', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should return 404 when trying to get posts of non-existing blog', async () => {
+      const nonExistingId = generateNonExistingId();
+      await postsTestManager.getBlogPostsSa(
+        nonExistingId,
+        HttpStatus.NOT_FOUND,
+      );
+    });
+
+    it('should return 404 when blog id is not a number', async () => {
+      const invalidId = generateIdOfWrongType();
+      await postsTestManager.getBlogPostsSa(invalidId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to get posts of deleted blog', async () => {
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      await blogsCommonTestManager.deleteBlog(blog.id);
+
+      await postsTestManager.getBlogPostsSa(blog.id, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return empty array if blog has no posts', async () => {
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const response = await postsTestManager.getBlogPostsSa(
+        blog.id,
+        HttpStatus.OK,
+      );
+
+      const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+      expect(responseBody.items).toEqual([]);
+    });
+
+    it('should return blog posts with default pagination and sorting', async () => {
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const blogPosts = await postsTestManager.createBlogPostsWithGeneratedData(
+        2,
+        blog.id,
+      );
+
+      const response = await postsTestManager.getBlogPostsSa(
+        blog.id,
+        HttpStatus.OK,
+      );
+      const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+
+      expect(responseBody.items).toEqual(blogPosts.toReversed());
+      expect(responseBody.totalCount).toBe(blogPosts.length);
+      expect(responseBody.pagesCount).toBe(1);
+      expect(responseBody.page).toBe(1);
+      expect(responseBody.pageSize).toBe(DEFAULT_POSTS_PAGE_SIZE);
+    });
+
+    it(`shouldn't return posts of other blogs`, async () => {
+      const blogs =
+        await blogsCommonTestManager.createBlogsWithGeneratedData(2);
+      const blog1Posts =
+        await postsTestManager.createBlogPostsWithGeneratedData(2, blogs[0].id);
+      await postsTestManager.createBlogPostsWithGeneratedData(2, blogs[1].id);
+
+      const response = await postsTestManager.getBlogPostsSa(
+        blogs[0].id,
+        HttpStatus.OK,
+      );
+      const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+      expect(responseBody.items).toEqual(blog1Posts.toReversed());
+    });
+
+    it(`shouldn't return deleted posts`, async () => {
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      const blogPosts = await postsTestManager.createBlogPostsWithGeneratedData(
+        1,
+        blog.id,
+      );
+      await postsTestManager.deleteBlogPost(
+        blog.id,
+        blogPosts[0].id,
+        HttpStatus.NO_CONTENT,
+      );
+
+      const response = await postsTestManager.getBlogPostsSa(
+        blog.id,
+        HttpStatus.OK,
+      );
+      const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+      expect(responseBody.items).toEqual([]);
+    });
+
+    describe('authentication', () => {
+      let blog: BlogViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      });
+
+      it('should forbid getting blog posts for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await postsTestManager.getBlogPostsSa(
+            blog.id,
+            HttpStatus.UNAUTHORIZED,
+            {},
+            invalidAuthValue,
+          );
+        }
+      });
+    });
+
+    describe('pagination', () => {
+      let blog: BlogViewDto;
+      let blogPosts: PostViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+        blogPosts = await postsTestManager.createBlogPostsWithGeneratedData(
+          12,
+          blog.id,
+        );
+      });
+
+      it('should return specified page of posts array', async () => {
+        const pageNumber = 2;
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+          },
+        );
+        const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+
+        const expectedPageSize = DEFAULT_POSTS_PAGE_SIZE;
+        const expectedItems = getPageOfArray(
+          blogPosts.toReversed(),
+          pageNumber,
+          expectedPageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(expectedPageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return specified number of posts', async () => {
+        const pageSize = 2;
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            pageSize,
+          },
+        );
+        const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+
+        const expectedPageNumber = 1;
+        const expectedItems = getPageOfArray(
+          blogPosts.toReversed(),
+          expectedPageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(expectedPageNumber);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return correct page with specified page size', async () => {
+        const pageNumber = 2;
+        const pageSize = 2;
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+            pageSize,
+          },
+        );
+        const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+
+        const expectedItems = getPageOfArray(
+          blogPosts.toReversed(),
+          pageNumber,
+          pageSize,
+        );
+
+        expect(responseBody.page).toBe(pageNumber);
+        expect(responseBody.pageSize).toBe(pageSize);
+        expect(responseBody.items).toEqual(expectedItems);
+      });
+
+      it('should return empty array if page number exceeds total number of pages', async () => {
+        const pageNumber = 20;
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            pageNumber,
+          },
+        );
+        const responseBody: PaginatedViewDto<PostViewDto[]> = response.body;
+        expect(responseBody.items).toEqual([]);
+      });
+    });
+
+    describe('sorting', () => {
+      let blog: BlogViewDto;
+      let posts: PostViewDto[];
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+
+        const postsData: CreateBlogPostInputDto[] = [
+          {
+            title: 'post-a',
+            shortDescription: 'desc-3',
+            content: 'content-d',
+          },
+          {
+            title: 'post-c',
+            shortDescription: 'desc-4',
+            content: 'content-c',
+          },
+          {
+            title: 'post-b',
+            shortDescription: 'desc-2',
+            content: 'content-b',
+          },
+          {
+            title: 'post-d',
+            shortDescription: 'desc-1',
+            content: 'content-a',
+          },
+        ];
+        posts = await postsTestManager.createBlogPosts(blog.id, postsData);
+      });
+
+      it('should return posts sorted by creation date in desc order', async () => {
+        const expectedItems = sortArrByDateStrField(posts, 'createdAt', 'desc');
+
+        const response1 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response2.body.items).toEqual(expectedItems);
+
+        const response3 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+          },
+        );
+        expect(response3.body.items).toEqual(expectedItems);
+
+        const response4 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+        );
+        expect(response4.body.items).toEqual(expectedItems);
+      });
+
+      it('should return posts sorted by creation date in asc order', async () => {
+        const expectedItems = sortArrByDateStrField(posts, 'createdAt', 'asc');
+
+        const response1 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.CreatedAt,
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response1.body.items).toEqual(expectedItems);
+
+        const response2 = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response2.body.items).toEqual(expectedItems);
+      });
+
+      it('should return posts sorted by title in desc order', async () => {
+        const expectedItems = sortArrByStrField(posts, 'title', 'desc');
+
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.Title,
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return posts sorted by title in asc order', async () => {
+        const expectedItems = sortArrByStrField(posts, 'title', 'asc');
+
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.Title,
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return posts sorted by short description in desc order', async () => {
+        const expectedItems = sortArrByStrField(
+          posts,
+          'shortDescription',
+          'desc',
+        );
+
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.ShortDescription,
+            sortDirection: SortDirection.Desc,
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it('should return posts sorted by short description in asc order', async () => {
+        const expectedItems = sortArrByStrField(
+          posts,
+          'shortDescription',
+          'asc',
+        );
+
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: PostsSortBy.ShortDescription,
+            sortDirection: SortDirection.Asc,
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+
+      it(`should return posts in desc order of creation if sort field doesn't exist`, async () => {
+        const expectedItems = posts.toReversed();
+
+        const response = await postsTestManager.getBlogPostsSa(
+          blog.id,
+          HttpStatus.OK,
+          {
+            sortBy: 'nonExisting',
+          },
+        );
+        expect(response.body.items).toEqual(expectedItems);
+      });
+    });
+  });
+
   describe('update blog post', () => {
     beforeAll(async () => {
       await deleteAllData(app);

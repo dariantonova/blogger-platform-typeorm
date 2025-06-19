@@ -731,6 +731,73 @@ describe('blogs', () => {
     });
   });
 
+  describe('get blog sa', () => {
+    beforeAll(async () => {
+      await deleteAllData(app);
+    });
+
+    it('should return blog', async () => {
+      const blogs = await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToGet = blogs[0];
+
+      const response = await blogsTestManager.getBlogSa(
+        blogToGet.id,
+        HttpStatus.OK,
+      );
+      const responseBody: BlogViewDto = response.body;
+
+      expect(responseBody).toEqual({
+        id: expect.any(String),
+        name: expect.any(String),
+        description: expect.any(String),
+        websiteUrl: expect.any(String),
+        createdAt: expect.any(String),
+        isMembership: expect.any(Boolean),
+      });
+      expect(responseBody).toEqual(blogToGet);
+    });
+
+    it('should return 404 when trying to get non-existing blog', async () => {
+      const nonExistingId = generateNonExistingId();
+      await blogsTestManager.getBlogSa(nonExistingId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when blog id is not a number', async () => {
+      const invalidId = generateIdOfWrongType();
+      await blogsTestManager.getBlogSa(invalidId, HttpStatus.NOT_FOUND);
+    });
+
+    it('should return 404 when trying to get deleted blog', async () => {
+      const createdBlogs =
+        await blogsTestManager.createBlogsWithGeneratedData(1);
+      const blogToDelete = createdBlogs[0];
+
+      await blogsTestManager.deleteBlog(blogToDelete.id, HttpStatus.NO_CONTENT);
+
+      await blogsTestManager.getBlogSa(blogToDelete.id, HttpStatus.NOT_FOUND);
+    });
+
+    describe('authentication', () => {
+      let blog: BlogViewDto;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        blog = await blogsTestManager.createBlogWithGeneratedData();
+      });
+
+      it('should forbid getting blog for non-admin users', async () => {
+        for (const invalidAuthValue of invalidBasicAuthTestValues) {
+          await blogsTestManager.getBlogSa(
+            blog.id,
+            HttpStatus.UNAUTHORIZED,
+            invalidAuthValue,
+          );
+        }
+      });
+    });
+  });
+
   describe('create blog', () => {
     beforeAll(async () => {
       await deleteAllData(app);

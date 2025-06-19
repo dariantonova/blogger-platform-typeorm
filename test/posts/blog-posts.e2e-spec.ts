@@ -1782,7 +1782,7 @@ describe('blog posts', () => {
 
         await postsTestManager.deleteBlogPostSuccess(blog.id, postToDelete.id);
 
-        await postLikesTestRepository.assertPostsHaveNoLikes([postToDelete.id]);
+        await postLikesTestRepository.checkPostLikesCount(postToDelete.id, 0);
       });
 
       it('should delete only likes of deleted post', async () => {

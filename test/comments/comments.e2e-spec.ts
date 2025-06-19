@@ -33,7 +33,7 @@ describe('comments', () => {
   let authTestManager: AuthTestManager;
   let commentLikesTestManager: CommentLikesTestManager;
   let commentLikesTestRepository: CommentLikesTestRepository;
-  const accessTokenExpInMs = 2000;
+  const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
     const customBuilderSetup = (builder: TestingModuleBuilder) => {
@@ -409,6 +409,11 @@ describe('comments', () => {
         await commentsTestManager.deleteCommentSuccess(
           commentToDelete.id,
           userAuthOfCommentToDelete,
+        );
+
+        await commentLikesTestRepository.checkCommentLikesCount(
+          commentToDelete.id,
+          0,
         );
       });
 

@@ -38,7 +38,7 @@ export default tseslint.config(
       '@typescript-eslint/require-await': 'off',
       'no-useless-escape': 'off',
       '@typescript-eslint/unbound-method': 'off',
-      '@typescript-eslint/no-unsafe-function-type': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off'
     },
   },
 );

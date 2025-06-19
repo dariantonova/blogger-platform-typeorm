@@ -34,6 +34,12 @@ import { PostLikesRepository } from './likes/infrastructure/post-likes.repositor
 import { MakeCommentLikeOperationUseCase } from './likes/application/usecases/make-comment-like-operation.usecase';
 import { CommentLikesRepository } from './likes/infrastructure/comment-likes.repository';
 import { BloggerPlatformExternalService } from './common/infrastructure/external/blogger-platform.external-service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Blog } from '../typeorm/entities/blogger-platform/blog.entity';
+import { Post } from '../typeorm/entities/blogger-platform/post.entity';
+import { Comment } from '../typeorm/entities/blogger-platform/comment.entity';
+import { PostLike } from '../typeorm/entities/blogger-platform/post-like.entity';
+import { CommentLike } from '../typeorm/entities/blogger-platform/comment-like.entity';
 
 const controllers = [
   BlogsController,
@@ -79,7 +85,10 @@ const commandHandlers = [
 ];
 
 @Module({
-  imports: [CqrsModule.forRoot()],
+  imports: [
+    CqrsModule.forRoot(),
+    TypeOrmModule.forFeature([Blog, Post, Comment, PostLike, CommentLike]),
+  ],
   controllers: [...controllers],
   providers: [...providers, ...queryHandlers, ...commandHandlers],
   exports: [BloggerPlatformExternalService],

@@ -40,6 +40,12 @@ import { ResendRegistrationEmailUseCase } from './application/usecases/resend-re
 import { SetNewPasswordUseCase } from './application/usecases/set-new-password.usecase';
 import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/terminate-all-other-user-device-sessions.usecase';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../typeorm/entities/user-accounts/user.entity';
+import { UserConfirmation } from '../typeorm/entities/user-accounts/user-confirmation.entity';
+import { PasswordRecovery } from '../typeorm/entities/user-accounts/password-recovery.entity';
+import { PgController } from '../typeorm/pg.controller';
+import { DeviceAuthSession } from '../typeorm/entities/user-accounts/device-auth-session.entity';
 
 const controllers = [
   UsersController,
@@ -95,9 +101,15 @@ const commandHandlers = [
         },
       ],
     }),
+    TypeOrmModule.forFeature([
+      User,
+      UserConfirmation,
+      PasswordRecovery,
+      DeviceAuthSession,
+    ]),
     BloggerPlatformModule,
   ],
-  controllers: [...controllers],
+  controllers: [...controllers, PgController],
   providers: [
     {
       provide: ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,

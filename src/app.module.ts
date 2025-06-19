@@ -31,8 +31,9 @@ export class AppModule {
             username: coreConfig.pgUsername,
             password: coreConfig.pgPassword,
             database: coreConfig.pgDbName,
-            autoLoadEntities: false,
-            synchronize: false,
+            autoLoadEntities: true,
+            synchronize: true,
+            logging: true,
           };
         },
       }),

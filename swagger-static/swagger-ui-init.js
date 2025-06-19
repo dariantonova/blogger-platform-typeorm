@@ -309,6 +309,20 @@ window.onload = function() {
           ]
         }
       },
+      "/api/pg": {
+        "get": {
+          "operationId": "PgController_getUsers",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": ""
+            }
+          },
+          "tags": [
+            "Pg"
+          ]
+        }
+      },
       "/api/blogs": {
         "get": {
           "operationId": "BlogsController_getBlogs",

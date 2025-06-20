@@ -7,6 +7,8 @@ import {
   PrimaryColumn,
 } from 'typeorm';
 import { User } from './user.entity';
+import { CreateUserConfirmationDomainDtoTypeorm } from './dto/create-user-confirmation.domain-dto.typeorm';
+import { add } from 'date-fns';
 
 @Entity()
 @Check(`
@@ -31,26 +33,27 @@ export class UserConfirmation {
   @PrimaryColumn()
   userId: number;
 
-  // static createInstance(
-  //   dto: CreateUserConfirmationDomainDto,
-  // ): UserConfirmation {
-  //   const userConfirmation = new UserConfirmation();
-  //
-  //   userConfirmation.confirmationCode = dto.confirmationCode;
-  //   userConfirmation.expirationDate = dto.expirationDate;
-  //   userConfirmation.isConfirmed = dto.isConfirmed;
-  //
-  //   return userConfirmation;
-  // }
-  //
-  // setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
-  //   this.confirmationCode = code;
-  //   this.expirationDate = add(new Date(), {
-  //     seconds: codeLifetimeInSeconds,
-  //   });
-  // }
-  //
-  // makeConfirmed() {
-  //   this.isConfirmed = true;
-  // }
+  static createInstance(
+    dto: CreateUserConfirmationDomainDtoTypeorm,
+  ): UserConfirmation {
+    const userConfirmation = new UserConfirmation();
+
+    userConfirmation.confirmationCode = dto.confirmationCode;
+    userConfirmation.expirationDate = dto.expirationDate;
+    userConfirmation.isConfirmed = dto.isConfirmed;
+    userConfirmation.user = dto.user;
+
+    return userConfirmation;
+  }
+
+  setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
+    this.confirmationCode = code;
+    this.expirationDate = add(new Date(), {
+      seconds: codeLifetimeInSeconds,
+    });
+  }
+
+  makeConfirmed() {
+    this.isConfirmed = true;
+  }
 }

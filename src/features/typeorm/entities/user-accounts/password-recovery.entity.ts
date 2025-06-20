@@ -1,5 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
 import { User } from './user.entity';
+import { add } from 'date-fns';
+import { CreatePasswordRecoveryDomainDtoTypeorm } from './dto/create-password-recovery.domain-dto.typeorm';
 
 @Entity()
 export class PasswordRecovery {
@@ -16,23 +18,24 @@ export class PasswordRecovery {
   @PrimaryColumn()
   userId: number;
 
-  // static createInstance(
-  //   dto: CreatePasswordRecoveryDomainDto,
-  // ): PasswordRecovery {
-  //   const passwordRecovery = new PasswordRecovery();
-  //
-  //   passwordRecovery.setRecoveryCodeHash(
-  //     dto.recoveryCodeHash,
-  //     dto.recoveryCodeLifetimeInSeconds,
-  //   );
-  //
-  //   return passwordRecovery;
-  // }
-  //
-  // setRecoveryCodeHash(codeHash: string, codeLifetimeInSeconds: number) {
-  //   this.recoveryCodeHash = codeHash;
-  //   this.expirationDate = add(new Date(), {
-  //     seconds: codeLifetimeInSeconds,
-  //   });
-  // }
+  static createInstance(
+    dto: CreatePasswordRecoveryDomainDtoTypeorm,
+  ): PasswordRecovery {
+    const passwordRecovery = new PasswordRecovery();
+
+    passwordRecovery.setRecoveryCodeHash(
+      dto.recoveryCodeHash,
+      dto.recoveryCodeLifetimeInSeconds,
+    );
+    passwordRecovery.user = dto.user;
+
+    return passwordRecovery;
+  }
+
+  setRecoveryCodeHash(codeHash: string, codeLifetimeInSeconds: number) {
+    this.recoveryCodeHash = codeHash;
+    this.expirationDate = add(new Date(), {
+      seconds: codeLifetimeInSeconds,
+    });
+  }
 }

@@ -15,10 +15,14 @@ export class User extends BaseEntity {
   @Column()
   passwordHash: string;
 
-  @OneToOne(() => UserConfirmation, (uc) => uc.user)
+  @OneToOne(() => UserConfirmation, (uc) => uc.user, {
+    cascade: ['insert', 'update'],
+  })
   confirmationInfo: UserConfirmation;
 
-  @OneToOne(() => PasswordRecovery, (pr) => pr.user)
+  @OneToOne(() => PasswordRecovery, (pr) => pr.user, {
+    cascade: ['insert', 'update'],
+  })
   passwordRecoveryInfo: PasswordRecovery | null;
 
   static createInstance(dto: CreateUserDomainDto, isConfirmed: boolean): User {

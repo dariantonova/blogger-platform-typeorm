@@ -46,6 +46,8 @@ import { UserConfirmation } from '../typeorm/entities/user-accounts/user-confirm
 import { PasswordRecovery } from '../typeorm/entities/user-accounts/password-recovery.entity';
 import { PgController } from '../typeorm/pg.controller';
 import { DeviceAuthSession } from '../typeorm/entities/user-accounts/device-auth-session.entity';
+import { UsersRepo } from '../typeorm/infrastructure/user-accounts/users.repo';
+import { DeviceAuthSessionsRepo } from '../typeorm/infrastructure/user-accounts/device-auth-sessions.repo';
 
 const controllers = [
   UsersController,
@@ -66,6 +68,8 @@ const providers = [
   UsersQueryRepository,
   DeviceAuthSessionsQueryRepository,
   AuthQueryRepository,
+  UsersRepo,
+  DeviceAuthSessionsRepo,
 ];
 const queryHandlers = [
   GetUserByIdOrInternalFailQueryHandler,

@@ -1,19 +1,19 @@
 import { Controller, Get } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { User } from './entities/user-accounts/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
+import { UsersRepo } from './infrastructure/user-accounts/users.repo';
+import { DeviceAuthSessionsRepo } from './infrastructure/user-accounts/device-auth-sessions.repo';
 
 @Controller('pg')
 export class PgController {
   constructor(
-    @InjectRepository(User) private usersRepository: Repository<User>,
+    private usersRepo: UsersRepo,
+    private deviceAuthSessionsRepo: DeviceAuthSessionsRepo,
   ) {}
 
   @Get()
-  async getUsers(): Promise<User[]> {
-    const users = await this.usersRepository.find({
-      relations: { confirmationInfo: true, passwordRecoveryInfo: true },
-    });
-    return users;
+  async getUsers(): Promise<string> {
+    const sessions = await this.deviceAuthSessionsRepo.findManyByDeviceId(
+      '040677e6-6c1a-46d4-8cfe-314aa5d183c0',
+    );
+    return 'OK';
   }
 }

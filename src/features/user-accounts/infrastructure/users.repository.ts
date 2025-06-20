@@ -130,6 +130,14 @@ export class UsersRepository {
     return findResult[0] ? User.reconstitute(findResult[0]) : null;
   }
 
+  async deletePasswordRecoveryByUserId(userId: number): Promise<void> {
+    const deleteQuery = `
+      DELETE FROM password_recoveries
+      WHERE user_id = $1;
+      `;
+    await this.dataSource.query(deleteQuery, [userId]);
+  }
+
   private buildSelectFromClause(): string {
     return `
     SELECT
@@ -227,13 +235,5 @@ export class UsersRepository {
       dto.recoveryCodeHash,
       dto.expirationDate,
     ]);
-  }
-
-  async deletePasswordRecoveryByUserId(userId: number): Promise<void> {
-    const deleteQuery = `
-      DELETE FROM password_recoveries
-      WHERE user_id = $1;
-      `;
-    await this.dataSource.query(deleteQuery, [userId]);
   }
 }

@@ -48,6 +48,9 @@ import { PgController } from '../typeorm/pg.controller';
 import { DeviceAuthSession } from '../typeorm/entities/user-accounts/device-auth-session.entity';
 import { UsersRepo } from '../typeorm/infrastructure/user-accounts/users.repo';
 import { DeviceAuthSessionsRepo } from '../typeorm/infrastructure/user-accounts/device-auth-sessions.repo';
+import { UsersQueryRepo } from '../typeorm/infrastructure/user-accounts/query/users.query-repo';
+import { DeviceAuthSessionsQueryRepo } from '../typeorm/infrastructure/user-accounts/query/device-auth-sessions.query-repo';
+import { AuthQueryRepo } from '../typeorm/infrastructure/user-accounts/query/auth.query-repo';
 
 const controllers = [
   UsersController,
@@ -70,6 +73,9 @@ const providers = [
   AuthQueryRepository,
   UsersRepo,
   DeviceAuthSessionsRepo,
+  UsersQueryRepo,
+  DeviceAuthSessionsQueryRepo,
+  AuthQueryRepo,
 ];
 const queryHandlers = [
   GetUserByIdOrInternalFailQueryHandler,

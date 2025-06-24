@@ -12,6 +12,7 @@ import { NotificationsModule } from './features/notifications/notifications.modu
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
   imports: [CoreModule, configModule],
@@ -34,6 +35,7 @@ export class AppModule {
             autoLoadEntities: true,
             synchronize: true,
             logging: true,
+            namingStrategy: new SnakeNamingStrategy(),
           };
         },
       }),

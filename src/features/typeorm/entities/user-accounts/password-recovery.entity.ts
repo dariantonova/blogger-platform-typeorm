@@ -3,7 +3,7 @@ import { User } from './user.entity';
 import { add } from 'date-fns';
 import { CreatePasswordRecoveryDomainDtoTypeorm } from './dto/create-password-recovery.domain-dto.typeorm';
 
-@Entity()
+@Entity({ name: 'password_recoveries' })
 export class PasswordRecovery {
   @Column()
   recoveryCodeHash: string;

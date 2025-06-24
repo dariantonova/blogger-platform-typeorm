@@ -14,6 +14,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { ThrottlerGuardMock } from '../mock/throttler-guard.mock';
 import { DataSource } from 'typeorm';
+import { randomUUID } from 'node:crypto';
 
 export const BLOGS_PATH = `/${GLOBAL_PREFIX}/blogs`;
 export const BLOGS_SA_PATH = `/${GLOBAL_PREFIX}/sa/blogs`;
@@ -151,6 +152,10 @@ export const caseInsensitiveSearch = (
 export const generateNonExistingId = (): string => '-1';
 
 export const generateIdOfWrongType = (): string => 'string';
+
+export const generateNonExistingDeviceId = () => randomUUID();
+
+export const generateDeviceIdOfWrongType = (): string => '12345';
 
 export const getPageOfArray = <T>(
   arr: T[],

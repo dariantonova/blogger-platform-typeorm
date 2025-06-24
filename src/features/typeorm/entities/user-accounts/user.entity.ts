@@ -4,7 +4,7 @@ import { UserConfirmation } from './user-confirmation.entity';
 import { PasswordRecovery } from './password-recovery.entity';
 import { CreateUserDomainDto } from '../../../user-accounts/domain/dto/create-user.domain.dto';
 
-@Entity()
+@Entity({ name: 'users' })
 export class User extends BaseEntity {
   @Column()
   login: string;

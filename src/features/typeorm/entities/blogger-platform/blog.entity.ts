@@ -3,7 +3,7 @@ import { BaseEntity } from '../base.entity';
 import { CreateBlogDto } from '../../../blogger-platform/blogs/dto/create-blog.dto';
 import { UpdateBlogDto } from '../../../blogger-platform/blogs/dto/update-blog.dto';
 
-@Entity()
+@Entity({ name: 'blogs' })
 export class Blog extends BaseEntity {
   @Column()
   name: string;

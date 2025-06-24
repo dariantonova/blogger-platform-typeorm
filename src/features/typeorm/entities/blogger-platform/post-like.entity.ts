@@ -6,7 +6,7 @@ import { User } from '../user-accounts/user.entity';
 import { CreatePostLikeDomainDto } from '../../../blogger-platform/likes/domain/dto/create-post-like.domain-dto';
 import { UpdateLikeDomainDto } from '../../../blogger-platform/likes/domain/dto/update-like.domain.dto';
 
-@Entity()
+@Entity({ name: 'post_likes' })
 @Unique(['postId', 'userId'])
 export class PostLike extends BaseEntity {
   @Column({ type: 'enum', enum: LikeStatus })

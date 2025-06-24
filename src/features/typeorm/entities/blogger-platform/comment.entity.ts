@@ -5,7 +5,7 @@ import { User } from '../user-accounts/user.entity';
 import { CreateCommentDto } from '../../../blogger-platform/comments/dto/create-comment.dto';
 import { UpdateCommentDto } from '../../../blogger-platform/comments/dto/update-comment.dto';
 
-@Entity()
+@Entity({ name: 'comments' })
 export class Comment extends BaseEntity {
   @Column()
   content: string;

@@ -6,7 +6,7 @@ import { Comment } from './comment.entity';
 import { CreateCommentLikeDomainDto } from '../../../blogger-platform/likes/domain/dto/create-comment-like.domain-dto';
 import { UpdateLikeDomainDto } from '../../../blogger-platform/likes/domain/dto/update-like.domain.dto';
 
-@Entity()
+@Entity({ name: 'comment_likes' })
 @Unique(['commentId', 'userId'])
 export class CommentLike extends BaseEntity {
   @Column({ type: 'enum', enum: LikeStatus })

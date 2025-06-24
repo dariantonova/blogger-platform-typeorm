@@ -10,11 +10,11 @@ import { User } from './user.entity';
 import { CreateUserConfirmationDomainDtoTypeorm } from './dto/create-user-confirmation.domain-dto.typeorm';
 import { add } from 'date-fns';
 
-@Entity()
+@Entity({ name: 'user_confirmations' })
 @Check(`
-  ("confirmationCode" IS NULL AND "expirationDate" IS NULL)
+  ("confirmation_code" IS NULL AND "expiration_date" IS NULL)
   OR
-  ("confirmationCode" IS NOT NULL AND "expirationDate" IS NOT NULL)
+  ("confirmation_code" IS NOT NULL AND "expiration_date" IS NOT NULL)
 `)
 export class UserConfirmation {
   @Column({ nullable: true, type: 'varchar' })

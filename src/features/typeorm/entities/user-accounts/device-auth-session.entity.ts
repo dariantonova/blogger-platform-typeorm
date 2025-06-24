@@ -9,7 +9,7 @@ import { User } from './user.entity';
 import { CreateDeviceAuthSessionDomainDto } from '../../../user-accounts/domain/dto/create-device-auth-session.domain-dto';
 import { UpdateDeviceAuthSessionDomainDto } from '../../../user-accounts/domain/dto/update-device-auth-session.domain.dto';
 
-@Entity()
+@Entity({ name: 'device_auth_sessions' })
 @Unique(['userId', 'deviceId'])
 export class DeviceAuthSession {
   @PrimaryGeneratedColumn()

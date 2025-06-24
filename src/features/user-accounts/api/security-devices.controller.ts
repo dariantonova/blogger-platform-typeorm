@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -35,7 +36,11 @@ export class SecurityDevicesController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
   async terminateDeviceSession(
-    @Param('deviceId') deviceId: string,
+    @Param(
+      'deviceId',
+      new ParseUUIDPipe({ errorHttpStatusCode: HttpStatus.NOT_FOUND }),
+    )
+    deviceId: string,
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
   ): Promise<void> {
     await this.commandBus.execute(

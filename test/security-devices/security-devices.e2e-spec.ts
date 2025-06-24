@@ -4,6 +4,8 @@ import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import {
   delay,
   deleteAllData,
+  generateDeviceIdOfWrongType,
+  generateNonExistingDeviceId,
   initApp,
   SECURITY_DEVICES_PATH,
 } from '../helpers/helper';
@@ -356,6 +358,60 @@ describe('security devices', () => {
           deviceSessionsBeforeTermination.length - 1,
         );
         expect(deviceSessionsAfterLogout[0].deviceId).toBe(deviceId1);
+      });
+    });
+
+    describe('not found', () => {
+      let userLoginInput: LoginInputDto;
+      let refreshToken: string;
+
+      beforeAll(async () => {
+        await deleteAllData(app);
+
+        const usersLoginInput =
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(1);
+        userLoginInput = usersLoginInput[0];
+
+        refreshToken = await authTestManager.getNewRefreshToken(userLoginInput);
+      });
+
+      it('should return 404 when trying to terminate non-existing session', async () => {
+        const nonExistingDeviceId = generateNonExistingDeviceId();
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          nonExistingDeviceId,
+          refreshToken,
+          HttpStatus.NOT_FOUND,
+        );
+      });
+
+      it('should return 404 when session id is not valid uuid', async () => {
+        const invalidDeviceId = generateDeviceIdOfWrongType();
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          invalidDeviceId,
+          refreshToken,
+          HttpStatus.NOT_FOUND,
+        );
+      });
+
+      it('should return 404 when trying to terminate already terminated session', async () => {
+        const refreshToken2 =
+          await authTestManager.getNewRefreshToken(userLoginInput);
+        const deviceId2 =
+          jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken2);
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceId2,
+          refreshToken,
+          HttpStatus.NO_CONTENT,
+        );
+
+        await securityDevicesTestManager.terminateDeviceSession(
+          deviceId2,
+          refreshToken,
+          HttpStatus.NOT_FOUND,
+        );
       });
     });
   });

@@ -4,7 +4,7 @@ import { Blog } from './blog.entity';
 import { CreatePostDto } from '../../../blogger-platform/posts/dto/create-post.dto';
 import { UpdatePostDomainDto } from '../../../blogger-platform/posts/domain/dto/update-post.domain.dto';
 
-@Entity()
+@Entity({ name: 'posts' })
 export class Post extends BaseEntity {
   @Column()
   title: string;

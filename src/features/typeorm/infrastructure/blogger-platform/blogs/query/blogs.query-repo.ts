@@ -9,6 +9,7 @@ import { ILike, Repository } from 'typeorm';
 import { GetBlogsQueryParams } from '../../../../../blogger-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../../core/dto/base.paginated.view-dto';
 import { BlogViewDto } from '../../../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { BlogsSortBy } from '../../../../../blogger-platform/blogs/api/input-dto/blogs-sort-by';
 
 @Injectable()
 export class BlogsQueryRepo {
@@ -25,9 +26,11 @@ export class BlogsQueryRepo {
       orParts.push({ name: ILike(`%${queryParams.searchNameTerm}%`) });
     }
 
+    const [sortBy, sortDirection] = this.validateSortQueryParams(queryParams);
+
     const [blogs, totalCount] = await this.blogsRepository.findAndCount({
       where: orParts,
-      order: { [queryParams.sortBy]: queryParams.sortDirection },
+      order: { [sortBy]: sortDirection },
       skip: queryParams.calculateSkip(),
       take: queryParams.pageSize,
     });
@@ -64,5 +67,17 @@ export class BlogsQueryRepo {
     }
 
     return BlogViewDto.mapToViewEntity(blog);
+  }
+
+  private validateSortQueryParams(queryParams: GetBlogsQueryParams): string[] {
+    const allowedSortFields = Object.values(BlogsSortBy);
+    const sortBy = allowedSortFields.includes(queryParams.sortBy)
+      ? queryParams.sortBy
+      : BlogsSortBy.CreatedAt;
+
+    const sortDirection =
+      queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+
+    return [sortBy, sortDirection];
   }
 }

@@ -59,7 +59,7 @@ export class BlogsQueryRepository {
       throw new InternalServerErrorException('Blog not found');
     }
 
-    return BlogViewDto.mapToViewWrap(blog);
+    return BlogViewDto.mapToView(blog);
   }
 
   async findByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
@@ -69,7 +69,7 @@ export class BlogsQueryRepository {
       throw new NotFoundException('Blog not found');
     }
 
-    return BlogViewDto.mapToViewWrap(blog);
+    return BlogViewDto.mapToView(blog);
   }
 
   private async findManyByWhereAndQuery(
@@ -104,7 +104,7 @@ export class BlogsQueryRepository {
     const countResult = await this.dataSource.query(countSql, whereSqlParams);
     const totalCount = countResult[0].count;
 
-    const blogs: BlogViewDto[] = findResult.map(BlogViewDto.mapToViewWrap);
+    const blogs: BlogViewDto[] = findResult.map(BlogViewDto.mapToView);
 
     return PaginatedViewDto.mapToView<BlogViewDto[]>({
       items: blogs,

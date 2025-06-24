@@ -7,7 +7,7 @@ export class DeviceViewDto {
   lastActiveDate: string;
   deviceId: string;
 
-  static mapToViewWrap(row: DeviceAuthSessionViewRow): DeviceViewDto {
+  static mapToView(row: DeviceAuthSessionViewRow): DeviceViewDto {
     const dto = new DeviceViewDto();
 
     dto.ip = row.ip;

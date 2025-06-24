@@ -13,6 +13,6 @@ export class AuthQueryRepository {
       throw new InternalServerErrorException('User not found');
     }
 
-    return MeViewDto.mapToViewWrap(user);
+    return MeViewDto.mapToView(user);
   }
 }

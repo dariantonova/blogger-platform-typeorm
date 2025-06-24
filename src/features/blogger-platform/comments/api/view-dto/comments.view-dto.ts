@@ -9,7 +9,7 @@ export class CommentViewDto {
   createdAt: string;
   likesInfo: BaseLikesInfoViewDto;
 
-  static mapToViewWrap(row: CommentViewRow): CommentViewDto {
+  static mapToView(row: CommentViewRow): CommentViewDto {
     const dto = new CommentViewDto();
 
     dto.id = row.id.toString();

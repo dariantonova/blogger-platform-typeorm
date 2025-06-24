@@ -17,6 +17,6 @@ export class DeviceAuthSessionsQueryRepository {
     `;
     const findResult = await this.dataSource.query(findQuery, [userId]);
 
-    return findResult.map(DeviceViewDto.mapToViewWrap);
+    return findResult.map(DeviceViewDto.mapToView);
   }
 }

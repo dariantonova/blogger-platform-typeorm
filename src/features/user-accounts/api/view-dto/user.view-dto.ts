@@ -8,7 +8,7 @@ export class UserViewDto {
   email: string;
   createdAt: string;
 
-  static mapToViewWrap(row: UserViewRow): UserViewDto {
+  static mapToView(row: UserViewRow): UserViewDto {
     const dto = new UserViewDto();
 
     dto.id = row.id.toString();
@@ -37,7 +37,7 @@ export class MeViewDto extends OmitType(UserViewDto, [
 ] as const) {
   userId: string;
 
-  static mapToViewWrap(row: UserViewRow): MeViewDto {
+  static mapToView(row: UserViewRow): MeViewDto {
     const dto = new MeViewDto();
 
     dto.userId = row.id.toString();

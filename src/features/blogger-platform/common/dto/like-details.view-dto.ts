@@ -5,7 +5,7 @@ export class LikeDetailsViewDto {
   userId: string;
   login: string;
 
-  static mapToViewWrap(row: LikeDetailsViewRow): LikeDetailsViewDto {
+  static mapToView(row: LikeDetailsViewRow): LikeDetailsViewDto {
     const dto = new LikeDetailsViewDto();
 
     dto.addedAt = new Date(row.added_at).toISOString();

@@ -41,7 +41,7 @@ export class PostsQueryRepository {
       throw new InternalServerErrorException('Post not found');
     }
 
-    return PostViewDto.mapToViewWrap(post);
+    return PostViewDto.mapToView(post);
   }
 
   async findByIdOrNotFoundFail(
@@ -54,7 +54,7 @@ export class PostsQueryRepository {
       throw new NotFoundException('Post not found');
     }
 
-    return PostViewDto.mapToViewWrap(post);
+    return PostViewDto.mapToView(post);
   }
 
   async checkPostExists(postId: number): Promise<boolean> {
@@ -143,7 +143,7 @@ export class PostsQueryRepository {
     const countResult = await this.dataSource.query(countSql, whereSqlParams);
     const totalCount = countResult[0].count;
 
-    const posts = findResult.map(PostViewDto.mapToViewWrap);
+    const posts = findResult.map(PostViewDto.mapToView);
 
     return PaginatedViewDto.mapToView<PostViewDto[]>({
       items: posts,

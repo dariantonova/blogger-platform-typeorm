@@ -60,7 +60,7 @@ export class UsersQueryRepository {
       throw new InternalServerErrorException('User not found');
     }
 
-    return UserViewDto.mapToViewWrap(user);
+    return UserViewDto.mapToView(user);
   }
 
   private async findManyByWhereAndQuery(
@@ -93,7 +93,7 @@ export class UsersQueryRepository {
     const countResult = await this.dataSource.query(countSql, whereSqlParams);
     const totalCount = countResult[0].count;
 
-    const users: UserViewDto[] = findResult.map(UserViewDto.mapToViewWrap);
+    const users: UserViewDto[] = findResult.map(UserViewDto.mapToView);
 
     return PaginatedViewDto.mapToView<UserViewDto[]>({
       items: users,

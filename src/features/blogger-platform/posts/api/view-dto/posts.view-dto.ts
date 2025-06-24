@@ -12,7 +12,7 @@ export class PostViewDto {
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfoViewDto;
 
-  static mapToViewWrap(row: PostViewRow): PostViewDto {
+  static mapToView(row: PostViewRow): PostViewDto {
     const dto = new PostViewDto();
 
     dto.id = row.id.toString();
@@ -26,7 +26,7 @@ export class PostViewDto {
       likesCount: row.likes_count,
       dislikesCount: row.dislikes_count,
       myStatus: row.my_status,
-      newestLikes: row.newest_likes.map(LikeDetailsViewDto.mapToViewWrap),
+      newestLikes: row.newest_likes.map(LikeDetailsViewDto.mapToView),
     };
 
     return dto;

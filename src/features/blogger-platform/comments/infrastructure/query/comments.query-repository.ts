@@ -46,7 +46,7 @@ export class CommentsQueryRepository {
       throw new InternalServerErrorException('Comment not found');
     }
 
-    return CommentViewDto.mapToViewWrap(comment);
+    return CommentViewDto.mapToView(comment);
   }
 
   async findByIdOrNotFoundFail(
@@ -59,7 +59,7 @@ export class CommentsQueryRepository {
       throw new NotFoundException('Comment not found');
     }
 
-    return CommentViewDto.mapToViewWrap(comment);
+    return CommentViewDto.mapToView(comment);
   }
 
   async findPostComments(
@@ -110,9 +110,7 @@ export class CommentsQueryRepository {
     const countResult = await this.dataSource.query(countSql, whereSqlParams);
     const totalCount = countResult[0].count;
 
-    const comments: CommentViewDto[] = findResult.map(
-      CommentViewDto.mapToViewWrap,
-    );
+    const comments: CommentViewDto[] = findResult.map(CommentViewDto.mapToView);
 
     return PaginatedViewDto.mapToView<CommentViewDto[]>({
       items: comments,

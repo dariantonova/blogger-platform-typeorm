@@ -7,6 +7,8 @@ import { PaginatedViewDto } from '../../../../../core/dto/base.paginated.view-dt
 import { UserViewDto } from '../../../../user-accounts/api/view-dto/user.view-dto';
 import { UsersSortBy } from '../../../../user-accounts/api/input-dto/users-sort-by';
 
+import { SortDirectionSql } from '../../types/sort-direction-sql';
+
 @Injectable()
 export class UsersQueryRepo {
   constructor(
@@ -59,7 +61,9 @@ export class UsersQueryRepo {
     return UserViewDto.mapToViewEntity(user);
   }
 
-  private validateSortQueryParams(queryParams: GetUsersQueryParams): string[] {
+  private validateSortQueryParams(
+    queryParams: GetUsersQueryParams,
+  ): [string, SortDirectionSql] {
     const allowedSortFields = Object.values(UsersSortBy);
     const sortBy = allowedSortFields.includes(queryParams.sortBy)
       ? queryParams.sortBy

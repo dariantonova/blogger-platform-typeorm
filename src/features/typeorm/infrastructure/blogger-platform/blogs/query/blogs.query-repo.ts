@@ -11,6 +11,8 @@ import { PaginatedViewDto } from '../../../../../../core/dto/base.paginated.view
 import { BlogViewDto } from '../../../../../blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { BlogsSortBy } from '../../../../../blogger-platform/blogs/api/input-dto/blogs-sort-by';
 
+import { SortDirectionSql } from '../../../types/sort-direction-sql';
+
 @Injectable()
 export class BlogsQueryRepo {
   constructor(
@@ -69,7 +71,9 @@ export class BlogsQueryRepo {
     return BlogViewDto.mapToViewEntity(blog);
   }
 
-  private validateSortQueryParams(queryParams: GetBlogsQueryParams): string[] {
+  private validateSortQueryParams(
+    queryParams: GetBlogsQueryParams,
+  ): [string, SortDirectionSql] {
     const allowedSortFields = Object.values(BlogsSortBy);
     const sortBy = allowedSortFields.includes(queryParams.sortBy)
       ? queryParams.sortBy

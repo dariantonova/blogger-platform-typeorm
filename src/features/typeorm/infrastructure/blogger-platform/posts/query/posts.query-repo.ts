@@ -9,15 +9,14 @@ import { GetPostsQueryParams } from '../../../../../blogger-platform/posts/api/i
 import { PaginatedViewDto } from '../../../../../../core/dto/base.paginated.view-dto';
 import { PostViewDto } from '../../../../../blogger-platform/posts/api/view-dto/posts.view-dto';
 import { PostLike } from '../../../../entities/blogger-platform/post-like.entity';
-import { User } from '../../../../entities/user-accounts/user.entity';
 import { Post } from '../../../../entities/blogger-platform/post.entity';
-import { Blog } from '../../../../entities/blogger-platform/blog.entity';
 import { PostsSortBy } from '../../../../../blogger-platform/posts/api/input-dto/posts-sort-by';
 import { PostViewRow } from '../../../../../blogger-platform/posts/infrastructure/query/dto/post.view-row';
 import { WherePart } from '../../../types/where-part';
 import { CtePart } from '../../../types/cte-part';
 import { SortDirectionSql } from '../../../types/sort-direction-sql';
 import { addWherePartsToQueryBuilder } from '../../../utils/add-where-parts-to-query-builder';
+import { camelCaseToSnakeCase } from '../../../../../../common/utils/camel-case-to-snake-case';
 
 @Injectable()
 export class PostsQueryRepo {
@@ -158,13 +157,13 @@ export class PostsQueryRepo {
 
     queryBuilder
       .select([
-        'p.id',
-        'p.title',
-        'p.short_description',
-        'p.content',
-        'p.created_at',
-        'p.blog_id',
-        'p.blog_name',
+        'p.id as id',
+        'p.title as title',
+        'p.short_description as short_description',
+        'p.content as content',
+        'p.created_at as created_at',
+        'p.blog_id as blog_id',
+        'p.blog_name as blog_name',
         'COALESCE(plc.likes_count, 0) as likes_count',
         'COALESCE(plc.dislikes_count, 0) as dislikes_count',
         `COALESCE(l3pl.newest_likes, '[]'::jsonb) as newest_likes`,
@@ -175,6 +174,10 @@ export class PostsQueryRepo {
       .leftJoin('post_likes_counts', 'plc', 'p.id = plc.post_id')
       .leftJoin('current_user_post_likes', 'cupl', 'p.id = cupl.post_id');
 
+    if (sortBy) {
+      queryBuilder.orderBy(sortBy, sortDirection);
+    }
+
     return queryBuilder;
   }
 
@@ -182,20 +185,20 @@ export class PostsQueryRepo {
     const newestPostLikesRankedCteQB = this.dataSource
       .createQueryBuilder()
       .select([
-        'pl.post_id',
-        'pl.user_id',
+        'pl.post_id as post_id',
+        'pl.user_id as user_id',
         'pl.created_at as added_at',
-        'u.login',
+        'u.login as login',
         'ROW_NUMBER() OVER (PARTITION BY pl.post_id ORDER BY pl.created_at DESC) as rn',
       ])
       .from(PostLike, 'pl')
-      .leftJoin(User, 'u')
+      .leftJoin('pl.user', 'u')
       .where("pl.status = 'Like'");
 
     const last3PostLikesCteQB = this.dataSource
       .createQueryBuilder()
       .select([
-        'n.post_id',
+        'n.post_id as post_id',
         `JSONB_AGG(JSONB_BUILD_OBJECT('user_id', n.user_id, 'login', n.login, 'added_at', n.added_at)
         order by n.rn asc) as newest_likes`,
       ])
@@ -206,7 +209,7 @@ export class PostsQueryRepo {
     const postLikesCountsCteQB = this.dataSource
       .createQueryBuilder()
       .select([
-        'pl.post_id',
+        'pl.post_id as post_id',
         "COUNT(*) FILTER(WHERE status = 'Like')::int as likes_count",
         "COUNT(*) FILTER(WHERE status = 'Dislike')::int as dislikes_count",
       ])
@@ -215,7 +218,7 @@ export class PostsQueryRepo {
 
     const currentUserPostLikesCteQB = this.dataSource
       .createQueryBuilder()
-      .select(['pl.post_id', 'pl.status'])
+      .select(['pl.post_id as post_id', 'pl.status as status'])
       .from(PostLike, 'pl')
       .where('pl.user_id = :userId', { userId: currentUserId ?? -1 });
 
@@ -237,16 +240,16 @@ export class PostsQueryRepo {
     const paginatedPostsCteQB = this.dataSource
       .createQueryBuilder()
       .select([
-        'p.id',
-        'p.title',
-        'p.short_description',
-        'p.content',
-        'p.created_at',
-        'p.blog_id',
+        'p.id as id',
+        'p.title as title',
+        'p.short_description as short_description',
+        'p.content as content',
+        'p.created_at as created_at',
+        'p.blog_id as blog_id',
         'b.name as blog_name',
       ])
       .from(Post, 'p')
-      .leftJoin(Blog, 'b');
+      .leftJoin('p.blog', 'b');
 
     if (sortBy) {
       paginatedPostsCteQB.orderBy(sortBy, sortDirection);
@@ -269,9 +272,11 @@ export class PostsQueryRepo {
     queryParams: GetPostsQueryParams,
   ): [string, SortDirectionSql] {
     const allowedSortFields = Object.values(PostsSortBy);
-    const sortBy = allowedSortFields.includes(queryParams.sortBy)
-      ? queryParams.sortBy
-      : PostsSortBy.CreatedAt;
+    const sortBy = camelCaseToSnakeCase(
+      allowedSortFields.includes(queryParams.sortBy)
+        ? queryParams.sortBy
+        : PostsSortBy.CreatedAt,
+    );
     const sortDirection =
       queryParams.sortDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
 

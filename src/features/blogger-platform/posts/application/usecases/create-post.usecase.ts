@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
-import { Post } from '../../domain/post.entity';
 import { CreatePostDto } from '../../dto/create-post.dto';
+import { Post } from '../../../../typeorm/entities/blogger-platform/post.entity';
 
 export class CreatePostCommandWrap {
   constructor(public dto: CreatePostDto) {}

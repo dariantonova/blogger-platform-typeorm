@@ -42,6 +42,8 @@ import { PostLike } from '../typeorm/entities/blogger-platform/post-like.entity'
 import { CommentLike } from '../typeorm/entities/blogger-platform/comment-like.entity';
 import { BlogsRepo } from '../typeorm/infrastructure/blogger-platform/blogs/blogs.repo';
 import { BlogsQueryRepo } from '../typeorm/infrastructure/blogger-platform/blogs/query/blogs.query-repo';
+import { PostsRepo } from '../typeorm/infrastructure/blogger-platform/posts/posts.repo';
+import { PostsQueryRepo } from '../typeorm/infrastructure/blogger-platform/posts/query/posts.query-repo';
 
 const controllers = [
   BlogsController,
@@ -52,8 +54,8 @@ const controllers = [
 const providers = [
   { provide: BlogsRepository, useExisting: BlogsRepo },
   { provide: BlogsQueryRepository, useExisting: BlogsQueryRepo },
-  PostsRepository,
-  PostsQueryRepository,
+  { provide: PostsRepository, useExisting: PostsRepo },
+  { provide: PostsQueryRepository, useExisting: PostsQueryRepo },
   CommentsRepository,
   CommentsQueryRepository,
   PostLikesRepository,
@@ -61,6 +63,8 @@ const providers = [
   BloggerPlatformExternalService,
   BlogsRepo,
   BlogsQueryRepo,
+  PostsRepo,
+  PostsQueryRepo,
 ];
 const queryHandlers = [
   GetBlogByIdOrInternalFailQueryHandler,

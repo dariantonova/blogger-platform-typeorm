@@ -6,7 +6,7 @@ import { UsersQueryRepo } from './infrastructure/user-accounts/query/users.query
 import { GetUsersQueryParams } from '../user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { User } from './entities/user-accounts/user.entity';
+import { Post } from './entities/blogger-platform/post.entity';
 
 @Controller('pg')
 export class PgController {
@@ -20,11 +20,21 @@ export class PgController {
 
   @Get()
   async getUsers(@Query() query: GetUsersQueryParams): Promise<any> {
-    return this.dataSource
+    const paginatedPostsCteQB = this.dataSource
       .createQueryBuilder()
-      .from(User, 'u')
-      .andWhere(`u.login ilike :login`, { login: '%user%' })
-      .andWhere(`u.email ilike :email`, { email: '%user%' })
-      .getRawMany();
+      .select([
+        'p.id',
+        'p.title',
+        'p.short_description',
+        'p.content',
+        'p.created_at',
+        'p.blog_id',
+        'b.name as blog_name',
+      ])
+      .from(Post, 'p')
+      .leftJoin('p.blog', 'b');
+
+    const result = await paginatedPostsCteQB.getRawMany();
+    console.log(result);
   }
 }

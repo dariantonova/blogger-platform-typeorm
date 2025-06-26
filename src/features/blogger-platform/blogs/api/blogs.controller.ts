@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query';
@@ -9,6 +9,9 @@ import { BlogViewDto } from './view-dto/blogs.view-dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { GetBlogPostsQuery } from '../../posts/application/queries/get-blog-posts.query';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
+import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
 
 @Controller('blogs')
 export class BlogsController {
@@ -29,12 +32,14 @@ export class BlogsController {
   }
 
   @Get(':blogId/posts')
+  @UseGuards(JwtAccessOptionalAuthGuard)
   async getBlogPosts(
     @Param('blogId', IntValidationTransformationPipe) blogId: number,
     @Query() query: GetPostsQueryParams,
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     return this.queryBus.execute(
-      new GetBlogPostsQuery(blogId, query, undefined),
+      new GetBlogPostsQuery(blogId, query, user?.id),
     );
   }
 }

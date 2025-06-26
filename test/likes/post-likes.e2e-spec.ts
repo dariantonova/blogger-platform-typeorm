@@ -270,12 +270,13 @@ describe('post likes', () => {
   });
 
   describe('unauthorized user view', () => {
+    let blog: BlogViewDto;
     let post: PostViewDto;
 
     beforeAll(async () => {
       await deleteAllData(app);
 
-      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
       post = await postsCommonTestManager.createBlogPostWithGeneratedData(
         blog.id,
       );
@@ -284,6 +285,15 @@ describe('post likes', () => {
     it('should return myStatus as None for unauthorized user', async () => {
       const returnedPost = await postsCommonTestManager.getPostSuccess(post.id);
       expect(returnedPost.extendedLikesInfo.myStatus).toBe(LikeStatus.None);
+    });
+
+    it('should return myStatus as None for admin', async () => {
+      const paginatedBlogPosts = await blogsCommonTestManager.getBlogPostsSa(
+        blog.id,
+      );
+      expect(paginatedBlogPosts.items[0].extendedLikesInfo.myStatus).toBe(
+        LikeStatus.None,
+      );
     });
   });
 
@@ -1062,6 +1072,59 @@ describe('post likes', () => {
           );
         }
       });
+    });
+  });
+
+  describe('my status', () => {
+    let userAuth: string;
+    let blog: BlogViewDto;
+    let post: PostViewDto;
+    let expectedMyStatus: LikeStatus;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      userAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
+
+      blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
+
+      expectedMyStatus = LikeStatus.Like;
+      await postLikesTestManager.makePostLikeOperationSuccess(
+        post.id,
+        expectedMyStatus,
+        userAuth,
+      );
+    });
+
+    it('should display correct myStatus when getting posts with auth', async () => {
+      const paginatedPosts = await postsCommonTestManager.getPosts(
+        {},
+        userAuth,
+      );
+      expect(paginatedPosts.items[0].extendedLikesInfo.myStatus).toBe(
+        expectedMyStatus,
+      );
+    });
+
+    it('should display correct myStatus when getting blog posts with auth', async () => {
+      const paginatedBlogPosts = await blogsCommonTestManager.getBlogPosts(
+        blog.id,
+        userAuth,
+      );
+      expect(paginatedBlogPosts.items[0].extendedLikesInfo.myStatus).toBe(
+        expectedMyStatus,
+      );
+    });
+
+    it('should display correct myStatus when getting post by id with auth', async () => {
+      const returnedPost = await postsCommonTestManager.getPostSuccess(
+        post.id,
+        userAuth,
+      );
+      expect(returnedPost.extendedLikesInfo.myStatus).toBe(expectedMyStatus);
     });
   });
 });

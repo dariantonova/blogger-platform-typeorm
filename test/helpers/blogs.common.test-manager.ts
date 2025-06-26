@@ -1,8 +1,14 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateBlogInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/create-blog.input-dto';
 import request, { Response } from 'supertest';
-import { BLOGS_SA_PATH, VALID_BASIC_AUTH_VALUE } from './helper';
+import {
+  BLOGS_SA_PATH,
+  buildBlogPostsPath,
+  VALID_BASIC_AUTH_VALUE,
+} from './helper';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
+import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
+import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 
 export class BlogsCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -54,5 +60,28 @@ export class BlogsCommonTestManager {
       .delete(BLOGS_SA_PATH + '/' + id)
       .set('Authorization', VALID_BASIC_AUTH_VALUE)
       .expect(HttpStatus.NO_CONTENT);
+  }
+
+  async getBlogPosts(
+    blogId: string,
+    auth: string = '',
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const response = await request(this.app.getHttpServer())
+      .get(buildBlogPostsPath(false, blogId))
+      .set('Authorization', auth)
+      .expect(HttpStatus.OK);
+
+    return response.body;
+  }
+
+  async getBlogPostsSa(
+    blogId: string,
+  ): Promise<PaginatedViewDto<PostViewDto[]>> {
+    const response = await request(this.app.getHttpServer())
+      .get(buildBlogPostsPath(true, blogId))
+      .set('Authorization', VALID_BASIC_AUTH_VALUE)
+      .expect(HttpStatus.OK);
+
+    return response.body;
   }
 }

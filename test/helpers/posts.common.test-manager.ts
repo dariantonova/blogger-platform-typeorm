@@ -91,9 +91,11 @@ export class PostsCommonTestManager {
 
   async getPosts(
     query: QueryType = {},
+    auth: string = '',
   ): Promise<PaginatedViewDto<PostViewDto[]>> {
     const response = await request(this.app.getHttpServer())
       .get(POSTS_PATH)
+      .set('Authorization', auth)
       .query(query)
       .expect(HttpStatus.OK);
 

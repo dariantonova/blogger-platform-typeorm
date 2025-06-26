@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { CommentsRepository } from '../../infrastructure/comments.repository';
-import { Comment } from '../../domain/comment.entity';
 import { CreateCommentDto } from '../../dto/create-comment.dto';
+import { Comment } from '../../../../typeorm/entities/blogger-platform/comment.entity';
 
 export class CreateCommentCommand {
   constructor(public dto: CreateCommentDto) {}

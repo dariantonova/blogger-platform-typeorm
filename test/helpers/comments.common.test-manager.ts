@@ -2,7 +2,8 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
 import { CreatePostCommentInputDto } from '../../src/features/blogger-platform/posts/api/input-dto/create-post-comment.input-dto';
 import request, { Response } from 'supertest';
-import { COMMENTS_PATH, POSTS_PATH } from './helper';
+import { COMMENTS_PATH, POSTS_PATH, QueryType } from './helper';
+import { PaginatedViewDto } from '../../src/core/dto/base.paginated.view-dto';
 
 export class CommentsCommonTestManager {
   constructor(private app: INestApplication) {}
@@ -95,5 +96,19 @@ export class CommentsCommonTestManager {
       promises.push(getCommentPromise);
     }
     await Promise.all(promises);
+  }
+
+  async getPostCommentsSuccess(
+    postId: string,
+    query: QueryType = {},
+    auth: string = '',
+  ): Promise<PaginatedViewDto<CommentViewDto[]>> {
+    const response = await request(this.app.getHttpServer())
+      .get(POSTS_PATH + '/' + postId + '/comments')
+      .set('Authorization', auth)
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    return response.body;
   }
 }

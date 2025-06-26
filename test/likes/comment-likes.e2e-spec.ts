@@ -657,4 +657,53 @@ describe('comment likes', () => {
       expect(updatedComment.likesInfo.dislikesCount).toBe(1);
     });
   });
+
+  describe('my status', () => {
+    let userAuth: string;
+    let post: PostViewDto;
+    let comment: CommentViewDto;
+    let expectedMyStatus: LikeStatus;
+
+    beforeAll(async () => {
+      await deleteAllData(app);
+
+      userAuth = await authTestManager.getValidAuthOfNewlyRegisteredUser();
+
+      const blog = await blogsCommonTestManager.createBlogWithGeneratedData();
+      post = await postsCommonTestManager.createBlogPostWithGeneratedData(
+        blog.id,
+      );
+      comment = await commentsCommonTestManager.createCommentWithGeneratedData(
+        post.id,
+        userAuth,
+      );
+
+      expectedMyStatus = LikeStatus.Like;
+      await commentLikesTestManager.makeCommentLikeOperationSuccess(
+        comment.id,
+        expectedMyStatus,
+        userAuth,
+      );
+    });
+
+    it('should display correct myStatus when getting post comments with auth', async () => {
+      const paginatedPostComments =
+        await commentsCommonTestManager.getPostCommentsSuccess(
+          post.id,
+          {},
+          userAuth,
+        );
+      expect(paginatedPostComments.items[0].likesInfo.myStatus).toBe(
+        expectedMyStatus,
+      );
+    });
+
+    it('should display correct myStatus when getting comment by id with auth', async () => {
+      const returnedComment = await commentsCommonTestManager.getCommentSuccess(
+        comment.id,
+        userAuth,
+      );
+      expect(returnedComment.likesInfo.myStatus).toBe(expectedMyStatus);
+    });
+  });
 });

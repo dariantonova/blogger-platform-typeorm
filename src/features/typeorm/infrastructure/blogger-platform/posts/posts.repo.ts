@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from '../../../entities/blogger-platform/post.entity';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 
 @Injectable()
 export class PostsRepo {
@@ -45,6 +45,6 @@ export class PostsRepo {
   }
 
   async softDeleteByBlogId(blogId: number): Promise<void> {
-    await this.postsRepository.softDelete({ blogId });
+    await this.postsRepository.softDelete({ blogId, deletedAt: IsNull() });
   }
 }

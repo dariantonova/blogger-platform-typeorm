@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { CommentsRepository } from '../../../comments/infrastructure/comments.repository';
-import { PostLikesRepository } from '../../../likes/infrastructure/post-likes.repository';
-import { CommentLikesRepository } from '../../../likes/infrastructure/comment-likes.repository';
+import { CommentLikesRepo } from '../../../likes/infrastructure/comment-likes.repo';
+import { CommentsRepo } from '../../../comments/infrastructure/comments.repo';
+import { PostLikesRepo } from '../../../likes/infrastructure/post-likes.repo';
 
 @Injectable()
 export class BloggerPlatformExternalService {
   constructor(
-    private commentsRepository: CommentsRepository,
-    private postLikesRepository: PostLikesRepository,
-    private commentLikesRepository: CommentLikesRepository,
+    private commentsRepository: CommentsRepo,
+    private postLikesRepository: PostLikesRepo,
+    private commentLikesRepository: CommentLikesRepo,
   ) {}
 
   async deleteUserRelations(userId: number): Promise<void> {

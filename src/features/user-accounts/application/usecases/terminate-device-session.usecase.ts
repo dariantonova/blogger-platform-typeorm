@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
+import { DeviceAuthSessionsRepo } from '../../infrastructure/device-auth-sessions.repo';
 
 export class TerminateDeviceSessionCommand {
   constructor(public dto: { deviceId: string; currentUserId: number }) {}
@@ -10,9 +10,7 @@ export class TerminateDeviceSessionCommand {
 export class TerminateDeviceSessionUseCase
   implements ICommandHandler<TerminateDeviceSessionCommand>
 {
-  constructor(
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
-  ) {}
+  constructor(private deviceAuthSessionsRepository: DeviceAuthSessionsRepo) {}
 
   async execute({ dto }: TerminateDeviceSessionCommand): Promise<void> {
     const deviceSessions =

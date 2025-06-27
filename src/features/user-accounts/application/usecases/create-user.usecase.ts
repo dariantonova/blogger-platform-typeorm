@@ -1,10 +1,10 @@
-import { CreateUserDto } from '../../../user-accounts/dto/create-user.dto';
+import { CreateUserDto } from '../../dto/create-user.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CryptoService } from '../../../user-accounts/application/crypto.service';
-import { UserAccountsConfig } from '../../../user-accounts/user-accounts.config';
+import { CryptoService } from '../crypto.service';
+import { UserAccountsConfig } from '../../user-accounts.config';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepository } from '../../infrastructure/users.repository';
-import { User } from '../../../typeorm/entities/user-accounts/user.entity';
+import { User } from '../../domain/user.entity';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class CreateUserCommand {
   constructor(public dto: CreateUserDto) {}
@@ -15,7 +15,7 @@ export class CreateUserUseCase
   implements ICommandHandler<CreateUserCommand, number>
 {
   constructor(
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private cryptoService: CryptoService,
     private userAccountsConfig: UserAccountsConfig,
   ) {}

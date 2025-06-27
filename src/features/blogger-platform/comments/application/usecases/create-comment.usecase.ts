@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
-import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { CreateCommentDto } from '../../dto/create-comment.dto';
-import { Comment } from '../../../../typeorm/entities/blogger-platform/comment.entity';
+import { Comment } from '../../domain/comment.entity';
+import { CommentsRepo } from '../../infrastructure/comments.repo';
+import { PostsRepo } from '../../../posts/infrastructure/posts.repo';
 
 export class CreateCommentCommand {
   constructor(public dto: CreateCommentDto) {}
@@ -13,8 +13,8 @@ export class CreateCommentUseCase
   implements ICommandHandler<CreateCommentCommand, number>
 {
   constructor(
-    private postsRepository: PostsRepository,
-    private commentsRepository: CommentsRepository,
+    private postsRepository: PostsRepo,
+    private commentsRepository: CommentsRepo,
   ) {}
 
   async execute({ dto }: CreateCommentCommand): Promise<number> {

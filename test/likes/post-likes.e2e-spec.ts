@@ -26,7 +26,7 @@ import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
-import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/post-likes.test-repo';
 
 describe('post likes', () => {
   let app: INestApplication;

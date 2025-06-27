@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepository } from '../../infrastructure/users.repository';
-import { CryptoService } from '../../../user-accounts/application/crypto.service';
+import { CryptoService } from '../crypto.service';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class SetNewPasswordCommand {
   constructor(
@@ -15,7 +15,7 @@ export class SetNewPasswordUseCase
   implements ICommandHandler<SetNewPasswordCommand>
 {
   constructor(
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private cryptoService: CryptoService,
   ) {}
 

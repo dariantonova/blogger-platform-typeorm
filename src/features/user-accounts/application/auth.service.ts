@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { unixToDate } from '../../../common/utils/date.util';
-import { UsersRepository } from '../infrastructure/users.repository';
-import { DeviceAuthSessionsRepository } from '../infrastructure/device-auth-sessions.repository';
-import { CryptoService } from '../../user-accounts/application/crypto.service';
+import { CryptoService } from './crypto.service';
 import { UserContextDto } from '../guards/dto/user-context.dto';
 import { AccessJwtPayloadDto } from '../dto/access-jwt-payload.dto';
 import { RefreshJwtPayloadDto } from '../dto/refresh-jwt-payload.dto';
 import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
+import { DeviceAuthSessionsRepo } from '../infrastructure/device-auth-sessions.repo';
+import { UsersRepo } from '../infrastructure/users.repo';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private cryptoService: CryptoService,
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepo,
   ) {}
 
   async validateUser(

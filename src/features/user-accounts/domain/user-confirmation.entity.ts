@@ -1,11 +1,37 @@
+import {
+  Check,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
+import { User } from './user.entity';
 import { CreateUserConfirmationDomainDto } from './dto/create-user-confirmation.domain-dto';
 import { add } from 'date-fns';
-import { UserConfirmationRow } from '../infrastructure/dto/user-confirmation.row';
 
+@Entity({ name: 'user_confirmations' })
+@Check(`
+  ("confirmation_code" IS NULL AND "expiration_date" IS NULL)
+  OR
+  ("confirmation_code" IS NOT NULL AND "expiration_date" IS NOT NULL)
+`)
 export class UserConfirmation {
+  @Column({ nullable: true, type: 'varchar' })
   confirmationCode: string | null;
+
+  @Column({ nullable: true, type: 'timestamp with time zone' })
   expirationDate: Date | null;
+
+  @Column()
   isConfirmed: boolean;
+
+  @OneToOne(() => User, (u) => u.confirmationInfo)
+  @JoinColumn()
+  user: User;
+
+  @PrimaryColumn()
+  userId: number;
 
   static createInstance(
     dto: CreateUserConfirmationDomainDto,
@@ -15,16 +41,7 @@ export class UserConfirmation {
     userConfirmation.confirmationCode = dto.confirmationCode;
     userConfirmation.expirationDate = dto.expirationDate;
     userConfirmation.isConfirmed = dto.isConfirmed;
-
-    return userConfirmation;
-  }
-
-  static reconstitute(row: UserConfirmationRow): UserConfirmation {
-    const userConfirmation = new UserConfirmation();
-
-    userConfirmation.confirmationCode = row.confirmation_code;
-    userConfirmation.expirationDate = row.confirmation_expiration_date;
-    userConfirmation.isConfirmed = row.is_confirmed;
+    userConfirmation.user = dto.user;
 
     return userConfirmation;
   }

@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { MakeCommentLikeOperationDto } from '../../dto/make-comment-like-operation.dto';
-import { CommentLikesRepository } from '../../infrastructure/comment-likes.repository';
-import { CommentsRepository } from '../../../comments/infrastructure/comments.repository';
-import { CommentLike } from '../../../../typeorm/entities/blogger-platform/comment-like.entity';
+import { CommentLike } from '../../domain/comment-like.entity';
+import { CommentsRepo } from '../../../comments/infrastructure/comments.repo';
+import { CommentLikesRepo } from '../../infrastructure/comment-likes.repo';
 
 export class MakeCommentLikeOperationCommand {
   constructor(public dto: MakeCommentLikeOperationDto) {}
@@ -13,8 +13,8 @@ export class MakeCommentLikeOperationUseCase
   implements ICommandHandler<MakeCommentLikeOperationCommand>
 {
   constructor(
-    private commentLikesRepository: CommentLikesRepository,
-    private commentsRepository: CommentsRepository,
+    private commentLikesRepository: CommentLikesRepo,
+    private commentsRepository: CommentsRepo,
   ) {}
 
   async execute({ dto }: MakeCommentLikeOperationCommand): Promise<void> {

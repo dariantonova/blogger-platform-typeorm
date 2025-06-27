@@ -1,17 +1,28 @@
+import { Column, Entity, OneToOne } from 'typeorm';
+import { BaseEntity } from '../../common/domain/base.entity';
 import { UserConfirmation } from './user-confirmation.entity';
 import { PasswordRecovery } from './password-recovery.entity';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
-import { UserRow } from '../infrastructure/dto/user.row';
 
-export class User {
-  id: number;
+@Entity({ name: 'users' })
+export class User extends BaseEntity {
+  @Column()
   login: string;
+
+  @Column()
   email: string;
+
+  @Column()
   passwordHash: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
+
+  @OneToOne(() => UserConfirmation, (uc) => uc.user, {
+    cascade: ['insert', 'update'],
+  })
   confirmationInfo: UserConfirmation;
+
+  @OneToOne(() => PasswordRecovery, (pr) => pr.user, {
+    cascade: ['insert', 'update'],
+  })
   passwordRecoveryInfo: PasswordRecovery | null;
 
   static createInstance(dto: CreateUserDomainDto, isConfirmed: boolean): User {
@@ -27,39 +38,9 @@ export class User {
       confirmationCode: null,
       expirationDate: null,
       isConfirmed,
+      user,
     });
     user.passwordRecoveryInfo = null;
-
-    return user;
-  }
-
-  static reconstitute(row: UserRow): User {
-    const user = new User();
-
-    user.id = row.id;
-    user.login = row.login;
-    user.email = row.email;
-    user.passwordHash = row.password_hash;
-    user.createdAt = row.created_at;
-    user.updatedAt = row.updated_at;
-    user.deletedAt = row.deleted_at;
-    user.confirmationInfo = UserConfirmation.reconstitute({
-      confirmation_code: row.confirmation_code,
-      confirmation_expiration_date: row.confirmation_expiration_date,
-      is_confirmed: row.is_confirmed,
-    });
-    if (
-      row.password_recovery_code_hash &&
-      row.password_recovery_expiration_date
-    ) {
-      user.passwordRecoveryInfo = PasswordRecovery.reconstitute({
-        password_recovery_code_hash: row.password_recovery_code_hash,
-        password_recovery_expiration_date:
-          row.password_recovery_expiration_date,
-      });
-    } else {
-      user.passwordRecoveryInfo = null;
-    }
 
     return user;
   }
@@ -73,12 +54,10 @@ export class User {
 
   setConfirmationCode(code: string, codeLifetimeInSeconds: number) {
     this.confirmationInfo.setConfirmationCode(code, codeLifetimeInSeconds);
-    this.updatedAt = new Date();
   }
 
   makeConfirmed() {
     this.confirmationInfo.makeConfirmed();
-    this.updatedAt = new Date();
   }
 
   setPasswordRecoveryCodeHash(
@@ -89,6 +68,7 @@ export class User {
       this.passwordRecoveryInfo = PasswordRecovery.createInstance({
         recoveryCodeHash,
         recoveryCodeLifetimeInSeconds,
+        user: this,
       });
     } else {
       this.passwordRecoveryInfo.setRecoveryCodeHash(
@@ -96,8 +76,6 @@ export class User {
         recoveryCodeLifetimeInSeconds,
       );
     }
-
-    this.updatedAt = new Date();
   }
 
   resetPasswordRecoveryInfo() {
@@ -106,6 +84,5 @@ export class User {
 
   setPasswordHash(passwordHash: string) {
     this.passwordHash = passwordHash;
-    this.updatedAt = new Date();
   }
 }

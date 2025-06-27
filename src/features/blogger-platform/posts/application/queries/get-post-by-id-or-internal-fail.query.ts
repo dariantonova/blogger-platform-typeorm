@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 import { PostViewDto } from '../../api/view-dto/posts.view-dto';
+import { PostsQueryRepo } from '../../infrastructure/query/posts.query-repo';
 
 export class GetPostByIdOrInternalFailQuery {
   constructor(
@@ -13,7 +13,7 @@ export class GetPostByIdOrInternalFailQuery {
 export class GetPostByIdOrInternalFailQueryHandler
   implements IQueryHandler<GetPostByIdOrInternalFailQuery, PostViewDto>
 {
-  constructor(private postsQueryRepository: PostsQueryRepository) {}
+  constructor(private postsQueryRepository: PostsQueryRepo) {}
 
   async execute({
     postId,

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepository } from '../../infrastructure/posts.repository';
 import { UpdateBlogPostDto } from '../../dto/update-blog-post.dto';
+import { PostsRepo } from '../../infrastructure/posts.repo';
 
 export class UpdateBlogPostCommandWrap {
   constructor(
@@ -14,7 +14,7 @@ export class UpdateBlogPostCommandWrap {
 export class UpdateBlogPostUseCaseWrap
   implements ICommandHandler<UpdateBlogPostCommandWrap>
 {
-  constructor(private postsRepository: PostsRepository) {}
+  constructor(private postsRepository: PostsRepo) {}
 
   async execute({
     blogId,

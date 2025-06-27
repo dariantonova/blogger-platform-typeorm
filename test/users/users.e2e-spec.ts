@@ -31,9 +31,9 @@ import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
-import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
-import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
-import { UsersTestRepo } from '../helpers/repositories/typeorm/users.test-repo';
+import { CommentLikesTestRepo } from '../helpers/repositories/comment-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/post-likes.test-repo';
+import { UsersTestRepo } from '../helpers/repositories/users.test-repo';
 
 describe('users', () => {
   let app: INestApplication;

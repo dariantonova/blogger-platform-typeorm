@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { CreateBlogDto } from '../../dto/create-blog.dto';
-import { Blog } from '../../../../typeorm/entities/blogger-platform/blog.entity';
+import { Blog } from '../../domain/blog.entity';
+import { BlogsRepo } from '../../infrastructure/blogs.repo';
 
 export class CreateBlogCommand {
   constructor(public dto: CreateBlogDto) {}
@@ -11,7 +11,7 @@ export class CreateBlogCommand {
 export class CreateBlogUseCase
   implements ICommandHandler<CreateBlogCommand, number>
 {
-  constructor(private blogsRepository: BlogsRepository) {}
+  constructor(private blogsRepository: BlogsRepo) {}
 
   async execute({ dto }: CreateBlogCommand): Promise<number> {
     const blog = Blog.createInstance(dto);

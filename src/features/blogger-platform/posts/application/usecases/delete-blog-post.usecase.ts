@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostsRepository } from '../../infrastructure/posts.repository';
-import { PostLikesRepository } from '../../../likes/infrastructure/post-likes.repository';
-import { CommentsRepository } from '../../../comments/infrastructure/comments.repository';
-import { CommentLikesRepository } from '../../../likes/infrastructure/comment-likes.repository';
+import { CommentLikesRepo } from '../../../likes/infrastructure/comment-likes.repo';
+import { PostsRepo } from '../../infrastructure/posts.repo';
+import { PostLikesRepo } from '../../../likes/infrastructure/post-likes.repo';
+import { CommentsRepo } from '../../../comments/infrastructure/comments.repo';
 
 export class DeleteBlogPostCommandWrap {
   constructor(
@@ -16,10 +16,10 @@ export class DeleteBlogPostUseCaseWrap
   implements ICommandHandler<DeleteBlogPostCommandWrap>
 {
   constructor(
-    private postsRepository: PostsRepository,
-    private postLikesRepository: PostLikesRepository,
-    private commentsRepository: CommentsRepository,
-    private commentLikesRepository: CommentLikesRepository,
+    private postsRepository: PostsRepo,
+    private postLikesRepository: PostLikesRepo,
+    private commentsRepository: CommentsRepo,
+    private commentLikesRepository: CommentLikesRepo,
   ) {}
 
   async execute({ blogId, postId }: DeleteBlogPostCommandWrap): Promise<void> {

@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { UpdateBlogDto } from '../../dto/update-blog.dto';
+import { BlogsRepo } from '../../infrastructure/blogs.repo';
 
 export class UpdateBlogCommand {
   constructor(
@@ -11,7 +11,7 @@ export class UpdateBlogCommand {
 
 @CommandHandler(UpdateBlogCommand)
 export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
-  constructor(private blogsRepository: BlogsRepository) {}
+  constructor(private blogsRepository: BlogsRepo) {}
 
   async execute({ blogId, dto }: UpdateBlogCommand): Promise<void> {
     const blog = await this.blogsRepository.findByIdOrNotFoundFail(blogId);

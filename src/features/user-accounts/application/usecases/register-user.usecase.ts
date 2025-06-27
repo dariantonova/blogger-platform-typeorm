@@ -4,11 +4,11 @@ import {
   EventBus,
   ICommandHandler,
 } from '@nestjs/cqrs';
-import { UsersRepository } from '../../infrastructure/users.repository';
 import { UsersService } from '../users.service';
-import { CreateUserDto } from '../../../user-accounts/dto/create-user.dto';
-import { UserRegisteredEvent } from '../../../user-accounts/domain/events/user-registered.event';
+import { CreateUserDto } from '../../dto/create-user.dto';
+import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
 import { CreateUserCommand } from './create-user.usecase';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class RegisterUserCommand {
   constructor(public dto: CreateUserDto) {}
@@ -21,7 +21,7 @@ export class RegisterUserUseCase
   constructor(
     private commandBus: CommandBus,
     private eventBus: EventBus,
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private usersService: UsersService,
   ) {}
 

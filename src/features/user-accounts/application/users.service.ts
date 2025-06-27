@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
-import { UsersRepository } from '../infrastructure/users.repository';
-import { UserAccountsConfig } from '../../user-accounts/user-accounts.config';
+import { UserAccountsConfig } from '../user-accounts.config';
+import { UsersRepo } from '../infrastructure/users.repo';
 import { User } from '../domain/user.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private userAccountsConfig: UserAccountsConfig,
   ) {}
 

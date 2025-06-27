@@ -1,10 +1,22 @@
-import { CreatePasswordRecoveryDomainDto } from './dto/create-password-recovery.domain-dto';
+import { Column, Entity, JoinColumn, OneToOne, PrimaryColumn } from 'typeorm';
+import { User } from './user.entity';
 import { add } from 'date-fns';
-import { PasswordRecoveryRow } from '../infrastructure/dto/password-recovery.row';
+import { CreatePasswordRecoveryDomainDto } from './dto/create-password-recovery.domain-dto';
 
+@Entity({ name: 'password_recoveries' })
 export class PasswordRecovery {
+  @Column()
   recoveryCodeHash: string;
+
+  @Column({ type: 'timestamp with time zone' })
   expirationDate: Date;
+
+  @OneToOne(() => User, (u) => u.passwordRecoveryInfo)
+  @JoinColumn()
+  user: User;
+
+  @PrimaryColumn()
+  userId: number;
 
   static createInstance(
     dto: CreatePasswordRecoveryDomainDto,
@@ -15,15 +27,7 @@ export class PasswordRecovery {
       dto.recoveryCodeHash,
       dto.recoveryCodeLifetimeInSeconds,
     );
-
-    return passwordRecovery;
-  }
-
-  static reconstitute(row: PasswordRecoveryRow): PasswordRecovery {
-    const passwordRecovery = new PasswordRecovery();
-
-    passwordRecovery.recoveryCodeHash = row.password_recovery_code_hash;
-    passwordRecovery.expirationDate = row.password_recovery_expiration_date;
+    passwordRecovery.user = dto.user;
 
     return passwordRecovery;
   }

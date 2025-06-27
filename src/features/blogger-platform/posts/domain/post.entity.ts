@@ -1,16 +1,25 @@
-import { UpdatePostDomainDto } from './dto/update-post.domain.dto';
-import { PostRow } from '../infrastructure/dto/post.row';
+import { Column, Entity, ManyToOne } from 'typeorm';
+import { BaseEntity } from '../../../common/domain/base.entity';
+import { Blog } from '../../blogs/domain/blog.entity';
 import { CreatePostDto } from '../dto/create-post.dto';
+import { UpdatePostDomainDto } from './dto/update-post.domain.dto';
 
-export class Post {
-  id: number;
+@Entity({ name: 'posts' })
+export class Post extends BaseEntity {
+  @Column()
   title: string;
+
+  @Column()
   shortDescription: string;
+
+  @Column()
   content: string;
+
+  @ManyToOne(() => Blog)
+  blog: Blog;
+
+  @Column()
   blogId: number;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
 
   static createInstance(dto: CreatePostDto): Post {
     const post = new Post();
@@ -26,21 +35,6 @@ export class Post {
     return post;
   }
 
-  static reconstitute(row: PostRow): Post {
-    const post = new Post();
-
-    post.id = row.id;
-    post.title = row.title;
-    post.shortDescription = row.short_description;
-    post.content = row.content;
-    post.blogId = row.blog_id;
-    post.createdAt = row.created_at;
-    post.updatedAt = row.updated_at;
-    post.deletedAt = row.deleted_at;
-
-    return post;
-  }
-
   makeDeleted() {
     if (this.deletedAt !== null) {
       throw new Error('Post is already deleted');
@@ -52,6 +46,5 @@ export class Post {
     this.title = dto.title;
     this.shortDescription = dto.shortDescription;
     this.content = dto.content;
-    this.updatedAt = new Date();
   }
 }

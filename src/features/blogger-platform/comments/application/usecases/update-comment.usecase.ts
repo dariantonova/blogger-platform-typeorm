@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForbiddenException } from '@nestjs/common';
-import { CommentsRepository } from '../../infrastructure/comments.repository';
 import { UpdateCommentDto } from '../../dto/update-comment.dto';
+import { CommentsRepo } from '../../infrastructure/comments.repo';
 
 export class UpdateCommentCommandWrap {
   constructor(
@@ -15,7 +15,7 @@ export class UpdateCommentCommandWrap {
 export class UpdateCommentUseCaseWrap
   implements ICommandHandler<UpdateCommentCommandWrap>
 {
-  constructor(private commentsRepository: CommentsRepository) {}
+  constructor(private commentsRepository: CommentsRepo) {}
 
   async execute({
     commentId,

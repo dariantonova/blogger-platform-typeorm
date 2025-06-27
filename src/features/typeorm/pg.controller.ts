@@ -1,12 +1,12 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { UsersRepo } from './infrastructure/user-accounts/users.repo';
-import { DeviceAuthSessionsRepo } from './infrastructure/user-accounts/device-auth-sessions.repo';
-import { DeviceAuthSessionsQueryRepo } from './infrastructure/user-accounts/query/device-auth-sessions.query-repo';
-import { UsersQueryRepo } from './infrastructure/user-accounts/query/users.query-repo';
+import { UsersRepo } from '../user-accounts/infrastructure/users.repo';
+import { DeviceAuthSessionsRepo } from '../user-accounts/infrastructure/device-auth-sessions.repo';
+import { DeviceAuthSessionsQueryRepo } from '../user-accounts/infrastructure/query/device-auth-sessions.query-repo';
+import { UsersQueryRepo } from '../user-accounts/infrastructure/query/users.query-repo';
 import { GetUsersQueryParams } from '../user-accounts/api/input-dto/get-users-query-params.input-dto';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { Post } from './entities/blogger-platform/post.entity';
+import { Post } from '../blogger-platform/posts/domain/post.entity';
 
 @Controller('pg')
 export class PgController {

@@ -17,11 +17,6 @@ import { SecurityDevicesController } from './api/security-devices.controller';
 import { JwtAccessStrategy } from './guards/bearer/jwt-access.strategy';
 import { LocalStrategy } from './guards/local/local.strategy';
 import { JwtRefreshStrategy } from './guards/refresh-token/jwt-refresh.strategy';
-import { UsersRepository } from './infrastructure/users.repository';
-import { DeviceAuthSessionsRepository } from './infrastructure/device-auth-sessions.repository';
-import { UsersQueryRepository } from './infrastructure/query/users.query-repository';
-import { DeviceAuthSessionsQueryRepository } from './infrastructure/query/device-auth-sessions.query-repository';
-import { AuthQueryRepository } from './infrastructure/query/auth.query-repository';
 import { CreateUserUseCase } from './application/usecases/create-user.usecase';
 import { AuthService } from './application/auth.service';
 import { UsersService } from './application/users.service';
@@ -41,16 +36,16 @@ import { SetNewPasswordUseCase } from './application/usecases/set-new-password.u
 import { TerminateAllOtherUserDeviceSessionsUseCase } from './application/usecases/terminate-all-other-user-device-sessions.usecase';
 import { TerminateDeviceSessionUseCase } from './application/usecases/terminate-device-session.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '../typeorm/entities/user-accounts/user.entity';
-import { UserConfirmation } from '../typeorm/entities/user-accounts/user-confirmation.entity';
-import { PasswordRecovery } from '../typeorm/entities/user-accounts/password-recovery.entity';
+import { User } from './domain/user.entity';
+import { UserConfirmation } from './domain/user-confirmation.entity';
+import { PasswordRecovery } from './domain/password-recovery.entity';
 import { PgController } from '../typeorm/pg.controller';
-import { DeviceAuthSession } from '../typeorm/entities/user-accounts/device-auth-session.entity';
-import { UsersRepo } from '../typeorm/infrastructure/user-accounts/users.repo';
-import { DeviceAuthSessionsRepo } from '../typeorm/infrastructure/user-accounts/device-auth-sessions.repo';
-import { UsersQueryRepo } from '../typeorm/infrastructure/user-accounts/query/users.query-repo';
-import { DeviceAuthSessionsQueryRepo } from '../typeorm/infrastructure/user-accounts/query/device-auth-sessions.query-repo';
-import { AuthQueryRepo } from '../typeorm/infrastructure/user-accounts/query/auth.query-repo';
+import { DeviceAuthSession } from './domain/device-auth-session.entity';
+import { UsersRepo } from './infrastructure/users.repo';
+import { DeviceAuthSessionsRepo } from './infrastructure/device-auth-sessions.repo';
+import { UsersQueryRepo } from './infrastructure/query/users.query-repo';
+import { DeviceAuthSessionsQueryRepo } from './infrastructure/query/device-auth-sessions.query-repo';
+import { AuthQueryRepo } from './infrastructure/query/auth.query-repo';
 
 const controllers = [
   UsersController,
@@ -66,17 +61,6 @@ const providers = [
   JwtAccessStrategy,
   LocalStrategy,
   JwtRefreshStrategy,
-  { provide: UsersRepository, useExisting: UsersRepo },
-  {
-    provide: DeviceAuthSessionsRepository,
-    useExisting: DeviceAuthSessionsRepo,
-  },
-  { provide: UsersQueryRepository, useExisting: UsersQueryRepo },
-  {
-    provide: DeviceAuthSessionsQueryRepository,
-    useExisting: DeviceAuthSessionsQueryRepo,
-  },
-  { provide: AuthQueryRepository, useExisting: AuthQueryRepo },
   UsersRepo,
   DeviceAuthSessionsRepo,
   UsersQueryRepo,

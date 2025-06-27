@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UsersRepository } from '../../infrastructure/users.repository';
-import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
 import { BloggerPlatformExternalService } from '../../../blogger-platform/common/infrastructure/external/blogger-platform.external-service';
+import { DeviceAuthSessionsRepo } from '../../infrastructure/device-auth-sessions.repo';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class DeleteUserCommand {
   constructor(public userId: number) {}
@@ -10,8 +10,8 @@ export class DeleteUserCommand {
 @CommandHandler(DeleteUserCommand)
 export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(
-    private usersRepository: UsersRepository,
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+    private usersRepository: UsersRepo,
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepo,
     private bloggerPlatformExternalService: BloggerPlatformExternalService,
   ) {}
 

@@ -22,7 +22,7 @@ import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comme
 import { millisecondsToSeconds } from 'date-fns';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
 import { DataSource } from 'typeorm';
-import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
+import { CommentLikesTestRepo } from '../helpers/repositories/comment-likes.test-repo';
 
 describe('comments', () => {
   let app: INestApplication;

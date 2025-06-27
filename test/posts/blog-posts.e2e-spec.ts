@@ -28,8 +28,8 @@ import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-man
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { DataSource } from 'typeorm';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
-import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
-import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
+import { CommentLikesTestRepo } from '../helpers/repositories/comment-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/post-likes.test-repo';
 
 describe('blog posts', () => {
   let app: INestApplication;

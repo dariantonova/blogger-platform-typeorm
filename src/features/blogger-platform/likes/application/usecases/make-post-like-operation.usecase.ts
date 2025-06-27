@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { PostLikesRepository } from '../../infrastructure/post-likes.repository';
-import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { MakePostLikeOperationDto } from '../../dto/make-post-like-operation.dto';
-import { PostLike } from '../../../../typeorm/entities/blogger-platform/post-like.entity';
+import { PostLike } from '../../domain/post-like.entity';
+import { PostsRepo } from '../../../posts/infrastructure/posts.repo';
+import { PostLikesRepo } from '../../infrastructure/post-likes.repo';
 
 export class MakePostLikeOperationCommandWrap {
   constructor(public dto: MakePostLikeOperationDto) {}
@@ -13,8 +13,8 @@ export class MakePostLikeOperationUseCaseWrap
   implements ICommandHandler<MakePostLikeOperationCommandWrap>
 {
   constructor(
-    private postLikesRepository: PostLikesRepository,
-    private postsRepository: PostsRepository,
+    private postLikesRepository: PostLikesRepo,
+    private postsRepository: PostsRepo,
   ) {}
 
   async execute({ dto }: MakePostLikeOperationCommandWrap): Promise<void> {

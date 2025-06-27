@@ -1,6 +1,6 @@
 import { OmitType } from '@nestjs/swagger';
 import { UserViewRow } from '../../infrastructure/query/dto/user.view-row';
-import { User } from '../../../typeorm/entities/user-accounts/user.entity';
+import { User } from '../../domain/user.entity';
 
 export class UserViewDto {
   id: string;

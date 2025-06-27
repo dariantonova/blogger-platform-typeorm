@@ -23,7 +23,7 @@ import { CommentViewDto } from '../../src/features/blogger-platform/comments/api
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
+import { CommentLikesTestRepo } from '../helpers/repositories/comment-likes.test-repo';
 
 describe('comment likes', () => {
   let app: INestApplication;

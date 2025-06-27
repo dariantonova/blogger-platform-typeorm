@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { BadRequestException } from '@nestjs/common';
-import { UsersRepository } from '../../infrastructure/users.repository';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class ConfirmRegistrationCommand {
   constructor(public confirmationCode: string) {}
@@ -10,7 +10,7 @@ export class ConfirmRegistrationCommand {
 export class ConfirmRegistrationUseCase
   implements ICommandHandler<ConfirmRegistrationCommand>
 {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(private usersRepository: UsersRepo) {}
 
   async execute({
     confirmationCode,

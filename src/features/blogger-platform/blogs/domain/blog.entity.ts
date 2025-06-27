@@ -1,16 +1,21 @@
+import { Column, Entity } from 'typeorm';
+import { BaseEntity } from '../../../common/domain/base.entity';
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
-import { BlogRow } from '../infrastructure/dto/blog.row';
 
-export class Blog {
-  id: number;
+@Entity({ name: 'blogs' })
+export class Blog extends BaseEntity {
+  @Column()
   name: string;
+
+  @Column()
   description: string;
+
+  @Column()
   websiteUrl: string;
+
+  @Column()
   isMembership: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
 
   static createInstance(dto: CreateBlogDto): Blog {
     const blog = new Blog();
@@ -26,21 +31,6 @@ export class Blog {
     return blog;
   }
 
-  static reconstitute(row: BlogRow): Blog {
-    const blog = new Blog();
-
-    blog.id = row.id;
-    blog.name = row.name;
-    blog.description = row.description;
-    blog.websiteUrl = row.website_url;
-    blog.isMembership = row.is_membership;
-    blog.createdAt = row.created_at;
-    blog.updatedAt = row.updated_at;
-    blog.deletedAt = row.deleted_at;
-
-    return blog;
-  }
-
   makeDeleted() {
     if (this.deletedAt !== null) {
       throw new Error('Blog is already deleted');
@@ -52,6 +42,5 @@ export class Blog {
     this.name = dto.name;
     this.description = dto.description;
     this.websiteUrl = dto.websiteUrl;
-    this.updatedAt = new Date();
   }
 }

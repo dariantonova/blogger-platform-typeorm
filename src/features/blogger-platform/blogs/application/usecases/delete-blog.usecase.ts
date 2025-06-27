@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BlogsRepository } from '../../infrastructure/blogs.repository';
-import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
-import { PostLikesRepository } from '../../../likes/infrastructure/post-likes.repository';
-import { CommentsRepository } from '../../../comments/infrastructure/comments.repository';
-import { CommentLikesRepository } from '../../../likes/infrastructure/comment-likes.repository';
+import { CommentLikesRepo } from '../../../likes/infrastructure/comment-likes.repo';
+import { BlogsRepo } from '../../infrastructure/blogs.repo';
+import { PostsRepo } from '../../../posts/infrastructure/posts.repo';
+import { PostLikesRepo } from '../../../likes/infrastructure/post-likes.repo';
+import { CommentsRepo } from '../../../comments/infrastructure/comments.repo';
 
 export class DeleteBlogCommand {
   constructor(public blogId: number) {}
@@ -12,11 +12,11 @@ export class DeleteBlogCommand {
 @CommandHandler(DeleteBlogCommand)
 export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   constructor(
-    private blogsRepository: BlogsRepository,
-    private postsRepository: PostsRepository,
-    private postLikesRepository: PostLikesRepository,
-    private commentsRepository: CommentsRepository,
-    private commentLikesRepository: CommentLikesRepository,
+    private blogsRepository: BlogsRepo,
+    private postsRepository: PostsRepo,
+    private postLikesRepository: PostLikesRepo,
+    private commentsRepository: CommentsRepo,
+    private commentLikesRepository: CommentLikesRepo,
   ) {}
 
   async execute({ blogId }: DeleteBlogCommand): Promise<void> {

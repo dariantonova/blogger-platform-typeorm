@@ -1,5 +1,5 @@
 import { DeviceAuthSessionViewRow } from '../../infrastructure/query/dto/device-auth-session.view-row';
-import { DeviceAuthSession } from '../../../typeorm/entities/user-accounts/device-auth-session.entity';
+import { DeviceAuthSession } from '../../domain/device-auth-session.entity';
 
 export class DeviceViewDto {
   ip: string;

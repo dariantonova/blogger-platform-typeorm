@@ -1,16 +1,28 @@
 import { LikeStatus } from '../dto/like-status';
+import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { BaseEntity } from '../../../common/domain/base.entity';
+import { Post } from '../../posts/domain/post.entity';
+import { User } from '../../../user-accounts/domain/user.entity';
 import { CreatePostLikeDomainDto } from './dto/create-post-like.domain-dto';
 import { UpdateLikeDomainDto } from './dto/update-like.domain.dto';
-import { PostLikeRow } from '../infrastructure/dto/post-like.row';
 
-export class PostLike {
-  id: number;
-  postId: number;
-  userId: number;
+@Entity({ name: 'post_likes' })
+@Unique(['postId', 'userId'])
+export class PostLike extends BaseEntity {
+  @Column({ type: 'enum', enum: LikeStatus })
   status: LikeStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
+
+  @ManyToOne(() => Post)
+  post: Post;
+
+  @Column()
+  postId: number;
+
+  @ManyToOne(() => User)
+  user: User;
+
+  @Column()
+  userId: number;
 
   static createInstance(dto: CreatePostLikeDomainDto): PostLike {
     const like = new PostLike();
@@ -25,20 +37,6 @@ export class PostLike {
     return like;
   }
 
-  static reconstitute(row: PostLikeRow): PostLike {
-    const like = new PostLike();
-
-    like.id = row.id;
-    like.postId = row.post_id;
-    like.userId = row.user_id;
-    like.status = row.status;
-    like.createdAt = row.created_at;
-    like.updatedAt = row.updated_at;
-    like.deletedAt = row.deleted_at;
-
-    return like;
-  }
-
   makeDeleted() {
     if (this.deletedAt !== null) {
       throw new Error('Post like is already deleted');
@@ -48,6 +46,5 @@ export class PostLike {
 
   update(dto: UpdateLikeDomainDto) {
     this.status = dto.status;
-    this.updatedAt = new Date();
   }
 }

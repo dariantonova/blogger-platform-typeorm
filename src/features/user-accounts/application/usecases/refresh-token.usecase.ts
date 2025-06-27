@@ -2,13 +2,13 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { Inject } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { unixToDate } from '../../../../common/utils/date.util';
-import { DeviceAuthSessionsRepository } from '../../infrastructure/device-auth-sessions.repository';
-import { AuthTokensDto } from '../../../user-accounts/dto/auth-tokens.dto';
+import { AuthTokensDto } from '../../dto/auth-tokens.dto';
 import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
-} from '../../../user-accounts/constants/auth-tokens.inject-constants';
+} from '../../constants/auth-tokens.inject-constants';
 import { RefreshJwtPayloadDto } from '../../dto/refresh-jwt-payload.dto';
+import { DeviceAuthSessionsRepo } from '../../infrastructure/device-auth-sessions.repo';
 
 export class RefreshTokenCommand {
   constructor(public dto: { userId: number; deviceId: string; ip: string }) {}
@@ -23,7 +23,7 @@ export class RefreshTokenUseCase
     private accessTokenContext: JwtService,
     @Inject(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
     private refreshTokenContext: JwtService,
-    private deviceAuthSessionsRepository: DeviceAuthSessionsRepository,
+    private deviceAuthSessionsRepository: DeviceAuthSessionsRepo,
   ) {}
 
   async execute({ dto }: RefreshTokenCommand): Promise<AuthTokensDto> {

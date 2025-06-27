@@ -1,9 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { randomBytes } from 'node:crypto';
-import { UsersRepository } from '../../infrastructure/users.repository';
-import { CryptoService } from '../../../user-accounts/application/crypto.service';
-import { UserAccountsConfig } from '../../../user-accounts/user-accounts.config';
-import { PasswordRecoveryRequestedEvent } from '../../../user-accounts/domain/events/password-recovery-requested.event';
+import { CryptoService } from '../crypto.service';
+import { UserAccountsConfig } from '../../user-accounts.config';
+import { PasswordRecoveryRequestedEvent } from '../../domain/events/password-recovery-requested.event';
+import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class RecoverPasswordCommand {
   constructor(public email: string) {}
@@ -14,7 +14,7 @@ export class RecoverPasswordUseCase
   implements ICommandHandler<RecoverPasswordCommand>
 {
   constructor(
-    private usersRepository: UsersRepository,
+    private usersRepository: UsersRepo,
     private cryptoService: CryptoService,
     private userAccountsConfig: UserAccountsConfig,
     private eventBus: EventBus,

@@ -1,16 +1,28 @@
 import { LikeStatus } from '../dto/like-status';
-import { UpdateLikeDomainDto } from './dto/update-like.domain.dto';
+import { Column, Entity, ManyToOne, Unique } from 'typeorm';
+import { BaseEntity } from '../../../common/domain/base.entity';
+import { User } from '../../../user-accounts/domain/user.entity';
+import { Comment } from '../../comments/domain/comment.entity';
 import { CreateCommentLikeDomainDto } from './dto/create-comment-like.domain-dto';
-import { CommentLikeRow } from '../infrastructure/dto/comment-like.row';
+import { UpdateLikeDomainDto } from './dto/update-like.domain.dto';
 
-export class CommentLike {
-  id: number;
-  commentId: number;
-  userId: number;
+@Entity({ name: 'comment_likes' })
+@Unique(['commentId', 'userId'])
+export class CommentLike extends BaseEntity {
+  @Column({ type: 'enum', enum: LikeStatus })
   status: LikeStatus;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date | null;
+
+  @ManyToOne(() => Comment)
+  comment: Comment;
+
+  @Column()
+  commentId: number;
+
+  @ManyToOne(() => User)
+  user: User;
+
+  @Column()
+  userId: number;
 
   static createInstance(dto: CreateCommentLikeDomainDto): CommentLike {
     const like = new CommentLike();
@@ -25,20 +37,6 @@ export class CommentLike {
     return like;
   }
 
-  static reconstitute(row: CommentLikeRow): CommentLike {
-    const like = new CommentLike();
-
-    like.id = row.id;
-    like.commentId = row.comment_id;
-    like.userId = row.user_id;
-    like.status = row.status;
-    like.createdAt = row.created_at;
-    like.updatedAt = row.updated_at;
-    like.deletedAt = row.deleted_at;
-
-    return like;
-  }
-
   makeDeleted() {
     if (this.deletedAt !== null) {
       throw new Error('Comment like is already deleted');
@@ -48,6 +46,5 @@ export class CommentLike {
 
   update(dto: UpdateLikeDomainDto) {
     this.status = dto.status;
-    this.updatedAt = new Date();
   }
 }

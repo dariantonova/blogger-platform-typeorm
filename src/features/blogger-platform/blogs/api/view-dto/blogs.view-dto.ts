@@ -1,5 +1,5 @@
 import { BlogViewRow } from '../../infrastructure/query/dto/blog.view-row';
-import { Blog } from '../../../../typeorm/entities/blogger-platform/blog.entity';
+import { Blog } from '../../domain/blog.entity';
 
 export class BlogViewDto {
   id: string;

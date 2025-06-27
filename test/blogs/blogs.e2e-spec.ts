@@ -25,10 +25,10 @@ import { CommentsCommonTestManager } from '../helpers/comments.common.test-manag
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
-import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { DataSource } from 'typeorm';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
+import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
 
 describe('blogs', () => {
   let app: INestApplication;
@@ -36,9 +36,9 @@ describe('blogs', () => {
   let postsCommonTestManager: PostsCommonTestManager;
   let commentsCommonTestManager: CommentsCommonTestManager;
   let postLikesTestManager: PostLikesTestManager;
-  let postLikesTestRepository: PostLikesTestRepository;
+  let postLikesTestRepository: PostLikesTestRepo;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepository;
+  let commentLikesTestRepository: CommentLikesTestRepo;
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
@@ -52,8 +52,8 @@ describe('blogs', () => {
     authTestManager = new AuthTestManager(app);
 
     const dataSource = app.get(DataSource);
-    postLikesTestRepository = new PostLikesTestRepository(dataSource);
-    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
+    postLikesTestRepository = new PostLikesTestRepo(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepo(dataSource);
   });
 
   afterAll(async () => {

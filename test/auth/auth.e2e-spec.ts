@@ -36,7 +36,7 @@ import { JwtTestManager } from '../helpers/jwt.test-manager';
 import { SecurityDevicesCommonTestManager } from '../helpers/device-sessions.common.test-manager';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { UsersTestRepository } from '../helpers/repositories/users.test-repository';
+import { UsersTestRepo } from '../helpers/repositories/typeorm/users.test-repo';
 
 describe('auth', () => {
   let app: INestApplication;
@@ -45,7 +45,7 @@ describe('auth', () => {
   let usersTestManager: UsersTestManager;
   let securityDevicesCommonTestManager: SecurityDevicesCommonTestManager;
   let jwtTestManager: JwtTestManager;
-  let usersTestRepository: UsersTestRepository;
+  let usersTestRepository: UsersTestRepo;
 
   const accessTokenExpInMs = 2000;
   const refreshTokenExpInMs = 3000;
@@ -106,7 +106,7 @@ describe('auth', () => {
     jwtTestManager = new JwtTestManager(refreshJwtService);
 
     const dataSource = app.get(DataSource);
-    usersTestRepository = new UsersTestRepository(dataSource);
+    usersTestRepository = new UsersTestRepo(dataSource);
   });
 
   afterAll(async () => {

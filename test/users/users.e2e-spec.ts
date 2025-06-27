@@ -23,31 +23,31 @@ import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { UsersCommonTestManager } from '../helpers/users.common.test-manager';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { LoginInputDto } from '../../src/features/user-accounts/api/input-dto/login.input-dto';
-import { UsersTestRepository } from '../helpers/repositories/users.test-repository';
 import { DataSource } from 'typeorm';
 import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-dto/blogs.view-dto';
 import { PostsCommonTestManager } from '../helpers/posts.common.test-manager';
 import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
 import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
-import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 import { BlogsCommonTestManager } from '../helpers/blogs.common.test-manager';
 import { LikeStatus } from '../../src/features/blogger-platform/likes/dto/like-status';
+import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
+import { UsersTestRepo } from '../helpers/repositories/typeorm/users.test-repo';
 
 describe('users', () => {
   let app: INestApplication;
   let usersTestManager: UsersTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
-  let usersTestRepository: UsersTestRepository;
+  let usersTestRepository: UsersTestRepo;
   let blogsCommonTestManager: BlogsCommonTestManager;
   let postsCommonTestManager: PostsCommonTestManager;
   let commentsCommonTestManager: CommentsCommonTestManager;
   let postLikesTestManager: PostLikesTestManager;
-  let postLikesTestRepository: PostLikesTestRepository;
+  let postLikesTestRepository: PostLikesTestRepo;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepository;
+  let commentLikesTestRepository: CommentLikesTestRepo;
 
   beforeAll(async () => {
     app = await initApp();
@@ -62,9 +62,9 @@ describe('users', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    usersTestRepository = new UsersTestRepository(dataSource);
-    postLikesTestRepository = new PostLikesTestRepository(dataSource);
-    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
+    usersTestRepository = new UsersTestRepo(dataSource);
+    postLikesTestRepository = new PostLikesTestRepo(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepo(dataSource);
   });
 
   afterAll(async () => {

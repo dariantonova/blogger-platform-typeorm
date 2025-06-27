@@ -21,8 +21,8 @@ import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-d
 import { UpdateCommentInputDto } from '../../src/features/blogger-platform/comments/api/input-dto/update-comment.input-dto';
 import { millisecondsToSeconds } from 'date-fns';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 import { DataSource } from 'typeorm';
+import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
 
 describe('comments', () => {
   let app: INestApplication;
@@ -32,7 +32,7 @@ describe('comments', () => {
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepository;
+  let commentLikesTestRepository: CommentLikesTestRepo;
   const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
@@ -59,7 +59,7 @@ describe('comments', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepo(dataSource);
   });
 
   afterAll(async () => {

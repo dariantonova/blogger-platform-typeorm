@@ -24,12 +24,12 @@ import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { UpdateBlogPostInputDto } from '../../src/features/blogger-platform/blogs/api/input-dto/update-blog-post.input-dto';
 import { CommentsCommonTestManager } from '../helpers/comments.common.test-manager';
 import { PostLikesTestManager } from '../likes/helpers/post-likes.test-manager';
-import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { CommentLikesTestManager } from '../likes/helpers/comment-likes.test-manager';
-import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
 import { AuthTestManager } from '../auth/helpers/auth.test-manager';
 import { DataSource } from 'typeorm';
 import { CommentViewDto } from '../../src/features/blogger-platform/comments/api/view-dto/comments.view-dto';
+import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
+import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
 
 describe('blog posts', () => {
   let app: INestApplication;
@@ -37,9 +37,9 @@ describe('blog posts', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let commentsCommonTestManager: CommentsCommonTestManager;
   let postLikesTestManager: PostLikesTestManager;
-  let postLikesTestRepository: PostLikesTestRepository;
+  let postLikesTestRepository: PostLikesTestRepo;
   let commentLikesTestManager: CommentLikesTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepository;
+  let commentLikesTestRepository: CommentLikesTestRepo;
   let authTestManager: AuthTestManager;
 
   beforeAll(async () => {
@@ -53,8 +53,8 @@ describe('blog posts', () => {
     authTestManager = new AuthTestManager(app);
 
     const dataSource = app.get(DataSource);
-    postLikesTestRepository = new PostLikesTestRepository(dataSource);
-    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
+    postLikesTestRepository = new PostLikesTestRepo(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepo(dataSource);
   });
 
   afterAll(async () => {

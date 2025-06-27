@@ -23,7 +23,7 @@ import { CommentViewDto } from '../../src/features/blogger-platform/comments/api
 import { PostViewDto } from '../../src/features/blogger-platform/posts/api/view-dto/posts.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
 import { DataSource } from 'typeorm';
-import { CommentLikesTestRepository } from '../helpers/repositories/comment-likes.test-repository';
+import { CommentLikesTestRepo } from '../helpers/repositories/typeorm/comment-likes.test-repo';
 
 describe('comment likes', () => {
   let app: INestApplication;
@@ -33,7 +33,7 @@ describe('comment likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
-  let commentLikesTestRepository: CommentLikesTestRepository;
+  let commentLikesTestRepository: CommentLikesTestRepo;
   const accessTokenExpInMs = 3000;
 
   beforeAll(async () => {
@@ -55,7 +55,7 @@ describe('comment likes', () => {
     commentLikesTestManager = new CommentLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    commentLikesTestRepository = new CommentLikesTestRepository(dataSource);
+    commentLikesTestRepository = new CommentLikesTestRepo(dataSource);
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);

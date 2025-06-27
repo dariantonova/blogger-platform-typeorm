@@ -23,10 +23,10 @@ import { BlogViewDto } from '../../src/features/blogger-platform/blogs/api/view-
 import { CreateUserInputDto } from '../../src/features/user-accounts/api/input-dto/create-user.input-dto';
 import { LikeDetailsViewDto } from '../../src/features/blogger-platform/common/dto/like-details.view-dto';
 import { millisecondsToSeconds } from 'date-fns';
-import { PostLikesTestRepository } from '../helpers/repositories/post-likes.test-repository';
 import { DataSource } from 'typeorm';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { PostsSortBy } from '../../src/features/blogger-platform/posts/api/input-dto/posts-sort-by';
+import { PostLikesTestRepo } from '../helpers/repositories/typeorm/post-likes.test-repo';
 
 describe('post likes', () => {
   let app: INestApplication;
@@ -35,7 +35,7 @@ describe('post likes', () => {
   let blogsCommonTestManager: BlogsCommonTestManager;
   let usersCommonTestManager: UsersCommonTestManager;
   let authTestManager: AuthTestManager;
-  let postLikesTestRepository: PostLikesTestRepository;
+  let postLikesTestRepository: PostLikesTestRepo;
   const accessTokenExpInMs = 4000;
 
   beforeAll(async () => {
@@ -57,7 +57,7 @@ describe('post likes', () => {
     postLikesTestManager = new PostLikesTestManager(app);
 
     const dataSource = app.get(DataSource);
-    postLikesTestRepository = new PostLikesTestRepository(dataSource);
+    postLikesTestRepository = new PostLikesTestRepo(dataSource);
 
     blogsCommonTestManager = new BlogsCommonTestManager(app);
     postsCommonTestManager = new PostsCommonTestManager(app);

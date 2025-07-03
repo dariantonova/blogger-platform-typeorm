@@ -31,7 +31,7 @@ export class LoginUserUseCase
   async execute({ dto }: LoginUserCommand): Promise<AuthTokensDto> {
     const accessToken = this.accessTokenContext.sign({ userId: dto.userId });
 
-    const deviceId = this.generateDeviceId();
+    const deviceId = randomUUID();
     const refreshToken = this.refreshTokenContext.sign({
       userId: dto.userId,
       deviceId,
@@ -54,10 +54,6 @@ export class LoginUserUseCase
       refreshToken,
       refreshTokenExpiresAt: unixToDate(refreshTokenPayload.exp),
     };
-  }
-
-  private generateDeviceId(): string {
-    return randomUUID();
   }
 
   private async createDeviceAuthSession(

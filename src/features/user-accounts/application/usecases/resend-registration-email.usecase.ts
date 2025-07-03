@@ -46,6 +46,8 @@ export class ResendRegistrationEmailUseCase
     const newConfirmationCode =
       await this.usersService.updateUserConfirmationCode(user);
 
+    await this.usersRepository.save(user);
+
     this.eventBus.publish(
       new ConfirmationEmailResendRequestedEvent(email, newConfirmationCode),
     );

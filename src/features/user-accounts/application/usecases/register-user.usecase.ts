@@ -1,14 +1,11 @@
-import {
-  CommandBus,
-  CommandHandler,
-  EventBus,
-  ICommandHandler,
-} from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UsersService } from '../users.service';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
-import { CreateUserCommand } from './create-user.usecase';
 import { UsersRepo } from '../../infrastructure/users.repo';
+import { CryptoService } from '../crypto.service';
+import { UserAccountsConfig } from '../../user-accounts.config';
+import { BaseCreateUser } from './common/base-create-user';
 
 export class RegisterUserCommand {
   constructor(public dto: CreateUserDto) {}
@@ -16,29 +13,29 @@ export class RegisterUserCommand {
 
 @CommandHandler(RegisterUserCommand)
 export class RegisterUserUseCase
+  extends BaseCreateUser
   implements ICommandHandler<RegisterUserCommand>
 {
   constructor(
-    private commandBus: CommandBus,
     private eventBus: EventBus,
-    private usersRepository: UsersRepo,
     private usersService: UsersService,
-  ) {}
+    usersRepository: UsersRepo,
+    cryptoService: CryptoService,
+    userAccountsConfig: UserAccountsConfig,
+  ) {
+    super(usersRepository, cryptoService, userAccountsConfig);
+  }
 
   async execute({ dto }: RegisterUserCommand): Promise<void> {
-    const createdUserId = await this.commandBus.execute<
-      CreateUserCommand,
-      number
-    >(new CreateUserCommand(dto));
-
-    const createdUser =
-      await this.usersRepository.findByIdOrInternalFail(createdUserId);
+    const user = await this.createUser(dto);
 
     const confirmationCode =
-      await this.usersService.updateUserConfirmationCode(createdUser);
+      await this.usersService.updateUserConfirmationCode(user);
+
+    await this.usersRepository.save(user);
 
     this.eventBus.publish(
-      new UserRegisteredEvent(createdUser.email, confirmationCode),
+      new UserRegisteredEvent(user.email, confirmationCode),
     );
   }
 }

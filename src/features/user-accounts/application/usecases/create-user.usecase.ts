@@ -2,9 +2,8 @@ import { CreateUserDto } from '../../dto/create-user.dto';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CryptoService } from '../crypto.service';
 import { UserAccountsConfig } from '../../user-accounts.config';
-import { BadRequestException } from '@nestjs/common';
-import { User } from '../../domain/user.entity';
 import { UsersRepo } from '../../infrastructure/users.repo';
+import { BaseCreateUser } from './common/base-create-user';
 
 export class CreateUserCommand {
   constructor(public dto: CreateUserDto) {}
@@ -12,51 +11,19 @@ export class CreateUserCommand {
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserUseCase
+  extends BaseCreateUser
   implements ICommandHandler<CreateUserCommand, number>
 {
   constructor(
-    private usersRepository: UsersRepo,
-    private cryptoService: CryptoService,
-    private userAccountsConfig: UserAccountsConfig,
-  ) {}
+    usersRepository: UsersRepo,
+    cryptoService: CryptoService,
+    userAccountsConfig: UserAccountsConfig,
+  ) {
+    super(usersRepository, cryptoService, userAccountsConfig);
+  }
 
   async execute({ dto }: CreateUserCommand): Promise<number> {
-    const userWithSameLogin = await this.usersRepository.findByLogin(dto.login);
-    if (userWithSameLogin) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'login',
-            message: 'Login is already taken',
-          },
-        ],
-      });
-    }
-
-    const userWithSameEmail = await this.usersRepository.findByEmail(dto.email);
-    if (userWithSameEmail) {
-      throw new BadRequestException({
-        errors: [
-          {
-            field: 'email',
-            message: 'Email is already taken',
-          },
-        ],
-      });
-    }
-
-    const passwordHash = await this.cryptoService.createPasswordHash(
-      dto.password,
-    );
-
-    const user = User.createInstance(
-      {
-        login: dto.login,
-        email: dto.email,
-        passwordHash,
-      },
-      this.userAccountsConfig.isUserAutomaticallyConfirmed,
-    );
+    const user = await this.createUser(dto);
 
     await this.usersRepository.save(user);
 

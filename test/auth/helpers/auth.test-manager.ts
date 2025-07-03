@@ -129,6 +129,7 @@ export class AuthTestManager {
    */
   extractRefreshCookieFromResponse(response: Response): string {
     const cookies = response.headers['set-cookie'] as unknown as string[];
+    expect(cookies).toBeDefined();
     const refreshCookie = cookies.find((c) => c.startsWith('refreshToken='));
     expect(refreshCookie).toBeDefined();
 
@@ -149,6 +150,16 @@ export class AuthTestManager {
     expect(parsed.refreshToken).toBeDefined();
 
     return parsed.refreshToken as string;
+  }
+
+  assertRefreshTokenIsDeleted(response: Response): void {
+    const cookies = response.headers['set-cookie'] as unknown as string[];
+    expect(cookies).toBeDefined();
+    const refreshCookie = cookies.find(
+      (c) =>
+        c.startsWith('refreshToken=') && c.includes('Expires=Thu, 01 Jan 1970'),
+    );
+    expect(refreshCookie).toBeDefined();
   }
 
   /**

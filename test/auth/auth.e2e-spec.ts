@@ -1670,7 +1670,7 @@ describe('auth', () => {
         await deleteAllData(app);
 
         usersLoginInput =
-          await usersCommonTestManager.getLoginInputOfGeneratedUsers(2);
+          await usersCommonTestManager.getLoginInputOfGeneratedUsers(3);
       });
 
       it('should make refresh token unusable after successful logout', async () => {
@@ -1709,6 +1709,19 @@ describe('auth', () => {
         expect(deviceSessionsAfterLogout[0].deviceId).toBe(
           jwtTestManager.extractDeviceIdFromRefreshToken(refreshToken1),
         );
+      });
+
+      it('should delete refresh token cookie after successful logout', async () => {
+        const refreshToken = await authTestManager.getNewRefreshToken(
+          usersLoginInput[2],
+        );
+
+        const response = await authTestManager.logout(
+          refreshToken,
+          HttpStatus.NO_CONTENT,
+        );
+
+        authTestManager.assertRefreshTokenIsDeleted(response);
       });
     });
   });

@@ -129,8 +129,7 @@ export class AuthController {
   async refreshToken(
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
     @Ip() ip: string | undefined,
-    @Res({ passthrough: true })
-    response: Response,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<LoginSuccessViewDto> {
     const result = await this.commandBus.execute<
       RefreshTokenCommand,
@@ -158,6 +157,7 @@ export class AuthController {
   @SkipThrottle()
   async logout(
     @ExtractUserFromRequest() user: DeviceAuthSessionContextDto,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     await this.commandBus.execute(
       new LogoutUserCommand({
@@ -165,6 +165,8 @@ export class AuthController {
         userId: user.userId,
       }),
     );
+
+    this.deleteRefreshTokenCookie(response);
   }
 
   private setRefreshTokenCookie(
@@ -176,7 +178,10 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       expires,
-      path: '/',
     });
+  }
+
+  private deleteRefreshTokenCookie(response: Response): void {
+    response.cookie('refreshToken', '', { expires: new Date(0) });
   }
 }

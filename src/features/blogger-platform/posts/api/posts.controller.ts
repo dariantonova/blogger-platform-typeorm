@@ -11,14 +11,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/api/guards/bearer/jwt-access-optional-auth.guard';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
 import { PostViewDto } from './view-dto/posts.view-dto';
 import { GetPostsQuery } from '../application/queries/get-posts.query';
 import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
 import { GetPostByIdOrNotFoundFailQuery } from '../application/queries/get-post-by-id-or-not-found-fail.query';
-import { JwtAccessAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-auth.guard';
+import { JwtAccessAuthGuard } from '../../../user-accounts/api/guards/bearer/jwt-access-auth.guard';
 import { CreatePostCommentInputDto } from './input-dto/create-post-comment.input-dto';
 import { CommentViewDto } from '../../comments/api/view-dto/comments.view-dto';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
@@ -27,9 +27,9 @@ import { CreateCommentCommand } from '../../comments/application/usecases/create
 import { GetCommentByIdOrInternalFailQuery } from '../../comments/application/queries/get-comment-by-id-or-internal-fail.query';
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakePostLikeOperationCommandWrap } from '../../likes/application/usecases/make-post-like-operation.usecase';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/api/guards/decorators/param/extract-user-if-exists-from-request';
+import { UserContextDto } from '../../../user-accounts/api/guards/dto/user-context.dto';
+import { ExtractUserFromRequest } from '../../../user-accounts/api/guards/decorators/param/extract-user-from-request';
 
 @Controller('posts')
 export class PostsController {

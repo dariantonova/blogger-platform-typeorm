@@ -1,10 +1,10 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { CoreConfig } from '../../../../core/core.config';
+import { CoreConfig } from '../../../../../core/core.config';
 import { Request } from 'express';
-import { AuthService } from '../../application/auth.service';
-import { RefreshJwtPayloadDto } from '../../dto/refresh-jwt-payload.dto';
+import { AuthService } from '../../../application/auth.service';
+import { RefreshJwtPayloadDto } from '../../../dto/refresh-jwt-payload.dto';
 import { DeviceAuthSessionContextDto } from '../dto/device-auth-session-context.dto';
 
 @Injectable()

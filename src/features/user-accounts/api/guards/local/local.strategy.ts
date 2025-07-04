@@ -5,8 +5,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { FieldError } from '../../../../core/exceptions/field-error';
-import { AuthService } from '../../application/auth.service';
+import { FieldError } from '../../../../../core/exceptions/field-error';
+import { AuthService } from '../../../application/auth.service';
 import { UserContextDto } from '../dto/user-context.dto';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UsersService } from '../users.service';
 import { CreateUserDto } from '../../dto/create-user.dto';
-import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
+import { UserRegisteredEvent } from '../events/user-registered.event';
 import { UsersRepo } from '../../infrastructure/users.repo';
 import { CryptoService } from '../crypto.service';
 import { UserAccountsConfig } from '../../user-accounts.config';

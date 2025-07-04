@@ -2,7 +2,7 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { randomBytes } from 'node:crypto';
 import { CryptoService } from '../crypto.service';
 import { UserAccountsConfig } from '../../user-accounts.config';
-import { PasswordRecoveryRequestedEvent } from '../../domain/events/password-recovery-requested.event';
+import { PasswordRecoveryRequestedEvent } from '../events/password-recovery-requested.event';
 import { UsersRepo } from '../../infrastructure/users.repo';
 
 export class RecoverPasswordCommand {

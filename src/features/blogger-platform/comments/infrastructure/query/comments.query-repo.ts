@@ -34,20 +34,6 @@ export class CommentsQueryRepo {
     return this.findManyByWhereAndQuery(whereParts, queryParams, currentUserId);
   }
 
-  async findById(
-    id: number,
-    currentUserId: number | undefined,
-  ): Promise<CommentViewRow | null> {
-    const whereParts: WherePart[] = [
-      { expression: 'c.id = :id', params: { id } },
-    ];
-
-    const queryBuilder = this.getCommentsSelectQB(currentUserId, whereParts);
-    const comment = await queryBuilder.getRawOne<CommentViewRow>();
-
-    return comment ? comment : null;
-  }
-
   async findByIdOrInternalFail(
     id: number,
     currentUserId: number | undefined,
@@ -72,6 +58,20 @@ export class CommentsQueryRepo {
     }
 
     return CommentViewDto.mapToView(comment);
+  }
+
+  private async findById(
+    id: number,
+    currentUserId: number | undefined,
+  ): Promise<CommentViewRow | null> {
+    const whereParts: WherePart[] = [
+      { expression: 'c.id = :id', params: { id } },
+    ];
+
+    const queryBuilder = this.getCommentsSelectQB(currentUserId, whereParts);
+    const comment = await queryBuilder.getRawOne<CommentViewRow>();
+
+    return comment ? comment : null;
   }
 
   private async findManyByWhereAndQuery(

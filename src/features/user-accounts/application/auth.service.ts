@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { unixToDate } from '../../../common/utils/date.util';
 import { CryptoService } from './crypto.service';
-import { UserContextDto } from '../guards/dto/user-context.dto';
+import { UserContextDto } from '../api/guards/dto/user-context.dto';
 import { AccessJwtPayloadDto } from '../dto/access-jwt-payload.dto';
 import { RefreshJwtPayloadDto } from '../dto/refresh-jwt-payload.dto';
-import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
+import { DeviceAuthSessionContextDto } from '../api/guards/dto/device-auth-session-context.dto';
 import { DeviceAuthSessionsRepo } from '../infrastructure/device-auth-sessions.repo';
 import { UsersRepo } from '../infrastructure/users.repo';
 

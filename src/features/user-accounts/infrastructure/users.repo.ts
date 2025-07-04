@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/user.entity';
 import { Repository } from 'typeorm';
@@ -32,16 +28,6 @@ export class UsersRepo {
 
     if (!user) {
       throw new NotFoundException('User not found');
-    }
-
-    return user;
-  }
-
-  async findByIdOrInternalFail(id: number): Promise<User> {
-    const user = await this.findById(id);
-
-    if (!user) {
-      throw new InternalServerErrorException('User not found');
     }
 
     return user;

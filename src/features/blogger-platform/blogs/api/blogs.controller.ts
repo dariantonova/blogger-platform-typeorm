@@ -9,9 +9,9 @@ import { BlogViewDto } from './view-dto/blogs.view-dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/posts.view-dto';
 import { GetBlogPostsQuery } from '../../posts/application/queries/get-blog-posts.query';
-import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/api/guards/bearer/jwt-access-optional-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/api/guards/decorators/param/extract-user-if-exists-from-request';
+import { UserContextDto } from '../../../user-accounts/api/guards/dto/user-context.dto';
 
 @Controller('blogs')
 export class BlogsController {

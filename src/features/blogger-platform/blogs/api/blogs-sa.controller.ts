@@ -18,7 +18,7 @@ import { BlogViewDto } from './view-dto/blogs.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query';
 import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
 import { GetBlogByIdOrNotFoundFailQuery } from '../application/queries/get-blog-by-id-or-not-found-fail.query';
-import { BasicAuthGuard } from '../../../user-accounts/guards/basic/basic-auth.guard';
+import { BasicAuthGuard } from '../../../user-accounts/api/guards/basic/basic-auth.guard';
 import { CreateBlogInputDto } from './input-dto/create-blog.input-dto';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { GetBlogByIdOrInternalFailQuery } from '../application/queries/get-blog-by-id-or-internal-fail.query';

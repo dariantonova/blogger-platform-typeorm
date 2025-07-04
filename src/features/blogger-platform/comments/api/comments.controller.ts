@@ -10,8 +10,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-optional-auth.guard';
-import { JwtAccessAuthGuard } from '../../../user-accounts/guards/bearer/jwt-access-auth.guard';
+import { JwtAccessOptionalAuthGuard } from '../../../user-accounts/api/guards/bearer/jwt-access-optional-auth.guard';
+import { JwtAccessAuthGuard } from '../../../user-accounts/api/guards/bearer/jwt-access-auth.guard';
 import { CommentViewDto } from './view-dto/comments.view-dto';
 import { UpdateCommentInputDto } from './input-dto/update-comment.input-dto';
 import { IntValidationTransformationPipe } from '../../../../core/pipes/int-validation-transformation-pipe';
@@ -20,9 +20,9 @@ import { UpdateCommentCommandWrap } from '../application/usecases/update-comment
 import { DeleteCommentCommandWrap } from '../application/usecases/delete-comment.usecase';
 import { LikeInputDto } from '../../likes/api/input-dto/like.input-dto';
 import { MakeCommentLikeOperationCommand } from '../../likes/application/usecases/make-comment-like-operation.usecase';
-import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-if-exists-from-request';
-import { UserContextDto } from '../../../user-accounts/guards/dto/user-context.dto';
-import { ExtractUserFromRequest } from '../../../user-accounts/guards/decorators/param/extract-user-from-request';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/api/guards/decorators/param/extract-user-if-exists-from-request';
+import { UserContextDto } from '../../../user-accounts/api/guards/dto/user-context.dto';
+import { ExtractUserFromRequest } from '../../../user-accounts/api/guards/decorators/param/extract-user-from-request';
 
 @Controller('comments')
 export class CommentsController {

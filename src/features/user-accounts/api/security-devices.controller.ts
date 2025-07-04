@@ -9,10 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { JwtRefreshAuthGuard } from '../guards/refresh-token/jwt-refresh-auth.guard';
+import { JwtRefreshAuthGuard } from './guards/refresh-token/jwt-refresh-auth.guard';
 import { DeviceViewDto } from './view-dto/device.view-dto';
-import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request';
-import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
+import { ExtractUserFromRequest } from './guards/decorators/param/extract-user-from-request';
+import { DeviceAuthSessionContextDto } from './guards/dto/device-auth-session-context.dto';
 import { TerminateAllOtherUserDeviceSessionsCommand } from '../application/usecases/terminate-all-other-user-device-sessions.usecase';
 import { GetUserDeviceSessionsQuery } from '../application/queries/get-user-device-sessions.query';
 import { TerminateDeviceSessionCommand } from '../application/usecases/terminate-device-session.usecase';

@@ -13,9 +13,9 @@ import {
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { Response } from 'express';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
-import { LocalAuthGuard } from '../guards/local/local-auth.guard';
-import { JwtAccessAuthGuard } from '../guards/bearer/jwt-access-auth.guard';
-import { JwtRefreshAuthGuard } from '../guards/refresh-token/jwt-refresh-auth.guard';
+import { LocalAuthGuard } from './guards/local/local-auth.guard';
+import { JwtAccessAuthGuard } from './guards/bearer/jwt-access-auth.guard';
+import { JwtRefreshAuthGuard } from './guards/refresh-token/jwt-refresh-auth.guard';
 import { LoginSuccessViewDto } from './view-dto/login-success.view-dto';
 import { AuthTokensDto } from '../dto/auth-tokens.dto';
 import { MeViewDto } from './view-dto/user.view-dto';
@@ -24,9 +24,9 @@ import { RegistrationEmailResendingInputDto } from './input-dto/registration-ema
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
 import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
 import { NewPasswordRecoveryInputDto } from './input-dto/new-password-recovery.input-dto';
-import { ExtractUserFromRequest } from '../guards/decorators/param/extract-user-from-request';
-import { UserContextDto } from '../guards/dto/user-context.dto';
-import { DeviceAuthSessionContextDto } from '../guards/dto/device-auth-session-context.dto';
+import { ExtractUserFromRequest } from './guards/decorators/param/extract-user-from-request';
+import { UserContextDto } from './guards/dto/user-context.dto';
+import { DeviceAuthSessionContextDto } from './guards/dto/device-auth-session-context.dto';
 import { LogoutUserCommand } from '../application/usecases/logout-user.usecase';
 import { LoginUserCommand } from '../application/usecases/login-user.usecase';
 import { MeQuery } from '../application/queries/me.query';

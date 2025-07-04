@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ConfirmationEmailResendRequestedEvent } from '../../user-accounts/domain/events/confirmation-email-resend-requested.event';
+import { ConfirmationEmailResendRequestedEvent } from '../../user-accounts/application/events/confirmation-email-resend-requested.event';
 import { EmailService } from '../email.service';
 
 @EventsHandler(ConfirmationEmailResendRequestedEvent)

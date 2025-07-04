@@ -4,7 +4,7 @@ import { User } from '../../domain/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/base.paginated.view-dto';
-import { UserViewDto } from '../../api/view-dto/user.view-dto';
+import { MeViewDto, UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UsersSortBy } from '../../api/input-dto/users-sort-by';
 
 import { SortDirectionSql } from '../../../../common/types/typeorm/sort-direction-sql';
@@ -47,10 +47,6 @@ export class UsersQueryRepo {
     });
   }
 
-  async findById(id: number): Promise<User | null> {
-    return this.usersRepository.findOne({ where: { id } });
-  }
-
   async findByIdOrInternalFail(id: number): Promise<UserViewDto> {
     const user = await this.findById(id);
 
@@ -59,6 +55,20 @@ export class UsersQueryRepo {
     }
 
     return UserViewDto.mapToViewEntity(user);
+  }
+
+  async me(userId: number): Promise<MeViewDto> {
+    const user = await this.findById(userId);
+
+    if (!user) {
+      throw new InternalServerErrorException('User not found');
+    }
+
+    return MeViewDto.mapToViewEntity(user);
+  }
+
+  private async findById(id: number): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
   }
 
   private validateSortQueryParams(

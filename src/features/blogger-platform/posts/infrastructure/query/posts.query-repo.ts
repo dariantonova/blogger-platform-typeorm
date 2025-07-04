@@ -41,20 +41,6 @@ export class PostsQueryRepo {
     return this.findManyByWhereAndQuery(whereParts, queryParams, currentUserId);
   }
 
-  async findById(
-    id: number,
-    currentUserId: number | undefined,
-  ): Promise<PostViewRow | null> {
-    const whereParts: WherePart[] = [
-      { expression: 'p.id = :id', params: { id } },
-    ];
-
-    const queryBuilder = this.getPostsSelectQB(currentUserId, whereParts);
-    const post = await queryBuilder.getRawOne<PostViewRow>();
-
-    return post ? post : null;
-  }
-
   async findByIdOrInternalFail(
     id: number,
     currentUserId: number | undefined,
@@ -95,6 +81,20 @@ export class PostsQueryRepo {
     if (!postExists) {
       throw new NotFoundException('Post not found');
     }
+  }
+
+  private async findById(
+    id: number,
+    currentUserId: number | undefined,
+  ): Promise<PostViewRow | null> {
+    const whereParts: WherePart[] = [
+      { expression: 'p.id = :id', params: { id } },
+    ];
+
+    const queryBuilder = this.getPostsSelectQB(currentUserId, whereParts);
+    const post = await queryBuilder.getRawOne<PostViewRow>();
+
+    return post ? post : null;
   }
 
   private async findManyByWhereAndQuery(

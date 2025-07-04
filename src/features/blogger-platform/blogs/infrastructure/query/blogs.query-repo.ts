@@ -47,10 +47,6 @@ export class BlogsQueryRepo {
     });
   }
 
-  async findById(id: number): Promise<Blog | null> {
-    return this.blogsRepository.findOne({ where: { id } });
-  }
-
   async findByIdOrInternalFail(id: number): Promise<BlogViewDto> {
     const blog = await this.findById(id);
 
@@ -69,6 +65,10 @@ export class BlogsQueryRepo {
     }
 
     return BlogViewDto.mapToViewEntity(blog);
+  }
+
+  private async findById(id: number): Promise<Blog | null> {
+    return this.blogsRepository.findOne({ where: { id } });
   }
 
   private validateSortQueryParams(

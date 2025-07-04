@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { MeViewDto } from '../../api/view-dto/user.view-dto';
-import { AuthQueryRepo } from '../../infrastructure/query/auth.query-repo';
+import { UsersQueryRepo } from '../../infrastructure/query/users.query-repo';
 
 export class MeQuery {
   constructor(public userId: number) {}
@@ -8,9 +8,9 @@ export class MeQuery {
 
 @QueryHandler(MeQuery)
 export class MeQueryHandler implements IQueryHandler<MeQuery, MeViewDto> {
-  constructor(private authQueryRepository: AuthQueryRepo) {}
+  constructor(private usersQueryRepository: UsersQueryRepo) {}
 
   async execute({ userId }: MeQuery): Promise<MeViewDto> {
-    return this.authQueryRepository.me(userId);
+    return this.usersQueryRepository.me(userId);
   }
 }

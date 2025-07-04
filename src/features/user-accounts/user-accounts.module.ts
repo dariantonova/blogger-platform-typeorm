@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { BasicStrategy } from './guards/basic/basic.strategy';
+import { BasicStrategy } from './api/guards/basic/basic.strategy';
 import { CryptoService } from './application/crypto.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { UserAccountsConfig } from './user-accounts.config';
@@ -14,9 +14,9 @@ import { BloggerPlatformModule } from '../blogger-platform/blogger-platform.modu
 import { UsersController } from './api/users.controller';
 import { AuthController } from './api/auth.controller';
 import { SecurityDevicesController } from './api/security-devices.controller';
-import { JwtAccessStrategy } from './guards/bearer/jwt-access.strategy';
-import { LocalStrategy } from './guards/local/local.strategy';
-import { JwtRefreshStrategy } from './guards/refresh-token/jwt-refresh.strategy';
+import { JwtAccessStrategy } from './api/guards/bearer/jwt-access.strategy';
+import { LocalStrategy } from './api/guards/local/local.strategy';
+import { JwtRefreshStrategy } from './api/guards/refresh-token/jwt-refresh.strategy';
 import { CreateUserUseCase } from './application/usecases/create-user.usecase';
 import { AuthService } from './application/auth.service';
 import { UsersService } from './application/users.service';
@@ -45,7 +45,6 @@ import { UsersRepo } from './infrastructure/users.repo';
 import { DeviceAuthSessionsRepo } from './infrastructure/device-auth-sessions.repo';
 import { UsersQueryRepo } from './infrastructure/query/users.query-repo';
 import { DeviceAuthSessionsQueryRepo } from './infrastructure/query/device-auth-sessions.query-repo';
-import { AuthQueryRepo } from './infrastructure/query/auth.query-repo';
 
 const controllers = [
   UsersController,
@@ -65,7 +64,6 @@ const providers = [
   DeviceAuthSessionsRepo,
   UsersQueryRepo,
   DeviceAuthSessionsQueryRepo,
-  AuthQueryRepo,
 ];
 const queryHandlers = [
   GetUserByIdOrInternalFailQueryHandler,

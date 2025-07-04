@@ -1,4 +1,3 @@
-import { DeviceAuthSessionViewRow } from '../../infrastructure/query/dto/device-auth-session.view-row';
 import { DeviceAuthSession } from '../../domain/device-auth-session.entity';
 
 export class DeviceViewDto {
@@ -6,17 +5,6 @@ export class DeviceViewDto {
   title: string;
   lastActiveDate: string;
   deviceId: string;
-
-  static mapToView(row: DeviceAuthSessionViewRow): DeviceViewDto {
-    const dto = new DeviceViewDto();
-
-    dto.ip = row.ip;
-    dto.title = row.device_name;
-    dto.lastActiveDate = row.iat.toISOString();
-    dto.deviceId = row.device_id;
-
-    return dto;
-  }
 
   static mapToViewEntity(entity: DeviceAuthSession): DeviceViewDto {
     const dto = new DeviceViewDto();

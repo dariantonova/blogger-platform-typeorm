@@ -1,4 +1,3 @@
-import { BlogViewRow } from '../../infrastructure/query/dto/blog.view-row';
 import { Blog } from '../../domain/blog.entity';
 
 export class BlogViewDto {
@@ -8,19 +7,6 @@ export class BlogViewDto {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
-
-  static mapToView(row: BlogViewRow): BlogViewDto {
-    const dto = new BlogViewDto();
-
-    dto.id = row.id.toString();
-    dto.name = row.name;
-    dto.description = row.description;
-    dto.websiteUrl = row.website_url;
-    dto.createdAt = row.created_at.toISOString();
-    dto.isMembership = row.is_membership;
-
-    return dto;
-  }
 
   static mapToViewEntity(entity: Blog): BlogViewDto {
     const dto = new BlogViewDto();

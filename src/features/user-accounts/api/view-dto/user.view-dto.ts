@@ -1,5 +1,4 @@
 import { OmitType } from '@nestjs/swagger';
-import { UserViewRow } from '../../infrastructure/query/dto/user.view-row';
 import { User } from '../../domain/user.entity';
 
 export class UserViewDto {
@@ -7,17 +6,6 @@ export class UserViewDto {
   login: string;
   email: string;
   createdAt: string;
-
-  static mapToView(row: UserViewRow): UserViewDto {
-    const dto = new UserViewDto();
-
-    dto.id = row.id.toString();
-    dto.login = row.login;
-    dto.email = row.email;
-    dto.createdAt = row.created_at.toISOString();
-
-    return dto;
-  }
 
   static mapToViewEntity(entity: User): UserViewDto {
     const dto = new UserViewDto();
@@ -36,16 +24,6 @@ export class MeViewDto extends OmitType(UserViewDto, [
   'id',
 ] as const) {
   userId: string;
-
-  static mapToView(row: UserViewRow): MeViewDto {
-    const dto = new MeViewDto();
-
-    dto.userId = row.id.toString();
-    dto.login = row.login;
-    dto.email = row.email;
-
-    return dto;
-  }
 
   static mapToViewEntity(entity: User): MeViewDto {
     const dto = new MeViewDto();

@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/user.entity';
 import { ILike, Repository } from 'typeorm';
@@ -8,6 +8,8 @@ import { MeViewDto, UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UsersSortBy } from '../../api/input-dto/users-sort-by';
 
 import { SortDirectionSql } from '../../../../common/types/typeorm/sort-direction-sql';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class UsersQueryRepo {
@@ -51,7 +53,10 @@ export class UsersQueryRepo {
     const user = await this.findById(id);
 
     if (!user) {
-      throw new InternalServerErrorException('User not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'User not found',
+      });
     }
 
     return UserViewDto.mapToViewEntity(user);
@@ -61,7 +66,10 @@ export class UsersQueryRepo {
     const user = await this.findById(userId);
 
     if (!user) {
-      throw new InternalServerErrorException('User not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'User not found',
+      });
     }
 
     return MeViewDto.mapToViewEntity(user);

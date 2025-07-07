@@ -5,6 +5,8 @@ import { Post } from '../../posts/domain/post.entity';
 import { User } from '../../../user-accounts/domain/user.entity';
 import { CreatePostLikeDomainDto } from './dto/create-post-like.domain-dto';
 import { UpdateLikeDomainDto } from './dto/update-like.domain.dto';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'post_likes' })
 @Unique(['postId', 'userId'])
@@ -39,7 +41,10 @@ export class PostLike extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Post like is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Post like is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

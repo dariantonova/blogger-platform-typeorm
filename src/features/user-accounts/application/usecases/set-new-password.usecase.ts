@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException } from '@nestjs/common';
 import { CryptoService } from '../crypto.service';
 import { UsersRepo } from '../../infrastructure/users.repo';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 export class SetNewPasswordCommand {
   constructor(
@@ -31,8 +32,10 @@ export class SetNewPasswordUseCase
         recoveryCodeHash,
       );
     if (!user) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'recoveryCode',
             message: 'Recovery code is incorrect',
@@ -42,8 +45,10 @@ export class SetNewPasswordUseCase
     }
 
     if (new Date() > user.passwordRecoveryInfo!.expirationDate) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'recoveryCode',
             message: 'Recovery code is expired',

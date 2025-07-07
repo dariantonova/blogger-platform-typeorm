@@ -5,6 +5,8 @@ import { User } from '../../../user-accounts/domain/user.entity';
 import { Comment } from '../../comments/domain/comment.entity';
 import { CreateCommentLikeDomainDto } from './dto/create-comment-like.domain-dto';
 import { UpdateLikeDomainDto } from './dto/update-like.domain.dto';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'comment_likes' })
 @Unique(['commentId', 'userId'])
@@ -39,7 +41,10 @@ export class CommentLike extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Comment like is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Comment like is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

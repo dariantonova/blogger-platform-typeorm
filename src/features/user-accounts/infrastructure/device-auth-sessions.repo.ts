@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeviceAuthSession } from '../domain/device-auth-session.entity';
 import { Not, Repository } from 'typeorm';
+import { DomainException } from '../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class DeviceAuthSessionsRepo {
@@ -40,7 +42,10 @@ export class DeviceAuthSessionsRepo {
     const session = await this.findByDeviceIdAndUserId(deviceId, userId);
 
     if (!session) {
-      throw new Error('Device auth session not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Device auth session not found',
+      });
     }
 
     return session;

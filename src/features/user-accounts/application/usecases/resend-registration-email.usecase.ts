@@ -1,8 +1,9 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException } from '@nestjs/common';
 import { UsersService } from '../users.service';
 import { ConfirmationEmailResendRequestedEvent } from '../events/confirmation-email-resend-requested.event';
 import { UsersRepo } from '../../infrastructure/users.repo';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 export class ResendRegistrationEmailCommand {
   constructor(public email: string) {}
@@ -22,8 +23,10 @@ export class ResendRegistrationEmailUseCase
     const user = await this.usersRepository.findByEmail(email);
 
     if (!user) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'email',
             message: 'User with specified email does not exist',
@@ -33,8 +36,10 @@ export class ResendRegistrationEmailUseCase
     }
 
     if (user.confirmationInfo.isConfirmed) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'email',
             message: 'User is already confirmed',

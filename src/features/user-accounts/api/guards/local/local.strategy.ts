@@ -1,13 +1,11 @@
 import { Strategy } from 'passport-local';
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { FieldError } from '../../../../../core/exceptions/field-error';
 import { AuthService } from '../../../application/auth.service';
 import { UserContextDto } from '../dto/user-context.dto';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
@@ -20,7 +18,10 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
 
     const user = await this.authService.validateUser(username, password);
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: 'Invalid credentials',
+      });
     }
     return user;
   }
@@ -57,7 +58,11 @@ export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
     }
 
     if (errors.length !== 0) {
-      throw new BadRequestException({ errors });
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Invalid credentials',
+        extensions: errors,
+      });
     }
   }
 }

@@ -1,7 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ForbiddenException } from '@nestjs/common';
 import { UpdateCommentDto } from '../../dto/update-comment.dto';
 import { CommentsRepo } from '../../infrastructure/comments.repo';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 export class UpdateCommentCommandWrap {
   constructor(
@@ -26,7 +27,10 @@ export class UpdateCommentUseCaseWrap
       await this.commentsRepository.findByIdOrNotFoundFail(commentId);
 
     if (currentUserId !== comment.userId) {
-      throw new ForbiddenException();
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        message: 'Forbidden',
+      });
     }
 
     comment.update(dto);

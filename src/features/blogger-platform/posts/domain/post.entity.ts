@@ -3,6 +3,8 @@ import { BaseEntity } from '../../../common/domain/base.entity';
 import { Blog } from '../../blogs/domain/blog.entity';
 import { CreatePostDto } from '../dto/create-post.dto';
 import { UpdatePostDomainDto } from './dto/update-post.domain.dto';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'posts' })
 export class Post extends BaseEntity {
@@ -37,7 +39,10 @@ export class Post extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Post is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Post is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

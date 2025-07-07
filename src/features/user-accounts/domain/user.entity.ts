@@ -3,6 +3,8 @@ import { BaseEntity } from '../../common/domain/base.entity';
 import { UserConfirmation } from './user-confirmation.entity';
 import { PasswordRecovery } from './password-recovery.entity';
 import { CreateUserDomainDto } from './dto/create-user.domain.dto';
+import { DomainException } from '../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'users' })
 export class User extends BaseEntity {
@@ -47,7 +49,10 @@ export class User extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('User is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'User is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

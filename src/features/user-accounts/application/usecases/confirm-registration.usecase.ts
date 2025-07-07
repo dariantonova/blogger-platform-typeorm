@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException } from '@nestjs/common';
 import { UsersRepo } from '../../infrastructure/users.repo';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 export class ConfirmRegistrationCommand {
   constructor(public confirmationCode: string) {}
@@ -18,8 +19,10 @@ export class ConfirmRegistrationUseCase
     const user =
       await this.usersRepository.findByConfirmationCode(confirmationCode);
     if (!user) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'code',
             message: 'Confirmation code is incorrect',
@@ -29,8 +32,10 @@ export class ConfirmRegistrationUseCase
     }
 
     if (user.confirmationInfo.isConfirmed) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'code',
             message: 'Confirmation code has already been applied',
@@ -40,8 +45,10 @@ export class ConfirmRegistrationUseCase
     }
 
     if (new Date() > user.confirmationInfo.expirationDate!) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'code',
             message: 'Confirmation code is expired',

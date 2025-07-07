@@ -3,7 +3,8 @@ import { CryptoService } from '../../crypto.service';
 import { UserAccountsConfig } from '../../../user-accounts.config';
 import { CreateUserDto } from '../../../dto/create-user.dto';
 import { User } from '../../../domain/user.entity';
-import { BadRequestException } from '@nestjs/common';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 export abstract class BaseCreateUser {
   protected constructor(
@@ -15,8 +16,10 @@ export abstract class BaseCreateUser {
   protected async createUser(dto: CreateUserDto): Promise<User> {
     const userWithSameLogin = await this.usersRepository.findByLogin(dto.login);
     if (userWithSameLogin) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'login',
             message: 'Login is already taken',
@@ -27,8 +30,10 @@ export abstract class BaseCreateUser {
 
     const userWithSameEmail = await this.usersRepository.findByEmail(dto.email);
     if (userWithSameEmail) {
-      throw new BadRequestException({
-        errors: [
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: 'Bad request',
+        extensions: [
           {
             field: 'email',
             message: 'Email is already taken',

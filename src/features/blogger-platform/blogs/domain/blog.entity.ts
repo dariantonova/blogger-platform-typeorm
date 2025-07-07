@@ -2,6 +2,8 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../common/domain/base.entity';
 import { CreateBlogDto } from '../dto/create-blog.dto';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'blogs' })
 export class Blog extends BaseEntity {
@@ -33,7 +35,10 @@ export class Blog extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Blog is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Blog is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

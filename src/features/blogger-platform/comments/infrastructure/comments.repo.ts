@@ -1,8 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Comment } from '../domain/comment.entity';
 import { DataSource, In, IsNull, Repository } from 'typeorm';
 import { Post } from '../../posts/domain/post.entity';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class CommentsRepo {
@@ -23,7 +25,10 @@ export class CommentsRepo {
     const comment = await this.findById(id);
 
     if (!comment) {
-      throw new NotFoundException('Comment not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Comment not found',
+      });
     }
 
     return comment;

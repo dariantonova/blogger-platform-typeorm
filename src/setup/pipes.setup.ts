@@ -1,10 +1,11 @@
 import {
-  BadRequestException,
   INestApplication,
   ValidationError,
   ValidationPipe,
 } from '@nestjs/common';
 import { FieldError } from '../core/exceptions/field-error';
+import { DomainException } from '../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../core/exceptions/domain-exception-code';
 
 const formatErrors = (errors: ValidationError[]): FieldError[] => {
   const errorsForResponse: FieldError[] = [];
@@ -28,7 +29,11 @@ export function pipesSetup(app: INestApplication) {
       stopAtFirstError: true,
       exceptionFactory: (errors) => {
         const formattedErrors = formatErrors(errors);
-        throw new BadRequestException({ errors: formattedErrors });
+        throw new DomainException({
+          code: DomainExceptionCode.BadRequest,
+          message: 'Bad request',
+          extensions: formattedErrors,
+        });
       },
     }),
   );

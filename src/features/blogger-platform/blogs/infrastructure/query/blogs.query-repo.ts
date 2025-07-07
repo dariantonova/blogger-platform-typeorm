@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../../domain/blog.entity';
 import { ILike, Repository } from 'typeorm';
@@ -12,6 +8,8 @@ import { BlogViewDto } from '../../api/view-dto/blogs.view-dto';
 import { BlogsSortBy } from '../../api/input-dto/blogs-sort-by';
 
 import { SortDirectionSql } from '../../../../../common/types/typeorm/sort-direction-sql';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class BlogsQueryRepo {
@@ -51,7 +49,10 @@ export class BlogsQueryRepo {
     const blog = await this.findById(id);
 
     if (!blog) {
-      throw new InternalServerErrorException('Blog not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Blog not found',
+      });
     }
 
     return BlogViewDto.mapToViewEntity(blog);
@@ -61,7 +62,10 @@ export class BlogsQueryRepo {
     const blog = await this.findById(id);
 
     if (!blog) {
-      throw new NotFoundException('Blog not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Blog not found',
+      });
     }
 
     return BlogViewDto.mapToViewEntity(blog);

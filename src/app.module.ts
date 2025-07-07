@@ -7,17 +7,34 @@ import { BloggerPlatformModule } from './features/blogger-platform/blogger-platf
 import { TestingModule } from './features/testing/testing.module';
 import { CoreConfig, Environment } from './core/core.config';
 import { CoreModule } from './core/core.module';
-import { ErrorExceptionFilter } from './core/exceptions/filters/error-exceptions.filter';
 import { NotificationsModule } from './features/notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
+import { DomainExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
+import { HttpExceptionsFilter } from './core/exceptions/filters/http-exceptions.filter';
 
 @Module({
   imports: [CoreModule, configModule],
   controllers: [AppController],
-  providers: [AppService, ErrorExceptionFilter],
+  providers: [
+    AppService,
+    {
+      provide: APP_FILTER,
+      useClass: AllExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionsFilter,
+    },
+    {
+      provide: APP_FILTER,
+      useClass: DomainExceptionsFilter,
+    },
+  ],
 })
 export class AppModule {
   static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {

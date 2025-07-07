@@ -1,6 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { DeviceAuthSessionsRepo } from '../../infrastructure/device-auth-sessions.repo';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 export class TerminateDeviceSessionCommand {
   constructor(public dto: { deviceId: string; currentUserId: number }) {}
@@ -17,14 +18,20 @@ export class TerminateDeviceSessionUseCase
       await this.deviceAuthSessionsRepository.findManyByDeviceId(dto.deviceId);
 
     if (!deviceSessions.length) {
-      throw new NotFoundException('Device auth session not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Device auth session not found',
+      });
     }
 
     const sessionOfCurrentUser = deviceSessions.find(
       (s) => s.userId === dto.currentUserId,
     );
     if (!sessionOfCurrentUser) {
-      throw new ForbiddenException();
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        message: 'Forbidden',
+      });
     }
 
     await this.deviceAuthSessionsRepository.deleteByDeviceIdAndUserId(

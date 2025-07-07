@@ -1,8 +1,6 @@
-import {
-  ArgumentMetadata,
-  NotFoundException,
-  PipeTransform,
-} from '@nestjs/common';
+import { ArgumentMetadata, PipeTransform } from '@nestjs/common';
+import { DomainException } from '../exceptions/domain-exception';
+import { DomainExceptionCode } from '../exceptions/domain-exception-code';
 
 export class IntValidationTransformationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata): any {
@@ -11,7 +9,10 @@ export class IntValidationTransformationPipe implements PipeTransform {
     }
 
     if (!Number.isInteger(parseInt(value))) {
-      throw new NotFoundException('Invalid integer: ' + value);
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Invalid integer: ' + value,
+      });
     }
 
     return Number(value);

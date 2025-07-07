@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { WherePart } from '../../../../../common/types/typeorm/where-part';
@@ -17,6 +13,8 @@ import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-
 import { CommentsSortBy } from '../../api/input-dto/comments-sort-by';
 import { CtePart } from '../../../../../common/types/typeorm/cte-part';
 import { CommentLike } from '../../../likes/domain/comment-like.entity';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class CommentsQueryRepo {
@@ -41,7 +39,10 @@ export class CommentsQueryRepo {
     const comment = await this.findById(id, currentUserId);
 
     if (!comment) {
-      throw new InternalServerErrorException('Comment not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Comment not found',
+      });
     }
 
     return CommentViewDto.mapToView(comment);
@@ -54,7 +55,10 @@ export class CommentsQueryRepo {
     const comment = await this.findById(id, currentUserId);
 
     if (!comment) {
-      throw new NotFoundException('Comment not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Comment not found',
+      });
     }
 
     return CommentViewDto.mapToView(comment);

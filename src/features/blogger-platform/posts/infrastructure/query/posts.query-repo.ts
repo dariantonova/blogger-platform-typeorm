@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, SelectQueryBuilder } from 'typeorm';
 import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
@@ -17,6 +13,8 @@ import { CtePart } from '../../../../../common/types/typeorm/cte-part';
 import { SortDirectionSql } from '../../../../../common/types/typeorm/sort-direction-sql';
 import { addWherePartsToQueryBuilder } from '../../../../../common/utils/typeorm/add-where-parts-to-query-builder';
 import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
+import { DomainException } from '../../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 
 @Injectable()
 export class PostsQueryRepo {
@@ -48,7 +46,10 @@ export class PostsQueryRepo {
     const post = await this.findById(id, currentUserId);
 
     if (!post) {
-      throw new InternalServerErrorException('Post not found');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Post not found',
+      });
     }
 
     return PostViewDto.mapToView(post);
@@ -61,7 +62,10 @@ export class PostsQueryRepo {
     const post = await this.findById(id, currentUserId);
 
     if (!post) {
-      throw new NotFoundException('Post not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Post not found',
+      });
     }
 
     return PostViewDto.mapToView(post);
@@ -79,7 +83,10 @@ export class PostsQueryRepo {
     const postExists = await this.checkPostExists(postId);
 
     if (!postExists) {
-      throw new NotFoundException('Post not found');
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: 'Post not found',
+      });
     }
   }
 

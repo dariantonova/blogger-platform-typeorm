@@ -4,6 +4,8 @@ import { Post } from '../../posts/domain/post.entity';
 import { User } from '../../../user-accounts/domain/user.entity';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { DomainException } from '../../../../core/exceptions/domain-exception';
+import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-code';
 
 @Entity({ name: 'comments' })
 export class Comment extends BaseEntity {
@@ -37,7 +39,10 @@ export class Comment extends BaseEntity {
 
   makeDeleted() {
     if (this.deletedAt !== null) {
-      throw new Error('Comment is already deleted');
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'Comment is already deleted',
+      });
     }
     this.deletedAt = new Date();
   }

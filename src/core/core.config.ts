@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { configValidationUtility } from './config-validation.utility';
+import { configValidationUtility } from '../common/utils/config-validation.utility';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 
 export enum Environment {

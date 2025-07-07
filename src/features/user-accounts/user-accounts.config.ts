@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
-import { configValidationUtility } from '../../core/config-validation.utility';
+import { configValidationUtility } from '../../common/utils/config-validation.utility';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

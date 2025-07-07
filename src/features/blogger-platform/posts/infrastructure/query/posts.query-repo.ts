@@ -11,8 +11,8 @@ import { PostViewRow } from './dto/post.view-row';
 import { WherePart } from '../../../../../common/types/typeorm/where-part';
 import { CtePart } from '../../../../../common/types/typeorm/cte-part';
 import { SortDirectionSql } from '../../../../../common/types/typeorm/sort-direction-sql';
-import { addWherePartsToQueryBuilder } from '../../../../../common/utils/typeorm/add-where-parts-to-query-builder';
-import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case';
+import { addWherePartsToQueryBuilder } from '../../../../../common/utils/typeorm/add-where-parts-to-query-builder.util';
+import { camelCaseToSnakeCase } from '../../../../../common/utils/camel-case-to-snake-case.util';
 import { DomainException } from '../../../../../core/exceptions/domain-exception';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-code';
 

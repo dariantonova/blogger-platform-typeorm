@@ -51,7 +51,7 @@ export class AppModule {
             database: coreConfig.pgDbName,
             autoLoadEntities: true,
             synchronize: true,
-            logging: true,
+            logging: coreConfig.env !== Environment.PRODUCTION,
             namingStrategy: new SnakeNamingStrategy(),
           };
         },

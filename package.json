@@ -17,7 +17,11 @@
     "test:watch": "cross-env NODE_ENV=testing jest --watch",
     "test:cov": "cross-env NODE_ENV=testing jest --coverage",
     "test:debug": "cross-env NODE_ENV=testing node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json"
+    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json",
+    "add-empty-migration": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:create ./src/db/migrations/empty",
+    "apply-migrations": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:run -d ./src/db/migrations-data-source.ts",
+    "generate-migration": "yarn apply-migrations && node ./src/db/tools/generate-migration.js",
+    "revert-migration": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:revert -d ./src/db/migrations-data-source.ts"
   },
   "dependencies": {
     "@mapbox/node-pre-gyp": "^2.0.0",

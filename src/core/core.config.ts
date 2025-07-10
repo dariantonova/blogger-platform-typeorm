@@ -55,6 +55,18 @@ export class CoreConfig {
   })
   pgDbName: string;
 
+  @IsBoolean({
+    message:
+      'Set Env variable DB_LOGGING to enable/disable dangerous for production TypeORM SQL query logging, example: true, available values: true, false',
+  })
+  dbLogging: boolean;
+
+  @IsBoolean({
+    message:
+      'Set Env variable DB_AUTOSYNC to enable/disable dangerous for production auto synchronization, example: true, available values: true, false',
+  })
+  dbAutosync: boolean;
+
   @IsNotEmpty({
     message:
       'Set Env variable MAIL_TRANSPORT, example: smtps://user@yandex.ru:pass@smtp.yandex.ru',
@@ -141,6 +153,14 @@ export class CoreConfig {
     this.pgPassword = this.configService.get('PG_PASSWORD') as string;
 
     this.pgDbName = this.configService.get('PG_DB_NAME') as string;
+
+    this.dbLogging = configValidationUtility.convertToBoolean(
+      this.configService.get('DB_LOGGING'),
+    ) as boolean;
+
+    this.dbAutosync = configValidationUtility.convertToBoolean(
+      this.configService.get('DB_AUTOSYNC'),
+    ) as boolean;
 
     this.mailTransport = this.configService.get('MAIL_TRANSPORT') as string;
 

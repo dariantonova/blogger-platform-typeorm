@@ -11,11 +11,11 @@ import { NotificationsModule } from './features/notifications/notifications.modu
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { DomainExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
 import { HttpExceptionsFilter } from './core/exceptions/filters/http-exceptions.filter';
+import { options } from './db/options';
 
 @Module({
   imports: [CoreModule, configModule],
@@ -39,22 +39,9 @@ import { HttpExceptionsFilter } from './core/exceptions/filters/http-exceptions.
 export class AppModule {
   static async forRoot(coreConfig: CoreConfig): Promise<DynamicModule> {
     const modules: any[] = [
-      TypeOrmModule.forRootAsync({
-        inject: [CoreConfig],
-        useFactory: (coreConfig: CoreConfig) => {
-          return {
-            type: 'postgres',
-            host: coreConfig.pgHost,
-            port: coreConfig.pgPort,
-            username: coreConfig.pgUsername,
-            password: coreConfig.pgPassword,
-            database: coreConfig.pgDbName,
-            autoLoadEntities: true,
-            synchronize: true,
-            logging: coreConfig.env !== Environment.PRODUCTION,
-            namingStrategy: new SnakeNamingStrategy(),
-          };
-        },
+      TypeOrmModule.forRoot({
+        ...options,
+        autoLoadEntities: true,
       }),
       ServeStaticModule.forRootAsync({
         inject: [CoreConfig],

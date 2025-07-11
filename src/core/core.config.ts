@@ -67,6 +67,12 @@ export class CoreConfig {
   })
   dbAutosync: boolean;
 
+  @IsBoolean({
+    message:
+      'Set Env variable DB_USE_SSL to enable/disable SSL/TLS connection to the database, example: true, available values: true, false',
+  })
+  dbUseSsl: boolean;
+
   @IsNotEmpty({
     message:
       'Set Env variable MAIL_TRANSPORT, example: smtps://user@yandex.ru:pass@smtp.yandex.ru',
@@ -160,6 +166,10 @@ export class CoreConfig {
 
     this.dbAutosync = configValidationUtility.convertToBoolean(
       this.configService.get('DB_AUTOSYNC'),
+    ) as boolean;
+
+    this.dbUseSsl = configValidationUtility.convertToBoolean(
+      process.env.DB_USE_SSL,
     ) as boolean;
 
     this.mailTransport = this.configService.get('MAIL_TRANSPORT') as string;

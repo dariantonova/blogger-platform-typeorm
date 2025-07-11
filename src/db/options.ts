@@ -14,4 +14,5 @@ export const options: DataSourceOptions = {
   synchronize: dbConfig.dbAutosync,
   logging: dbConfig.dbLogging,
   namingStrategy: new SnakeNamingStrategy(),
+  ssl: dbConfig.dbUseSsl,
 };

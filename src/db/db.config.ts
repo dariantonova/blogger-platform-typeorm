@@ -42,6 +42,12 @@ export class DbConfig {
   })
   dbAutosync: boolean;
 
+  @IsBoolean({
+    message:
+      'Set Env variable DB_USE_SSL to enable/disable SSL/TLS connection to the database, example: true, available values: true, false',
+  })
+  dbUseSsl: boolean;
+
   private initializeConfigValues() {
     this.pgHost = process.env.PG_HOST as string;
 
@@ -61,6 +67,10 @@ export class DbConfig {
 
     this.dbAutosync = configValidationUtility.convertToBoolean(
       process.env.DB_AUTOSYNC,
+    ) as boolean;
+
+    this.dbUseSsl = configValidationUtility.convertToBoolean(
+      process.env.DB_USE_SSL,
     ) as boolean;
   }
 
